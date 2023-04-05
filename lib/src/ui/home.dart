@@ -1,0 +1,67 @@
+import 'package:deckinspectors/src/ui/login.dart';
+import 'package:deckinspectors/src/ui/offlinemode.dart';
+import 'package:deckinspectors/src/ui/projects.dart';
+import 'package:deckinspectors/src/ui/settings.dart';
+// import 'package:google_fonts/google_fonts.dart';
+//import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class HomePage extends StatefulWidget{
+  const HomePage({Key? key}) : super(key: key);
+  
+  @override
+  State<HomePage> createState()=>_HomePageState();
+}
+
+class _HomePageState extends State<HomePage>{
+  
+  int _currentIndex = 0;
+
+  final pages =[
+    const Center(child: ProjectsPage()),
+    const Center(child: OfflineModePage()),
+    const Center(child: SettingssPage()),
+    const Center(child: LoginPage()),
+  ];
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(      
+      body: pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        iconSize: 30,
+        selectedFontSize: 16,
+        unselectedFontSize: 14,
+        fixedColor: Colors.blue, 
+        unselectedItemColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFF3F3F3F),
+        items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+              // backgroundColor: Colors.orange
+              ),
+              BottomNavigationBarItem(
+              icon: Icon(Icons.wifi_off),
+              label: 'Offline',
+              // backgroundColor: Colors.blueAccent
+              ),BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label:'Settings',
+              // backgroundColor: Colors.blue
+              ),BottomNavigationBarItem(
+              icon: Icon(Icons.logout),
+              label:'Logout',
+              // backgroundColor: Colors.orangeAccent
+              )
+      ],
+      onTap: (index) {
+        setState((){
+          _currentIndex = index;
+        });
+      }),
+    );
+  }
+}
