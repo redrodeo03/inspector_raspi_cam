@@ -5,6 +5,7 @@ import 'package:deckinspectors/src/resources/user_provider.dart';
 
 import '../models/login_response.dart';
 import 'location_api_provider.dart';
+import 'section_api_provider.dart';
 import 'subproject_api_provider.dart';
 
 class Repository {
@@ -30,6 +31,17 @@ Future<Object> getLocation(String id) =>
   Future<Object> deleteLocation(Object projectObject, String id) =>
       locationApiProvider.deleteLocation(projectObject, id);
 
+  //Sections
+        final sectionApiProvider = SectionsApiProvider();
+Future<Object> getSection(String id) =>
+      sectionApiProvider.getSection(id);
+  Future<Object> addSection(Object requestBody) =>
+      sectionApiProvider.addSection(requestBody);
+  Future<Object> updateSection(Object projectObject, String id) =>
+      sectionApiProvider.updateSection(projectObject, id);
+  Future<Object> deleteSection(Object projectObject, String id) =>
+      sectionApiProvider.deleteSection(projectObject, id);
+
       //SubProject
   final subProjectApiProvider = SubProjectApiProvider();
 Future<Object> getSubProject(String id) =>
@@ -40,6 +52,8 @@ Future<Object> getSubProject(String id) =>
       subProjectApiProvider.updateSubProject(projectObject, id);
   Future<Object> deleteSubProject(Object projectObject, String id) =>
       subProjectApiProvider.deleteSubProject(projectObject, id);
+
+  
 
   //Users
   final usersApiProvider = UsersApiProvider();

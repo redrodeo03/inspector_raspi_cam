@@ -46,9 +46,9 @@ class VisualSection {
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = true;
   String? conditionalassessment;
-  int eee = 1;
-  int lbc = 1;
-  int awe = 1;
+  String eee = 'one';
+  String lbc = 'one';
+  String awe = 'one';
   String? parentid;
 
   String? createdby;

@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+import '../models/exteriorelements.dart';
+import '../models/section_model.dart';
+import '../models/success_response.dart';
+import '../bloc/section_bloc.dart';
 
 class SectionPage extends StatefulWidget {
-  const SectionPage({Key? key}) : super(key: key);
-
+  final VisualSection currentVisualSection;
+  final String userFullName;
+  const SectionPage(this.currentVisualSection, this.userFullName, {Key? key})
+      : super(key: key);
+  //VisualSection currentSection;
   @override
   State<SectionPage> createState() => _SectionPageState();
 }
@@ -12,25 +20,35 @@ class _SectionPageState extends State<SectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: const Color(0xFF3F3F3F),
+            leadingWidth: 20,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Location Name',
-                  style: TextStyle(color: Colors.blue),
+                  'Locations',
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                ),
+                const Text(
+                  'Details',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.normal),
                 ),
                 InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      save(context);
+                    },
                     child: const Chip(
                       avatar: Icon(
                         Icons.save_outlined,
-                        color: Color(0xFF3F3F3F),
+                        color: Colors.black,
                       ),
                       labelPadding: EdgeInsets.all(2),
                       label: Text(
                         'Save Location',
-                        style: TextStyle(color: Color(0xFF3F3F3F)),
+                        style: TextStyle(color: Colors.black),
                         selectionColor: Colors.white,
                       ),
                       shadowColor: Colors.blue,
@@ -42,40 +60,96 @@ class _SectionPageState extends State<SectionPage> {
             )),
         body: SingleChildScrollView(
           child: Column(
-            children: const [
-              SectionForm(),
+            children: [
+              sectionForm(context),
             ],
           ),
         ));
   }
-}
 
-// Create a Form widget.
-class SectionForm extends StatefulWidget {
-  const SectionForm({super.key});
-
+  String userFullName = "";
+  late VisualSection currentVisualSection;
+  bool isNewSection = true;
   @override
-  SectionFormState createState() {
-    return SectionFormState();
+  void initState() {
+    currentVisualSection = widget.currentVisualSection;
+    userFullName = widget.userFullName;
+    if (currentVisualSection.id != null) {
+    _nameController.text = currentVisualSection.name as String;
+    _concernsController.text =
+        currentVisualSection.additionalconsiderations as String;
+        isNewSection=false;
+    }
+    super.initState();
   }
-}
 
-// Create a corresponding State class.
-// This class holds data related to the form.
-class SectionFormState extends State<SectionForm> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a GlobalKey<FormState>,
-  // not a GlobalKey<MyCustomFormState>.
+  final TextEditingController _nameController = TextEditingController(text: '');
+  final TextEditingController _concernsController =
+      TextEditingController(text: '');
+  save(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      // If the form is valid, display a snackbar. In the real world,
+      // you'd often call a server or save the information in a database.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saving Location...')),
+      );
+      currentVisualSection.name = _nameController.text;
+      currentVisualSection.additionalconsiderations = _concernsController.text;
+      currentVisualSection.exteriorelements =
+          selectedExteriorelements.map((element) => element.name).toList();
+      currentVisualSection.waterproofingelements =
+          selectedWaterproofingElements.map((element) => element.name).toList();
+      currentVisualSection.visualreview = _review!.name;
+      currentVisualSection.conditionalassessment = _assessment!.name;
+      currentVisualSection.eee = _eee!.name;
+      currentVisualSection.lbc = _lbc!.name;
+      currentVisualSection.awe = _awe!.name;
+      currentVisualSection.furtherinvasivereviewrequired =
+          invasiveReviewRequired;
+      currentVisualSection.visualsignsofleak = hasSignsOfLeak;
+
+      if (isNewSection) {
+        currentVisualSection.createdby = userFullName;
+      } else {
+        currentVisualSection.lasteditedby = userFullName;
+      }
+
+      //TODO : Set image URL
+
+      Object result;
+      if (currentVisualSection.id==null) {
+        result = await sectionsBloc.addSection(currentVisualSection);
+      } else {
+        result = await sectionsBloc.updateSection(currentVisualSection);
+      }
+
+      if (!mounted) {
+        return;
+      }
+      if (result is SuccessResponse) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location saved successfully.')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save the location.')),
+        );
+      }
+
+      //Navigator.pop(context);
+    }
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   bool hasSignsOfLeak = false;
   bool invasiveReviewRequired = false;
-  @override
-  Widget build(BuildContext context) {
+
+  Widget sectionForm(BuildContext context) {
     // Build a Form widget using the _formKey created above.
-    return Form(
+
+    return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+     child:Form(
         key: _formKey,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -87,8 +161,8 @@ class SectionFormState extends State<SectionForm> {
               const SizedBox(
                 height: 8,
               ),
-              inputWidgetwithValidation(
-                  'Location Name', 'Please enter location name', 1),
+              inputWidgetwithValidation('Location Name',
+                  'Please enter location name', 1, _nameController),
               const SizedBox(
                 height: 4,
               ),
@@ -101,12 +175,12 @@ class SectionFormState extends State<SectionForm> {
                       child: const Chip(
                         avatar: Icon(
                           Icons.add_a_photo_outlined,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                         labelPadding: EdgeInsets.all(2),
                         label: Text(
                           'Add Photos',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black),
                         ),
                         shadowColor: Colors.blue,
                         backgroundColor: Colors.blue,
@@ -154,32 +228,41 @@ class SectionFormState extends State<SectionForm> {
                     'Exterior Elements',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '0 Selected',
-                        style: TextStyle(
-                            color: Colors.blue, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        child: const Icon(
+                  InkWell(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${selectedExteriorelements.length} Selected',
+                          style: const TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Icon(
                           Icons.arrow_forward_ios_outlined,
                           size: 14,
                           color: Colors.blue,
                         ),
-                        onTap: () {},
-                      ),
-                    ],
+                      ],
+                    ),
+                    onTap: () {
+                      showMaterialCheckboxPicker<ElementModel>(
+                        context: context,
+                        title: 'Exterior Elements',
+                        items: exteriorElements,
+                        selectedItems: selectedExteriorelements,
+                        onChanged: (value) =>
+                            setState(() => selectedExteriorelements = value),
+                      );
+                    },
                   ),
                 ],
               ),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
-                height: 20,
+                height: 15,
                 thickness: 1,
                 indent: 2,
                 endIndent: 2,
@@ -191,32 +274,50 @@ class SectionFormState extends State<SectionForm> {
                     'Waterproofing Elements',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '0 Selected',
-                        style: TextStyle(
-                            color: Colors.blue, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        child: const Icon(
+                  InkWell(
+                    onTap: () {
+                      showMaterialCheckboxPicker<ElementModel>(
+                        context: context,
+                        title: 'Waterproofing Elements',
+                        items: waterproofingElements,
+                        selectedItems: selectedWaterproofingElements,
+//                         onSelectionChanged: (value) {
+//                           if(value.any((item) => item.code == '5'))
+//                           {
+//                             selectedWaterproofingElements = waterproofingElements;
+//                           }
+//                           else{
+// selectedWaterproofingElements.remove(value)
+//                           }
+//                         },
+                        onChanged: (value) => setState(
+                            () => selectedWaterproofingElements = value),
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${selectedWaterproofingElements.length} Selected',
+                          style: const TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Icon(
                           Icons.arrow_forward_ios_outlined,
                           size: 14,
                           color: Colors.blue,
                         ),
-                        onTap: () {},
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
+                height: 20,
                 thickness: 1,
                 indent: 2,
                 endIndent: 2,
@@ -225,7 +326,7 @@ class SectionFormState extends State<SectionForm> {
                 'Visual Review',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              const RadioWidget('visual',3),
+              radioWidget('visual', 3),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
                 height: 0,
@@ -281,7 +382,7 @@ class SectionFormState extends State<SectionForm> {
                 'Conditional Assessment',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              const RadioWidget('conditional',3),
+              radioWidget('conditional', 3),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
                 height: 15,
@@ -293,8 +394,8 @@ class SectionFormState extends State<SectionForm> {
               const SizedBox(
                 height: 8,
               ),
-              inputWidgetwithValidation(
-                  'Additonal Considerations', 'Please enter details', 5),
+              inputWidgetwithValidation('Additonal Considerations',
+                  'Please enter details', 5, _concernsController),
               const SizedBox(
                 height: 4,
               ),
@@ -309,7 +410,7 @@ class SectionFormState extends State<SectionForm> {
                 'Life expectancy exterior elevated elements (EEE)',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              const RadioWidget('EEE',4),
+              radioWidget('EEE', 4),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
                 height: 15,
@@ -321,7 +422,7 @@ class SectionFormState extends State<SectionForm> {
                 'Life expectancy load bearing components (LBC)',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              const RadioWidget('LBC',4),
+              radioWidget('LBC', 4),
               const Divider(
                 color: Color.fromARGB(255, 222, 213, 213),
                 height: 15,
@@ -333,10 +434,11 @@ class SectionFormState extends State<SectionForm> {
                 'Life expectancy assciated waterproofing elements (AWE)',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              const RadioWidget('AWE',4),
+              radioWidget('AWE', 4),
             ],
           ),
-        ));
+        ))
+        );
   }
 
   void toggleSwitch(bool value) {
@@ -363,9 +465,10 @@ class SectionFormState extends State<SectionForm> {
     }
   }
 
-  Widget inputWidgetwithValidation(String hint, String message, int lines) {
+  Widget inputWidgetwithValidation(String hint, String message, int lines,
+      TextEditingController controller) {
     return TextFormField(
-
+        controller: controller,
         // The validator receives the text that the user has entered.
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -387,33 +490,32 @@ class SectionFormState extends State<SectionForm> {
               borderRadius: BorderRadius.circular(8),
             )));
   }
-}
 
-enum VisualReview { good, fair, bad }
+  static const List<ElementModel> exteriorElements = <ElementModel>[
+    //ElementModel('SELECT ALL', '10');
+    ElementModel('Decks', '1'),
+    ElementModel('Porches/Entry', '2'),
+    ElementModel('Stairs', '3'),
+    ElementModel('Stairs Landing', '4'),
+    ElementModel('Walkways', '5'),
+    ElementModel('Railings', '6'),
+    ElementModel('Integrations', '7'),
+    ElementModel('Door Threshold', '8'),
+    ElementModel('Stucco Interface', '9'),
+  ];
+  List<ElementModel> selectedExteriorelements = [];
 
-enum ConditionalAssessment { pass, fail, futureinspection }
+  static const List<ElementModel> waterproofingElements = <ElementModel>[
+    //ElementModel('SELECT ALL', '5'),
+    ElementModel('Flashings', '1'),
+    ElementModel('Waterproofing', '2'),
+    ElementModel('Coatings', '3'),
+    ElementModel('Sealants', '4'),
+  ];
+  List<ElementModel> selectedWaterproofingElements = [];
 
-enum ExpectancyYears{ one,four,seven,sevenplus}
+  //Radios
 
-class RadioWidget extends StatefulWidget {
-  final String radiotype;
-  final int radioCount;
-  const RadioWidget(this.radiotype,this.radioCount, {Key? key}) : super(key: key);
-
-  @override
-  State<RadioWidget> createState() => _RadioWidgetState();
-}
-
-class _RadioWidgetState extends State<RadioWidget> {
-  @override
-  void initState() {
-    radioType = widget.radiotype;
-    radioCount=widget.radioCount;
-    super.initState();
-  }
-
-  String radioType = "";
-int radioCount=3;
   Widget getListTile(String radioType, int position) {
     if (radioType == 'visual') {
       switch (position) {
@@ -432,7 +534,7 @@ int radioCount=3;
               },
             ),
           );
-          //break;
+        //break;
         case 2:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -464,8 +566,7 @@ int radioCount=3;
             ),
           );
       }
-    } 
-    else if(radioType=="EEE"){
+    } else if (radioType == "EEE") {
       switch (position) {
         case 1:
           return ListTile(
@@ -482,7 +583,7 @@ int radioCount=3;
               },
             ),
           );
-          //break;
+        //break;
         case 2:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -494,7 +595,6 @@ int radioCount=3;
                 setState(() {
                   _eee = value;
                 });
-                
               },
             ),
           );
@@ -509,11 +609,10 @@ int radioCount=3;
                 setState(() {
                   _eee = value;
                 });
-                
               },
             ),
           );
-          case 4:
+        case 4:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
             title: const Text('7+ Years'),
@@ -524,13 +623,11 @@ int radioCount=3;
                 setState(() {
                   _eee = value;
                 });
-                
               },
             ),
           );
       }
-    }
-    else if(radioType=="LBC"){
+    } else if (radioType == "LBC") {
       switch (position) {
         case 1:
           return ListTile(
@@ -543,11 +640,10 @@ int radioCount=3;
                 setState(() {
                   _lbc = value;
                 });
-                
               },
             ),
           );
-          //break;
+        //break;
         case 2:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -559,7 +655,6 @@ int radioCount=3;
                 setState(() {
                   _lbc = value;
                 });
-                
               },
             ),
           );
@@ -574,11 +669,10 @@ int radioCount=3;
                 setState(() {
                   _lbc = value;
                 });
-                
               },
             ),
           );
-          case 4:
+        case 4:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
             title: const Text('7+ Years'),
@@ -589,13 +683,11 @@ int radioCount=3;
                 setState(() {
                   _lbc = value;
                 });
-                
               },
             ),
           );
       }
-    }
-    else if(radioType=="AWE"){
+    } else if (radioType == "AWE") {
       switch (position) {
         case 1:
           return ListTile(
@@ -608,11 +700,10 @@ int radioCount=3;
                 setState(() {
                   _awe = value;
                 });
-                
               },
             ),
           );
-          //break;
+        //break;
         case 2:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -624,7 +715,6 @@ int radioCount=3;
                 setState(() {
                   _awe = value;
                 });
-                
               },
             ),
           );
@@ -639,11 +729,10 @@ int radioCount=3;
                 setState(() {
                   _awe = value;
                 });
-                
               },
             ),
           );
-          case 4:
+        case 4:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
             title: const Text('7+ Years'),
@@ -654,14 +743,12 @@ int radioCount=3;
                 setState(() {
                   _awe = value;
                 });
-                
               },
             ),
           );
       }
-    }
-    else {
-switch (position) {
+    } else {
+      switch (position) {
         case 1:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -677,7 +764,7 @@ switch (position) {
               },
             ),
           );
-          //break;
+        //break;
         case 2:
           return ListTile(
             contentPadding: const EdgeInsets.all(0),
@@ -689,7 +776,6 @@ switch (position) {
                 setState(() {
                   _assessment = value;
                 });
-                
               },
             ),
           );
@@ -704,26 +790,25 @@ switch (position) {
                 setState(() {
                   _assessment = value;
                 });
-                
               },
             ),
           );
       }
     }
     return ListTile(
-            contentPadding: const EdgeInsets.all(0),
-            title: const Text('Fair'),
-            leading: Radio<VisualReview>(
-              value: VisualReview.fair,
-              groupValue: _review,
-              onChanged: (VisualReview? value) {
-                setState(() {
-                  _review = value;
-                });
-                debugPrint(_review!.name);
-              },
-            ),
-          );
+      contentPadding: const EdgeInsets.all(0),
+      title: const Text('Fair'),
+      leading: Radio<VisualReview>(
+        value: VisualReview.fair,
+        groupValue: _review,
+        onChanged: (VisualReview? value) {
+          setState(() {
+            _review = value;
+          });
+          debugPrint(_review!.name);
+        },
+      ),
+    );
   }
 
   VisualReview? _review = VisualReview.good;
@@ -732,39 +817,35 @@ switch (position) {
   ExpectancyYears? _lbc = ExpectancyYears.four;
   ExpectancyYears? _awe = ExpectancyYears.four;
 
-  @override
-  Widget build(BuildContext context) {
-if  (radioCount==4){
-return Column(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-Row(
-      children: <Widget>[
-        Expanded(
-          child: getListTile(radioType, 1)),
-        Expanded(
-          child:getListTile(radioType, 2)),
-],),
-Row(
-      children: <Widget>[
-        Expanded(
-          child: getListTile(radioType, 3)),
-        Expanded(
-          child:getListTile(radioType, 4)),
-        
-      ],
-    )]);
-}
+  Widget radioWidget(String radioType, int radioCount) {
+    if (radioCount == 4) {
+      return Column(mainAxisSize: MainAxisSize.min, children: [
+        Row(
+          children: <Widget>[
+            Expanded(child: getListTile(radioType, 1)),
+            Expanded(child: getListTile(radioType, 2)),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(child: getListTile(radioType, 3)),
+            Expanded(child: getListTile(radioType, 4)),
+          ],
+        )
+      ]);
+    }
     return Row(
       children: <Widget>[
-        Expanded(flex:2,
-          child: getListTile(radioType, 1)),
-        Expanded(flex: 2,
-          child:getListTile(radioType, 2)),
-        Expanded(
-          flex: 3,
-          child: getListTile(radioType, 3))
+        Expanded(flex: 2, child: getListTile(radioType, 1)),
+        Expanded(flex: 2, child: getListTile(radioType, 2)),
+        Expanded(flex: 3, child: getListTile(radioType, 3))
       ],
     );
   }
 }
+
+enum VisualReview { good, fair, bad }
+
+enum ConditionalAssessment { pass, fail, futureinspection }
+
+enum ExpectancyYears { one, four, seven, sevenplus }

@@ -5,6 +5,8 @@ import 'package:deckinspectors/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
 import '../models/location_model.dart';
+import '../models/section_model.dart';
+import 'image_widget.dart';
 
 class LocationPage extends StatefulWidget {
   final String id;
@@ -65,6 +67,7 @@ class _LocationPageState extends State<LocationPage> {
               } else if (snapshot.hasData) {
                 final data = snapshot.data;
                 if (data is LocationResponse) {
+                  currentLocation = data.item as Location;
                   return SingleChildScrollView(
                       child: Column(
                     children: [
@@ -167,26 +170,25 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                           labelPadding: EdgeInsets.all(2),
                           label: Text(
-                            'Edit Location ',
+                            'Edit Location',
                             style: TextStyle(color: Colors.black),
                             selectionColor: Colors.white,
                           ),
-                          shadowColor: Colors.blue,
-                          backgroundColor: Colors.blue,
-                          elevation: 4,
+                          shadowColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          elevation: 0,
                           autofocus: true,
                         )),
-                   
                   ],
                 )),
           ),
-           const Divider(
-                      color: Color.fromARGB(255, 222, 213, 213),
-                      height: 5,
-                      thickness: 2,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
+          const Divider(
+            color: Color.fromARGB(255, 222, 213, 213),
+            height: 5,
+            thickness: 2,
+            indent: 0,
+            endIndent: 0,
+          ),
           // Padding(
           //   padding: const EdgeInsets.fromLTRB(0, 8, 0, 0.0),
           //   child: OutlinedButton.icon(
@@ -243,12 +245,12 @@ class _LocationPageState extends State<LocationPage> {
                           child: const Chip(
                             avatar: Icon(
                               Icons.add_circle_outline,
-                              color:Colors.black,
+                              color: Colors.black,
                             ),
                             labelPadding: EdgeInsets.all(2),
                             label: Text(
                               'Add Location',
-                              style: TextStyle(color:Colors.black),
+                              style: TextStyle(color: Colors.black),
                               selectionColor: Colors.white,
                             ),
                             shadowColor: Colors.blue,
@@ -259,19 +261,25 @@ class _LocationPageState extends State<LocationPage> {
                     ),
                   ],
                 ),
-                Expanded(
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 4,
-                      itemBuilder: (BuildContext context, int index) =>
-                          horizontalScrollChildren(context)),
-                )
+                currentLocation.sections == null
+                    ? const Center(
+                        child: Text(
+                        'No locations, Add locations.',
+                        style: TextStyle(fontSize: 16),
+                      ))
+                    : Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 4,
+                            itemBuilder: (BuildContext context, int index) =>
+                                horizontalScrollChildren(context, index)),
+                      )
               ],
             )));
   }
 
-  Widget horizontalScrollChildren(BuildContext context) {
+  Widget horizontalScrollChildren(BuildContext context, int index) {
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       child: Padding(
@@ -281,17 +289,18 @@ class _LocationPageState extends State<LocationPage> {
             height: 180,
             decoration: const BoxDecoration(
               color: Colors.orange,
-              image: DecorationImage(
-                  image: AssetImage('assets/images/icon.png'),
-                  fit: BoxFit.cover),
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(10),
                 bottom: Radius.circular(00),
               ),
             ),
+            child: networkImage(currentLocation.sections?[index]!.coverUrl),
           ),
           InkWell(
-              onTap: () => {gotoDetails()},
+              onTap: () => {
+                    gotoDetails(
+                        currentLocation.sections?[index] as VisualSection)
+                  },
               child: Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
@@ -300,17 +309,17 @@ class _LocationPageState extends State<LocationPage> {
                       padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const [
+                          children: [
                             Text(
-                              'Child Name',
+                              currentLocation.sections?[index]!.name as String,
                               maxLines: 2,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            Icon(
+                            const Icon(
                               Icons.navigate_next_sharp,
                               color: Colors.blue,
                             )
@@ -329,8 +338,8 @@ class _LocationPageState extends State<LocationPage> {
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
-                              Expanded(
+                            children: [
+                              const Expanded(
                                 flex: 1,
                                 child: Text(
                                   maxLines: 1,
@@ -345,8 +354,9 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    'Good',
-                                    style: TextStyle(
+                                    currentLocation.sections?[index]!
+                                        .visualreview as String,
+                                    style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold),
@@ -361,8 +371,8 @@ class _LocationPageState extends State<LocationPage> {
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
-                              Expanded(
+                            children: [
+                              const Expanded(
                                 flex: 1,
                                 child: Text(
                                   maxLines: 1,
@@ -377,8 +387,9 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    'No',
-                                    style: TextStyle(
+                                    currentLocation.sections?[index]!
+                                        .visualsignsofleak as String,
+                                    style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold),
@@ -393,8 +404,8 @@ class _LocationPageState extends State<LocationPage> {
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
-                              Expanded(
+                            children: [
+                              const Expanded(
                                 flex: 1,
                                 child: Text(
                                   maxLines: 1,
@@ -409,8 +420,10 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    'Yes',
-                                    style: TextStyle(
+                                    currentLocation.sections?[index]!
+                                            .furtherinvasivereviewrequired
+                                        as String,
+                                    style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold),
@@ -425,8 +438,8 @@ class _LocationPageState extends State<LocationPage> {
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
-                              Expanded(
+                            children: [
+                              const Expanded(
                                 flex: 1,
                                 child: Text(
                                   maxLines: 1,
@@ -441,8 +454,9 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    'Yes',
-                                    style: TextStyle(
+                                    currentLocation.sections?[index]!
+                                        .conditionalassessment as String,
+                                    style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold),
@@ -460,8 +474,8 @@ class _LocationPageState extends State<LocationPage> {
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
-                              Expanded(
+                            children: [
+                              const Expanded(
                                 flex: 1,
                                 child: Text(
                                   maxLines: 1,
@@ -476,8 +490,9 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    '10',
-                                    style: TextStyle(
+                                    currentLocation.sections?[index]!.count
+                                        as String,
+                                    style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold),
@@ -497,7 +512,7 @@ class _LocationPageState extends State<LocationPage> {
                               shadowColor: Colors.blue,
                               elevation: 0),
                           onPressed: () {
-                            print('clickd detlte');
+                            print('clickd delete');
                           },
                           icon: const Icon(
                             Icons.delete_outline,
@@ -512,13 +527,28 @@ class _LocationPageState extends State<LocationPage> {
     );
   }
 
-  void addNewChild() {}
-
-  void gotoDetails() {
+  void addNewChild() {
+    var currentVisualSection = VisualSection(
+        parentid: currentLocation.id,
+        visualsignsofleak: false,
+        createdby: userFullName,
+        furtherinvasivereviewrequired: false,
+        awe: 'one',
+        eee: 'one',
+        lbc: 'one');
     Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SectionPage()),
-    );
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SectionPage(currentVisualSection, userFullName)));
+  }
+
+  void gotoDetails(VisualSection visualSection) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SectionPage(visualSection, userFullName),
+        ));
   }
 
   void addEditLocation(Location currentLocation) {

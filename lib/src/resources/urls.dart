@@ -13,4 +13,8 @@ static const String manageLocationUrl= '$baseUrl/location/';
 static const String addSubprojectUrl= '$baseUrl/subproject/add';
 static const String manageSubprojectUrl= '$baseUrl/subproject/';
 
+static const String addSectiontUrl= '$baseUrl/section/add';
+static const String manageSectionUrl= '$baseUrl/section/';
+
+
 }

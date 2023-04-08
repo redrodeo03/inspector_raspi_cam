@@ -1,39 +1,54 @@
 import 'dart:convert';
-import '../models/location_model.dart';
+import '../models/section_model.dart';
 import '../resources/repository.dart';
 
 class SectionBloc {
   final Repository _repository = Repository();
 
   Future <Object> getSection(String id) async{
-    var response = await _repository.getLocation(id);
+    var response = await _repository.getSection(id);
     return response;
   }
-  Future<Object> addLocation(Location location) async {
-    final locationObject = jsonEncode({
-      'name': location.name,
-      'description': location.description,
-      'parentid': location.parentid,
-      'parenttype': location.parenttype,
-      'url': location.url,
-      'createdby': location.createdby
+  Future<Object> addSection(VisualSection visualSection) async {
+    final sectionObject = jsonEncode({
+      'name': visualSection.name,
+      'exteriorelements': visualSection.exteriorelements,
+      'waterproofingelements': visualSection.waterproofingelements,
+      'additionalconsiderations': visualSection.additionalconsiderations,
+      'visualreview': visualSection.visualreview,
+      'visualsignsofleak': visualSection.visualsignsofleak,
+      'furtherinvasivereviewrequired': visualSection.furtherinvasivereviewrequired,
+      'conditionalassessment': visualSection.conditionalassessment,
+      'eee': visualSection.eee,
+      'lbc': visualSection.lbc,
+      'awe': visualSection.awe,
+      'createdby': visualSection.createdby,
+      'parentid': visualSection.parentid,
     });
-    var response = await _repository.addLocation(locationObject);
+    var response = await _repository.addSection(sectionObject);
 
     return response;
   }
-
-  updateLocation(Location location) async {
-    final locationObject = jsonEncode({
-      'name': location.name,
-      'description': location.description,      
-      'url': location.url,      
-      'lasteditedby': location.lasteditedby
+  Future<Object> updateSection(VisualSection visualSection) async {
+    final sectionObject = jsonEncode({
+      'name': visualSection.name,
+      'exteriorelements': visualSection.exteriorelements,
+      'waterproofingelements': visualSection.waterproofingelements,
+      'additionalconsiderations': visualSection.additionalconsiderations,
+      'visualreview': visualSection.visualreview,
+      'visualsignsofleak': visualSection.visualsignsofleak,
+      'furtherinvasivereviewrequired': visualSection.furtherinvasivereviewrequired,
+      'conditionalassessment': visualSection.conditionalassessment,
+      'eee': visualSection.eee,
+      'lbc': visualSection.lbc,
+      'awe': visualSection.awe,
+      'lasteditedby': visualSection.lasteditedby,
+      'parentid': visualSection.parentid,
     });
-    var response =
-        await _repository.updateLocation(locationObject, location.id as String);
+    var response = await _repository.updateSection(sectionObject,visualSection.id as String);
+
     return response;
-  }
+  }  
 }
 
-final locationsBloc = SectionBloc();
+final sectionsBloc = SectionBloc();
