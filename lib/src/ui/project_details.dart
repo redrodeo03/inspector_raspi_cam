@@ -262,16 +262,16 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         },
                         child: const Chip(
                           avatar:
-                              Icon(Icons.edit_outlined, color: Colors.black),
+                              Icon(Icons.edit_outlined, color: Colors.blue),
                           labelPadding: EdgeInsets.all(2),
                           label: Text(
                             'Edit Project ',
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: Colors.blue),
                             selectionColor: Colors.white,
                           ),
-                          shadowColor: Colors.blue,
-                          backgroundColor: Colors.blue,
-                          elevation: 10,
+                          shadowColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          elevation: 0,
                           autofocus: true,
                         )),
                   ],
@@ -376,17 +376,17 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   child: Chip(
                     avatar: const Icon(
                       Icons.add_circle_outline,
-                      color: Colors.black,
+                      color: Colors.blue,
                     ),
                     labelPadding: const EdgeInsets.all(2),
                     label: Text(
                       'Add $type',
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.blue, fontSize: 15),
                       selectionColor: Colors.white,
                     ),
-                    shadowColor: Colors.blue,
-                    backgroundColor: Colors.blue,
-                    elevation: 10,
+                    shadowColor: Colors.white,
+                    backgroundColor: Colors.white,
+                    elevation: 0,
                     autofocus: true,
                   )),
             ),
@@ -470,8 +470,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               ),
               Padding(
                   padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: Align(alignment: Alignment.centerLeft,
+                  child:
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           maxLines: 1,
@@ -491,7 +493,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                               fontSize: 14),
                           selectionColor: Colors.white,
                         ),
-                      ])),
+                      ]))),
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
                 child: OutlinedButton.icon(
@@ -501,7 +503,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         minimumSize: const Size.fromHeight(30),
                         backgroundColor: Colors.white,
                         shadowColor: Colors.blue,
-                        elevation: 2),
+                        elevation: 1),
                     onPressed: () {
                       gotoDetails(locations[index]!.id);
                     },

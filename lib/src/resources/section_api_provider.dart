@@ -8,13 +8,13 @@ import '../models/section_model.dart';
 class SectionsApiProvider {
   Client client = Client();
 
-  Future<VisualSection> getSection(String id) async {
+  Future<SectionResponse> getSection(String id) async {
     var endPoint = URLS.manageSectionUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.get(baseUrl);
 
     if (response.statusCode == 201) {
-      return VisualSection.fromJson(json.decode(response.body));
+      return SectionResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to get section');
     }

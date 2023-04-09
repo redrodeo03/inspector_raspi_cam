@@ -48,13 +48,16 @@ late String userFullName;
     projectsBloc.fetchAllProjects();
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: const Color(0xFF3F3F3F),
+          leadingWidth: 20,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Your Projects',
-                  style: TextStyle(color: Colors.blue),
+                  style: TextStyle(color: Colors.black),
                 ),
                 InkWell(
                     onTap: () {
@@ -63,17 +66,17 @@ late String userFullName;
                     child: const Chip(
                       avatar: Icon(
                         Icons.add_circle_outline,
-                        color: Color(0xFF3F3F3F),
+                        color: Colors.blue,
                       ),
                       labelPadding: EdgeInsets.all(2),
                       label: Text(
                         'Add new project',
-                        style: TextStyle(color: Color(0xFF3F3F3F)),
+                        style: TextStyle(color: Colors.blue),
                         selectionColor: Colors.white,
                       ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
+                      shadowColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      elevation: 0,
                       autofocus: true,
                     )),
               ],
@@ -111,7 +114,7 @@ late String userFullName;
                       child: Card(
                         borderOnForeground: false,
 //                color: Colors.blue,
-                        elevation: 8,
+                        elevation: 4,
                         child: Row(
                           children: <Widget>[
                             Padding(
@@ -176,7 +179,7 @@ late String userFullName;
                                                   projType,
                                                   textAlign: TextAlign.left,
                                                   style: const TextStyle(
-                                                    color: Colors.blueAccent,
+                                                    color: Colors.black87,
                                                   ),
                                                 ),),
                                               Padding(padding: const EdgeInsets.fromLTRB(0,12,0,0),

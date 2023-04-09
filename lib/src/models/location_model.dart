@@ -17,7 +17,7 @@ class Section {
     Section.fromJson(Map<String, dynamic> json) {
         id = json['id'];
         
-        count =json['count'];
+        count =json['count'] ?? 0;
         name = json['name'];
         coverUrl = json['coverUrl'];
         visualreview = json['visualreview'];

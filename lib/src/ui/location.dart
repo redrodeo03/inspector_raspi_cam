@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/bloc/locations_bloc.dart';
+import 'package:deckinspectors/src/bloc/section_bloc.dart';
 import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:deckinspectors/src/ui/addedit_location.dart';
 import 'package:deckinspectors/src/ui/section.dart';
@@ -166,12 +167,12 @@ class _LocationPageState extends State<LocationPage> {
                         child: const Chip(
                           avatar: Icon(
                             Icons.edit_outlined,
-                            color: Colors.black,
+                            color: Colors.blue,
                           ),
                           labelPadding: EdgeInsets.all(2),
                           label: Text(
-                            'Edit Location',
-                            style: TextStyle(color: Colors.black),
+                            'Edit',
+                            style: TextStyle(color: Colors.blue),
                             selectionColor: Colors.white,
                           ),
                           shadowColor: Colors.white,
@@ -245,17 +246,17 @@ class _LocationPageState extends State<LocationPage> {
                           child: const Chip(
                             avatar: Icon(
                               Icons.add_circle_outline,
-                              color: Colors.black,
+                              color: Colors.blue,
                             ),
                             labelPadding: EdgeInsets.all(2),
                             label: Text(
                               'Add Location',
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(color: Colors.blue),
                               selectionColor: Colors.white,
                             ),
-                            shadowColor: Colors.blue,
-                            backgroundColor: Colors.blue,
-                            elevation: 10,
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.white,
+                            elevation: 0,
                             autofocus: true,
                           )),
                     ),
@@ -271,7 +272,7 @@ class _LocationPageState extends State<LocationPage> {
                         child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: 4,
+                            itemCount: currentLocation.sections!.length,
                             itemBuilder: (BuildContext context, int index) =>
                                 horizontalScrollChildren(context, index)),
                       )
@@ -280,6 +281,36 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   Widget horizontalScrollChildren(BuildContext context, int index) {
+    String vreview = '';
+    String visualReview =
+        (currentLocation.sections?[index]!.visualreview as String);
+    switch (visualReview) {
+      case 'good':
+        vreview = 'Good';
+        break;
+      case 'fair':
+        vreview = 'Fair';
+        break;
+      case 'bad':
+        vreview = 'Bad';
+        break;
+      default:
+    }
+    String assessment = '';
+    String assessmentActual =
+        (currentLocation.sections?[index]!.conditionalassessment as String);
+    switch (assessmentActual) {
+      case 'pass':
+        assessment = 'Pass';
+        break;
+      case 'fail':
+        assessment = 'Fail';
+        break;
+      case 'futureinspection':
+        assessment = 'Future Inspection';
+        break;
+      default:
+    }
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       child: Padding(
@@ -297,10 +328,8 @@ class _LocationPageState extends State<LocationPage> {
             child: networkImage(currentLocation.sections?[index]!.coverUrl),
           ),
           InkWell(
-              onTap: () => {
-                    gotoDetails(
-                        currentLocation.sections?[index] as VisualSection)
-                  },
+              onTap: () =>
+                  {gotoDetails(currentLocation.sections?[index]!.id as String)},
               child: Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
@@ -354,8 +383,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]!
-                                        .visualreview as String,
+                                    vreview,
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -388,7 +416,10 @@ class _LocationPageState extends State<LocationPage> {
                                   flex: 1,
                                   child: Text(
                                     currentLocation.sections?[index]!
-                                        .visualsignsofleak as String,
+                                                .visualsignsofleak ==
+                                            true
+                                        ? 'True'
+                                        : 'False',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -421,8 +452,10 @@ class _LocationPageState extends State<LocationPage> {
                                   flex: 1,
                                   child: Text(
                                     currentLocation.sections?[index]!
-                                            .furtherinvasivereviewrequired
-                                        as String,
+                                                .furtherinvasivereviewrequired ==
+                                            true
+                                        ? 'True'
+                                        : 'False',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -454,8 +487,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]!
-                                        .conditionalassessment as String,
+                                    assessment,
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -491,7 +523,7 @@ class _LocationPageState extends State<LocationPage> {
                                   flex: 1,
                                   child: Text(
                                     currentLocation.sections?[index]!.count
-                                        as String,
+                                        .toString() as String,
                                     style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
@@ -528,26 +560,19 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   void addNewChild() {
-    var currentVisualSection = VisualSection(
-        parentid: currentLocation.id,
-        visualsignsofleak: false,
-        createdby: userFullName,
-        furtherinvasivereviewrequired: false,
-        awe: 'one',
-        eee: 'one',
-        lbc: 'one');
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-                SectionPage(currentVisualSection, userFullName)));
+                SectionPage("", currentLocation.id as String, userFullName)));
   }
 
-  void gotoDetails(VisualSection visualSection) {
+  void gotoDetails(String sectionId) {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SectionPage(visualSection, userFullName),
+          builder: (context) => SectionPage(
+              sectionId, currentLocation.id as String, userFullName),
         ));
   }
 

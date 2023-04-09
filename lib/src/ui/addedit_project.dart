@@ -54,7 +54,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       //TODO : Set image URL
 
       Object result;
-      if (currentProject.id!.isEmpty) {
+      if (currentProject.id==null) {
         result = await projectsBloc.addProject(currentProject);
       } else {
         result = await projectsBloc.updateProject(currentProject);

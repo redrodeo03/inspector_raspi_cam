@@ -103,10 +103,10 @@ class VisualSection {
     images = json['images'] == null
         ? []
         : List.castFrom<dynamic, String>(json['images']);
-    exteriorelements = json['images'] == null
+    exteriorelements = json['exteriorelements'] == null
         ? []
         : List.castFrom<dynamic, String>(json['exteriorelements']);
-    waterproofingelements = json['images'] == null
+    waterproofingelements = json['waterproofingelements'] == null
         ? []
         : List.castFrom<dynamic, String>(json['waterproofingelements']);
   }
@@ -134,4 +134,26 @@ class VisualSection {
    
     return data;
   }
+}
+
+class SectionResponse {
+    VisualSection? item;
+    String? message;
+    int? code;
+
+    SectionResponse({this.item, this.message, this.code}); 
+
+    SectionResponse.fromJson(Map<String, dynamic> json) {
+        item = json['item'] != null ? VisualSection?.fromJson(json['item']) : null;
+        message = json['message'];
+        code = json['code'];
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = <String, dynamic>{};
+        data['item'] = item!.toJson();
+        data['message'] = message;
+        data['code'] = code;
+        return data;
+    }
 }

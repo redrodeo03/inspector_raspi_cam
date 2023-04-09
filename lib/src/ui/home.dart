@@ -34,9 +34,9 @@ class _HomePageState extends State<HomePage>{
         selectedFontSize: 16,
         unselectedFontSize: 14,
         fixedColor: Colors.blue, 
-        unselectedItemColor: Colors.white,
+        unselectedItemColor: Colors.lightBlueAccent,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF3F3F3F),
+        backgroundColor: Colors.white,
         items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -51,11 +51,7 @@ class _HomePageState extends State<HomePage>{
               icon: Icon(Icons.settings),
               label:'Settings',
               // backgroundColor: Colors.blue
-              ),BottomNavigationBarItem(
-              icon: Icon(Icons.logout),
-              label:'Logout',
-              // backgroundColor: Colors.orangeAccent
-              )
+              ),
       ],
       onTap: (index) {
         setState((){

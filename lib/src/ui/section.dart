@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+import '../models/error_response.dart';
 import '../models/exteriorelements.dart';
 import '../models/section_model.dart';
 import '../models/success_response.dart';
 import '../bloc/section_bloc.dart';
 
 class SectionPage extends StatefulWidget {
-  final VisualSection currentVisualSection;
+  final String sectionId;
   final String userFullName;
-  const SectionPage(this.currentVisualSection, this.userFullName, {Key? key})
+
+  final String parentId;
+  const SectionPage(this.sectionId, this.parentId, this.userFullName,
+      {Key? key})
       : super(key: key);
   //VisualSection currentSection;
   @override
@@ -19,70 +23,129 @@ class _SectionPageState extends State<SectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            leadingWidth: 20,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Locations',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-                const Text(
-                  'Details',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
-                InkWell(
-                    onTap: () {
-                      save(context);
-                    },
-                    child: const Chip(
-                      avatar: Icon(
-                        Icons.save_outlined,
-                        color: Colors.black,
-                      ),
-                      labelPadding: EdgeInsets.all(2),
-                      label: Text(
-                        'Save Location',
-                        style: TextStyle(color: Colors.black),
-                        selectionColor: Colors.white,
-                      ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
-                      autofocus: true,
-                    )),
-              ],
-            )),
-        body: SingleChildScrollView(
-          child: Column(
+      appBar: AppBar(
+          leadingWidth: 20,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              sectionForm(context),
+              const Text(
+                'Locations',
+                style: TextStyle(color: Colors.blue, fontSize: 15),
+              ),
+              const Text(
+                'Details',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.normal),
+              ),
+              InkWell(
+                  onTap: () {
+                    save(context);
+                  },
+                  child: const Chip(
+                    avatar: Icon(
+                      Icons.save_outlined,
+                      color: Colors.black,
+                    ),
+                    labelPadding: EdgeInsets.all(2),
+                    label: Text(
+                      'Save Location',
+                      style: TextStyle(color: Colors.black),
+                      selectionColor: Colors.white,
+                    ),
+                    shadowColor: Colors.blue,
+                    backgroundColor: Colors.blue,
+                    elevation: 10,
+                    autofocus: true,
+                  )),
             ],
-          ),
-        ));
+          )),
+      body: isRunning
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  sectionForm(context),
+                ],
+              ),
+            ),
+    );
   }
 
+  bool isRunning = false;
   String userFullName = "";
   late VisualSection currentVisualSection;
+  late Future sectionResponse;
   bool isNewSection = true;
+
+  Future<Object?> fetchData() async {
+    isRunning = true;
+    var sectionResponse = await sectionsBloc.getSection(widget.sectionId);
+    if(sectionResponse is SectionResponse ){
+      currentVisualSection = sectionResponse.item as VisualSection;
+      setInitialValues();  
+    }
+    setState(() => isRunning = false);
+    return sectionResponse;
+  }
+
   @override
   void initState() {
-    currentVisualSection = widget.currentVisualSection;
+    if (widget.sectionId == "") {
+      currentVisualSection = VisualSection(
+          parentid: widget.parentId,
+          visualsignsofleak: false,
+          createdby: userFullName,
+          furtherinvasivereviewrequired: false,
+          awe: 'one',
+          eee: 'one',
+          lbc: 'one');
+    } else {
+      sectionResponse = fetchData();
+    }
     userFullName = widget.userFullName;
-    if (currentVisualSection.id != null) {
+    // if (currentVisualSection.id != null) {
+    //   _nameController.text = currentVisualSection.name as String;
+    //   _concernsController.text =
+    //       currentVisualSection.additionalconsiderations as String;
+    //   isNewSection = false;
+    // }
+    super.initState();
+  }
+  void setInitialValues(){
+    //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
     _concernsController.text =
         currentVisualSection.additionalconsiderations as String;
-        isNewSection=false;
-    }
-    super.initState();
-  }
+    selectedExteriorelements = exteriorElements
+        .where((item) =>
+            currentVisualSection.exteriorelements!.contains(item.name))
+        .toList();
 
+    selectedWaterproofingElements = waterproofingElements
+        .where((item) =>
+            currentVisualSection.waterproofingelements!.contains(item.name))
+        .toList();
+
+    _review = VisualReview.values
+        .firstWhere((e) => e.name == currentVisualSection.visualreview);
+    _assessment = ConditionalAssessment.values.firstWhere(
+        (e) => e.name == currentVisualSection.conditionalassessment);
+
+    _eee = ExpectancyYears.values
+        .firstWhere((e) => e.name == currentVisualSection.eee);
+    _lbc = ExpectancyYears.values
+        .firstWhere((e) => e.name == currentVisualSection.lbc);
+    _awe = ExpectancyYears.values
+        .firstWhere((e) => e.name == currentVisualSection.awe);
+
+    invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
+    hasSignsOfLeak = currentVisualSection.visualsignsofleak;
+  }
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
@@ -99,6 +162,7 @@ class _SectionPageState extends State<SectionPage> {
           selectedExteriorelements.map((element) => element.name).toList();
       currentVisualSection.waterproofingelements =
           selectedWaterproofingElements.map((element) => element.name).toList();
+          
       currentVisualSection.visualreview = _review!.name;
       currentVisualSection.conditionalassessment = _assessment!.name;
       currentVisualSection.eee = _eee!.name;
@@ -117,7 +181,7 @@ class _SectionPageState extends State<SectionPage> {
       //TODO : Set image URL
 
       Object result;
-      if (currentVisualSection.id==null) {
+      if (currentVisualSection.id == null) {
         result = await sectionsBloc.addSection(currentVisualSection);
       } else {
         result = await sectionsBloc.updateSection(currentVisualSection);
@@ -135,7 +199,7 @@ class _SectionPageState extends State<SectionPage> {
         );
       }
 
-      //Navigator.pop(context);
+      Navigator.pop(context);
     }
   }
 
@@ -145,142 +209,146 @@ class _SectionPageState extends State<SectionPage> {
   bool invasiveReviewRequired = false;
 
   Widget sectionForm(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
+        // Build a Form widget using the _formKey created above.   
 
     return GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-     child:Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Location name'),
-              const SizedBox(
-                height: 8,
-              ),
-              inputWidgetwithValidation('Location Name',
-                  'Please enter location name', 1, _nameController),
-              const SizedBox(
-                height: 4,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Unit photos'),
-                  InkWell(
-                      onTap: () {},
-                      child: const Chip(
-                        avatar: Icon(
-                          Icons.add_a_photo_outlined,
-                          color: Colors.black,
-                        ),
-                        labelPadding: EdgeInsets.all(2),
-                        label: Text(
-                          'Add Photos',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        shadowColor: Colors.blue,
-                        backgroundColor: Colors.blue,
-                        elevation: 10,
-                        autofocus: true,
-                      )),
-                ],
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 3.5,
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 10,
-                    itemBuilder: (BuildContext context, int index) => Container(
-                          margin: const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                          height: 180,
-                          width: 300,
-                          decoration: const BoxDecoration(
-                              color: Colors.orange,
-                              image: DecorationImage(
-                                  image: AssetImage('assets/images/icon.png'),
-                                  fit: BoxFit.cover),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
-                              boxShadow: [
-                                BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                              ]),
-                        )),
-              ),
-              const SizedBox(
-                height: 4,
-              ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 20,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Exterior Elements',
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                  const Text('Location name'),
+                  const SizedBox(
+                    height: 8,
                   ),
-                  InkWell(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${selectedExteriorelements.length} Selected',
-                          style: const TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios_outlined,
-                          size: 14,
-                          color: Colors.blue,
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      showMaterialCheckboxPicker<ElementModel>(
-                        context: context,
-                        title: 'Exterior Elements',
-                        items: exteriorElements,
-                        selectedItems: selectedExteriorelements,
-                        onChanged: (value) =>
-                            setState(() => selectedExteriorelements = value),
-                      );
-                    },
+                  inputWidgetwithValidation('Location Name',
+                      'Please enter location name', 1, _nameController),
+                  const SizedBox(
+                    height: 4,
                   ),
-                ],
-              ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Waterproofing Elements',
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Unit photos'),
+                      InkWell(
+                          onTap: () {},
+                          child: const Chip(
+                            avatar: Icon(
+                              Icons.add_a_photo_outlined,
+                              color: Colors.black,
+                            ),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Add Photos',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            shadowColor: Colors.blue,
+                            backgroundColor: Colors.blue,
+                            elevation: 10,
+                            autofocus: true,
+                          )),
+                    ],
                   ),
-                  InkWell(
-                    onTap: () {
-                      showMaterialCheckboxPicker<ElementModel>(
-                        context: context,
-                        title: 'Waterproofing Elements',
-                        items: waterproofingElements,
-                        selectedItems: selectedWaterproofingElements,
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 3.5,
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 10,
+                        itemBuilder: (BuildContext context, int index) =>
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(2, 8, 8, 8),
+                              height: 180,
+                              width: 300,
+                              decoration: const BoxDecoration(
+                                  color: Colors.orange,
+                                  image: DecorationImage(
+                                      image:
+                                          AssetImage('assets/images/icon.png'),
+                                      fit: BoxFit.cover),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        blurRadius: 1.0, color: Colors.blue)
+                                  ]),
+                            )),
+                  ),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 20,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Exterior Elements',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      InkWell(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${selectedExteriorelements.length} Selected',
+                              style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              size: 14,
+                              color: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          showMaterialCheckboxPicker<ElementModel>(
+                            context: context,
+                            title: 'Exterior Elements',
+                            items: exteriorElements,
+                            selectedItems: selectedExteriorelements,
+                            onChanged: (value) => setState(
+                                () => selectedExteriorelements = value),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Waterproofing Elements',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          showMaterialCheckboxPicker<ElementModel>(
+                            context: context,
+                            title: 'Waterproofing Elements',
+                            items: waterproofingElements,
+                            selectedItems: selectedWaterproofingElements,
 //                         onSelectionChanged: (value) {
 //                           if(value.any((item) => item.code == '5'))
 //                           {
@@ -290,155 +358,155 @@ class _SectionPageState extends State<SectionPage> {
 // selectedWaterproofingElements.remove(value)
 //                           }
 //                         },
-                        onChanged: (value) => setState(
-                            () => selectedWaterproofingElements = value),
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${selectedWaterproofingElements.length} Selected',
-                          style: const TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.w500),
+                            onChanged: (value) => setState(
+                                () => selectedWaterproofingElements = value),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${selectedWaterproofingElements.length} Selected',
+                              style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              size: 14,
+                              color: Colors.blue,
+                            ),
+                          ],
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios_outlined,
-                          size: 14,
-                          color: Colors.blue,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 20,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text(
-                'Visual Review',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              radioWidget('visual', 3),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 0,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 20,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
                   const Text(
-                    'Any visual signs of leaks',
+                    'Visual Review',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  Switch(
-                    onChanged: (value) {
-                      toggleSwitch(value);
-                    },
-                    value: hasSignsOfLeak,
+                  radioWidget('visual', 3),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 0,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
                   ),
-                ],
-              ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 0,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Any visual signs of leaks',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Switch(
+                        onChanged: (value) {
+                          toggleSwitch(value);
+                        },
+                        value: hasSignsOfLeak,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 0,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Further invasive review required',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Switch(
+                        onChanged: (value) {
+                          toggleSwitchInvasive(value);
+                        },
+                        value: invasiveReviewRequired,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
                   const Text(
-                    'Further invasive review required',
+                    'Conditional Assessment',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  Switch(
-                    onChanged: (value) {
-                      toggleSwitchInvasive(value);
-                    },
-                    value: invasiveReviewRequired,
+                  radioWidget('conditional', 3),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
                   ),
+                  const Text('Additional considerations or concerns'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  inputWidgetwithValidation('Additonal Considerations',
+                      'Please enter details', 5, _concernsController),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  const Text(
+                    'Life expectancy exterior elevated elements (EEE)',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  radioWidget('EEE', 4),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  const Text(
+                    'Life expectancy load bearing components (LBC)',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  radioWidget('LBC', 4),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 15,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  const Text(
+                    'Life expectancy assciated waterproofing elements (AWE)',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  radioWidget('AWE', 4),
                 ],
               ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text(
-                'Conditional Assessment',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              radioWidget('conditional', 3),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text('Additional considerations or concerns'),
-              const SizedBox(
-                height: 8,
-              ),
-              inputWidgetwithValidation('Additonal Considerations',
-                  'Please enter details', 5, _concernsController),
-              const SizedBox(
-                height: 4,
-              ),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text(
-                'Life expectancy exterior elevated elements (EEE)',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              radioWidget('EEE', 4),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text(
-                'Life expectancy load bearing components (LBC)',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              radioWidget('LBC', 4),
-              const Divider(
-                color: Color.fromARGB(255, 222, 213, 213),
-                height: 15,
-                thickness: 1,
-                indent: 2,
-                endIndent: 2,
-              ),
-              const Text(
-                'Life expectancy assciated waterproofing elements (AWE)',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              radioWidget('AWE', 4),
-            ],
-          ),
-        ))
-        );
+            )));
   }
 
   void toggleSwitch(bool value) {
