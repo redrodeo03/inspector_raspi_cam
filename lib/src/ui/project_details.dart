@@ -1,6 +1,8 @@
 import 'package:deckinspectors/src/models/project_model.dart';
 
 import '../models/location_model.dart';
+import '../models/subproject_model.dart';
+import 'addedit_subproject.dart';
 import 'image_widget.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late String userFullName;
   late String createdAt;
   late List<Child?> locations;
+  late List<Child?> buildings;
   late Location newLocation;
+   late SubProject newBuilding;
   //late Building newBuilding;
   @override
   void initState() {
@@ -43,7 +47,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         type: 'location',
         parentid: currentProject.id,
         parenttype: 'project');
-
+    newBuilding = SubProject(
+        name: "",
+        description: "",
+        createdby: userFullName,
+        type: 'location',
+        parentid: currentProject.id,
+        parenttype: 'project');
     var shortDate = DateTime.tryParse(currentProject.createdat as String);
     if (shortDate != null) {
       createdAt = DateFormat.yMMMEd().format(shortDate);
@@ -53,6 +63,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     if (currentProject.children != null) {
       locations = currentProject.children!
           .where((element) => element!.type == 'location')
+          .toList();
+      buildings = currentProject.children!
+          .where((element) => element!.type == 'subproject')
           .toList();
     } else {
       locations = List.empty(growable: true);
@@ -100,11 +113,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 AddEditLocationPage(newLocation, userFullName)),
       );
     } else {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //       builder: (context) => AddEditSubProjectPage('Building')),
-      // );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AddEditSubProjectPage(newBuilding, userFullName)),
+      );
     }
   }
 
@@ -118,7 +131,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const SubProjectDetailsPage()),
+        MaterialPageRoute(builder: (context) => SubProjectDetailsPage(id as String, userFullName)),
       );
     }
   }
@@ -396,7 +409,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     'No $type, Add project $type.',
                     style: const TextStyle(fontSize: 16),
                   ))
-                : Expanded(
+                : type=='location'?
+                Expanded(
                     child: ListView.builder(
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
@@ -404,12 +418,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         itemBuilder: (BuildContext context, int index) {
                           return horizontalScrollChildren(context, index);
                         }))
+                        :Expanded(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: buildings.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return horizontalScrollChildrenBuildings(context, index);
+                        }))
           ],
         ));
   }
 
   //Todo create widget for locations
   Widget horizontalScrollChildren(BuildContext context, int index) {
+
     return SizedBox(
         width: MediaQuery.of(context).size.width / 2,
         child: Padding(
@@ -514,6 +537,112 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ),
         ));
   }
-
+  
+  Widget horizontalScrollChildrenBuildings(BuildContext context, int index) {
+    
+    return SizedBox(
+        width: MediaQuery.of(context).size.width / 2,
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                height: 140,
+                width: 192,
+                decoration: const BoxDecoration(
+                    color: Colors.orange,
+                    // image: networkImage(currentProject.url as String),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    boxShadow: [
+                      BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                    ]),
+                child: networkImage(buildings[index]!.url),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+                  child: Text(
+                    buildings[index]!.name as String,
+                    maxLines: 2,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children:  [
+                        Expanded(
+                          child: Text(
+                            maxLines: 2,
+                            buildings[index]!.description as String,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
+                  child: Align(alignment: Alignment.centerLeft,
+                  child:
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          maxLines: 1,
+                          'Locations  Count:',
+                          style: TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          textAlign: TextAlign.left,
+                          buildings[index]!.count.toString() ,
+                          style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14),
+                          selectionColor: Colors.white,
+                        ),
+                      ]))),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
+                child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                        side: BorderSide.none,
+                        // the height is 50, the width is full
+                        minimumSize: const Size.fromHeight(30),
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.blue,
+                        elevation: 1),
+                    onPressed: () {
+                      gotoDetails(buildings[index]!.id);
+                    },
+                    icon: const Icon(Icons.view_carousel_outlined),
+                    label: const Text('View Details')),
+              ),
+            ],
+          ),
+        ));
+  }
   void deleteProject(String? id) {}
 }

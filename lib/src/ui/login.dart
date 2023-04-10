@@ -37,7 +37,12 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isLoading = false;
       });
-      if(loginResult.username==null) return;
+      if(loginResult.username==null){
+        if (!mounted) return;
+ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Login failed,please check your credentials.')));
+              return;
+      } 
       if (loginResult.username!.isNotEmpty &&
           loginResult.accesstype != "desktop") {
         if (!mounted) return;
@@ -45,6 +50,11 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
+      }
+      else{
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Login failed,please check your access.')));
       }
     }
   }

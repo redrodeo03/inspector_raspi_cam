@@ -9,13 +9,13 @@ import '../models/subproject_model.dart';
 class SubProjectApiProvider {
   Client client = Client();
 
-  Future<SubProject> getSubProject(String id) async {
+  Future<SubProjectResponse> getSubProject(String id) async {
     var endPoint = URLS.manageSubprojectUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.get(baseUrl);
 
     if (response.statusCode == 201) {
-      return SubProject.fromJson(json.decode(response.body));
+      return SubProjectResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to get location');
     }

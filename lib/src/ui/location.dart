@@ -6,7 +6,6 @@ import 'package:deckinspectors/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
 import '../models/location_model.dart';
-import '../models/section_model.dart';
 import 'image_widget.dart';
 
 class LocationPage extends StatefulWidget {

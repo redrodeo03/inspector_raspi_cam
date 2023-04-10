@@ -54,6 +54,27 @@ class SubProject {
         return data;
     }
   }
+class SubProjectResponse {
+    SubProject? item;
+    String? message;
+    int? code;
+
+    SubProjectResponse({this.item, this.message, this.code}); 
+
+    SubProjectResponse.fromJson(Map<String, dynamic> json) {
+        item = json['item'] != null ? SubProject?.fromJson(json['item']) : null;
+        message = json['message'];
+        code = json['code'];
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = <String, dynamic>{};
+        data['item'] = item!.toJson();
+        data['message'] = message;
+        data['code'] = code;
+        return data;
+    }
+}
 
 
 

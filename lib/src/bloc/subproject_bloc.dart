@@ -1,6 +1,5 @@
 import 'dart:convert';
-
-import '../models/location_model.dart';
+import 'package:deckinspectors/src/models/subproject_model.dart';
 import '../resources/repository.dart';
 
 class SubProjectBloc {
@@ -10,7 +9,7 @@ class SubProjectBloc {
     var response = await _repository.getSubProject(id);
     return response;
   }
-  Future<Object> addSubProject(Location location) async {
+  Future<Object> addSubProject(SubProject location) async {
     final locationObject = jsonEncode({
       'name': location.name,
       'description': location.description,
@@ -20,12 +19,12 @@ class SubProjectBloc {
       'createdby': location.createdby,
       
     });
-    var response = await _repository.addLocation(locationObject);
+    var response = await _repository.addSubProject(locationObject);
 
     return response;
   }
 
-  updateSubProject(Location location) async {
+  updateSubProject(SubProject location) async {
     final locationObject = jsonEncode({
       'name': location.name,
       'description': location.description,      
@@ -33,9 +32,9 @@ class SubProjectBloc {
       'lasteditedby': location.lasteditedby
     });
     var response =
-        await _repository.updateLocation(locationObject, location.id as String);
+        await _repository.updateSubProject(locationObject, location.id as String);
     return response;
   }
 }
 
-final locationsBloc = SubProjectBloc();
+final subProjectsBloc = SubProjectBloc();
