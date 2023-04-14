@@ -6,6 +6,7 @@ import '../models/location_model.dart';
 import '../models/project_model.dart';
 import '../models/subproject_model.dart';
 import 'addedit_location.dart';
+import 'addedit_subproject.dart';
 import 'image_widget.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
@@ -51,24 +52,13 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         name: "",
         description: "",
         createdby: userFullName,
-        type: 'location',
+        type: 'apartment',
         parentid: buildingId,
-        parenttype: 'subproject');
-
-    if (currentBuilding.children != null) {
-      buildinglocations = currentBuilding.children!
-          .where((element) => element!.type == 'location')
-          .toList();
-      apartments = currentBuilding.children!
-          .where((element) => element!.type == 'apartment')
-          .toList();
-    } else {
-      buildinglocations = List.empty(growable: true);
-      apartments = List.empty(growable: true);
-    }
+        parenttype: 'subproject');    
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.addListener(_handleTabSelection);
+
   }
 
   void _handleTabSelection() {
@@ -90,10 +80,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
 
   void addEditSubProject() {
     setState(() {});
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const AddEditSubProjectPage('Building')),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddEditSubProjectPage(currentBuilding,userFullName)),
+    );
   }
 
   void addNewChild() {
@@ -115,11 +105,11 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     }
   }
 
-  void gotoDetails(String? id) {
+  void gotoDetails(String? id,String type) {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => LocationPage(id as String, userFullName)),
+          builder: (context) => LocationPage(id as String,'Building',type, userFullName)),
     );
   }
 
@@ -319,6 +309,17 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     // return DefaultTabController(
     //   length: 2,
     //   child:
+    if (currentBuilding.children != null) {
+      buildinglocations = currentBuilding.children!
+          .where((element) => element!.type == 'location')
+          .toList();
+      apartments = currentBuilding.children!
+          .where((element) => element!.type == 'apartment')
+          .toList();
+    } else {
+      buildinglocations = List.empty(growable: true);
+      apartments = List.empty(growable: true);
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -339,8 +340,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         Container(
             height: MediaQuery.of(context).size.height / 2,
             child: TabBarView(controller: _tabController, children: [
-              locationsWidget('Building Location'),
-              locationsWidget('Apartment'),
+              locationsWidget('building location'),
+              locationsWidget('apartment'),
             ])),
       ],
       // ),
@@ -348,6 +349,9 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   }
 
   Widget locationsWidget(String type) {
+    
+    bool isLocation=true;
+    isLocation =type=='building location'?buildinglocations.isEmpty: apartments.isEmpty;
     return Padding(
         padding: const EdgeInsets.all(4),
         child: Column(
@@ -376,13 +380,13 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                     autofocus: true,
                   )),
             ),
-            buildinglocations.isEmpty
+            isLocation
                 ? Center(
                     child: Text(
-                    'No $type, Add project $type.',
+                    'No $type, Add $type.',
                     style: const TextStyle(fontSize: 16),
                   ))
-                : type == 'location'
+                : type == 'building location'
                     ? Expanded(
                         child: ListView.builder(
                             shrinkWrap: true,
@@ -501,7 +505,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         shadowColor: Colors.blue,
                         elevation: 1),
                     onPressed: () {
-                      gotoDetails(buildinglocations[index]!.id);
+                      gotoDetails(buildinglocations[index]!.id,'Common Location');
                     },
                     icon: const Icon(Icons.view_carousel_outlined),
                     label: const Text('View Details')),
@@ -607,7 +611,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         shadowColor: Colors.blue,
                         elevation: 1),
                     onPressed: () {
-                      gotoDetails(apartments[index]!.id);
+                      gotoDetails(apartments[index]!.id,'Apartment');
                     },
                     icon: const Icon(Icons.view_carousel_outlined),
                     label: const Text('View Details')),

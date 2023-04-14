@@ -126,7 +126,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LocationPage(id as String,userFullName)),
+        MaterialPageRoute(builder: (context) => LocationPage(id as String,'Project','Project Locations',userFullName)),
       );
     } else {
       Navigator.push(

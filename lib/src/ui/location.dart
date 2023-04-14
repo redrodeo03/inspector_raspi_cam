@@ -11,7 +11,9 @@ import 'image_widget.dart';
 class LocationPage extends StatefulWidget {
   final String id;
   final String userFullName;
-  const LocationPage(this.id, this.userFullName, {Key? key}) : super(key: key);
+  final String parentType;
+  final String locationType;
+  const LocationPage(this.id,this.parentType,this.locationType, this.userFullName, {Key? key}) : super(key: key);
   @override
   State<LocationPage> createState() => _LocationPageState();
 }
@@ -20,10 +22,13 @@ class _LocationPageState extends State<LocationPage> {
   @override
   void initState() {
     locationId = widget.id;
+    parenttype=widget.parentType;
     userFullName = widget.userFullName;
+    locationType = widget.locationType;
     super.initState();
   }
-
+  String locationType='';
+  String parenttype='Project';
   String userFullName = "";
   String locationId = "";
   late Location currentLocation;
@@ -37,17 +42,17 @@ class _LocationPageState extends State<LocationPage> {
           elevation: 0,
           title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children:  [
                 Text(
-                  'Projects',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                  parenttype,
+                  style:const TextStyle(color: Colors.blue, fontSize: 15),
                 ),
-                Text(
-                  'Common Locations',
-                  style: TextStyle(
+               Text(
+                  locationType,
+                  style:const TextStyle(
                       color: Colors.black, fontWeight: FontWeight.normal),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 70,
                 ),
               ]),

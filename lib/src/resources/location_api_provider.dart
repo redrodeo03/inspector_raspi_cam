@@ -46,8 +46,8 @@ class LocationsApiProvider {
     }
   }
 
-  deleteLocation(Object requestBody, String id) async {
-    var endPoint = '${URLS.manageLocationUrl}id/toggleVisibility';
+  Future<Object>  deleteLocation(Object requestBody, String id) async {
+    var endPoint = '${URLS.manageLocationUrl}$id/toggleVisibility';
     final baseUrl = Uri.parse(endPoint);
     final response = await client.post(baseUrl,
         body: requestBody, headers: {'Content-Type': 'application/json'});

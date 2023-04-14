@@ -32,9 +32,14 @@ class SubProject {
         editedat = json['editedat']==null?null: DateTime.tryParse(json['editedat']);
         lasteditedby = json['lasteditedby'];  
         assignedto = json['assignedto']==null? [] : List.castFrom<dynamic, String>(json['assignedto']); 
-        type=json['type'];             
+        type=json['type'];
+        if (json['children'] != null) {
+         children = <Child>[];
+         json['children'].forEach((v) {
+         children!.add(Child.fromJson(v));
+        });             
       }
-    
+    }
 
     Map<String, dynamic> toJson() {
         final Map<String, dynamic> data = <String, dynamic>{};
