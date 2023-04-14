@@ -13,7 +13,7 @@ class ProjectsBloc {
   Stream<Projects> get projects => _projectsFetcher.stream;
 
   fetchAllProjects() async {
-    print('called projects api');
+    //print('called projects api');
     Projects projects = await _repository.fetchAllProjects();
     _projectsFetcher.sink.add(projects);
   }

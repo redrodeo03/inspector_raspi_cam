@@ -1,3 +1,4 @@
+import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
 
 import '../models/location_model.dart';
@@ -74,6 +75,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     _tabController = TabController(vsync: this, length: 2);
 
     _tabController.addListener(_handleTabSelection);
+    
+    projectsBloc.projects.listen((event) {
+         if (event.projects!=null) {
+           var projectList = event.projects as List<Project>;
+           currentProject = projectList.firstWhere((element) => element.id==currentProject.id);
+         }
+        
+     });
+    
   }
 
   void _handleTabSelection() {

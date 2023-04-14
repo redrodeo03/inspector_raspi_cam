@@ -320,7 +320,8 @@ void deleteLocation(BuildContext context) async {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$pageType deleted successfully.')));
-        Navigator.pop(context);
+        //Navigator.pop(context);
+        Navigator.of(context)..pop()..pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),
