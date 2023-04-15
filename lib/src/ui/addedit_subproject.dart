@@ -30,7 +30,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     super.initState();
     if (currentBuilding.id != null) {
       pageTitle = 'Edit Building';
-      prevPagename = 'Buildings';
+      prevPagename = 'Building';
       isNewLocation = false;
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
@@ -96,17 +96,24 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label:  Text(prevPagename, style: const TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
-            leadingWidth: 25,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Project',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
+                
                 Text(
                   pageTitle,
                   style: const TextStyle(

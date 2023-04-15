@@ -24,17 +24,24 @@ class _SectionPageState extends State<SectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leadingWidth: 20,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
+          automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: const Text('Locations', style: TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            elevation: 0,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Locations',
-                style: TextStyle(color: Colors.blue, fontSize: 15),
-              ),
+              
               const Text(
                 'Details',
                 style: TextStyle(

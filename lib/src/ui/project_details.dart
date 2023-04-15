@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
 
@@ -48,21 +50,16 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         description: "",
         createdby: userFullName,
         type: 'location',
-        parentid: currentProject.id,
+        parentid: projectId,
         parenttype: 'project');
     newBuilding = SubProject(
         name: "",
         description: "",
         createdby: userFullName,
         type: 'location',
-        parentid: currentProject.id,
+        parentid: projectId,
         parenttype: 'project');
-    var shortDate = DateTime.tryParse(currentProject.createdat as String);
-    if (shortDate != null) {
-      createdAt = DateFormat.yMMMEd().format(shortDate);
-    } else {
-      createdAt = "";
-    }
+    
     _tabController = TabController(vsync: this, length: 2);
 
     _tabController.addListener(_handleTabSelection);
@@ -70,7 +67,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     buildings = List.empty(growable: true);
   }
 
-  void refreshProjectDetails() {
+  FutureOr refreshProjectDetails(dynamic value) async {
     // var response = await projectsBloc.getProject(currentProject.id as String);
     // if (response is Project) {
     //   currentProject = response;
@@ -117,21 +114,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   void addNewChild() {
-    setState(() {});
+    //setState(() {});
     if (selectedTabIndex == 0) {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 AddEditLocationPage(newLocation, userFullName)),
-      );
+      ).then(refreshProjectDetails);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 AddEditSubProjectPage(newBuilding, userFullName)),
-      );
+      ).then(refreshProjectDetails);
     }
   }
 
@@ -142,14 +139,14 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         MaterialPageRoute(
             builder: (context) => LocationPage(
                 id as String, 'Project', 'Project Locations', userFullName)),
-      );
+      ).then(refreshProjectDetails);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 SubProjectDetailsPage(id as String, userFullName)),
-      );
+      ).then(refreshProjectDetails);
     }
   }
 
@@ -157,23 +154,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-             
-            leadingWidth: 20,
+            automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: const Text('Projects', style: TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
             elevation: 0,
             title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Projects',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
+              mainAxisAlignment: MainAxisAlignment.center ,
+              children: [                
                 const Text(
                   'Project',
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.normal),
                 ),
+               Expanded(child:  Align(alignment: Alignment.centerRight,
+                child:
                 InkWell(
                     onTap: () {
                       addEditProject();
@@ -181,19 +185,19 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     child: const Chip(
                       avatar: Icon(
                         Icons.cloud_sync_outlined,
-                        color: Color(0xFF3F3F3F),
+                        color: Colors.black,
                       ),
                       labelPadding: EdgeInsets.all(2),
                       label: Text(
                         'Cloud Sync',
-                        style: TextStyle(color: Color(0xFF3F3F3F)),
+                        style: TextStyle(color: Colors.black),
                         selectionColor: Colors.white,
                       ),
                       shadowColor: Colors.blue,
                       backgroundColor: Colors.blue,
                       elevation: 10,
                       autofocus: true,
-                    )),
+                    )),),)
               ],
             )),
         body: FutureBuilder(
@@ -212,12 +216,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 final data = snapshot.data;
                 if (data is ProjectResponse) {
                   currentProject = data.item as Project;
-                  locations = currentProject.children!
+                  if(currentProject.children!=null){
+locations = currentProject.children!
                       .where((element) => element!.type == 'location')
                       .toList();
                   buildings = currentProject.children!
                       .where((element) => element!.type == 'subproject')
                       .toList();
+                  }
+                  
                   return SingleChildScrollView(
                       child: Column(
                     children: [
@@ -247,6 +254,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   Widget projectDetails() {
+    var shortDate = DateTime.tryParse(currentProject.createdat as String);
+    if (shortDate != null) {
+      createdAt = DateFormat.yMMMEd().format(shortDate);
+    } else {
+      createdAt = "";
+    }
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -321,10 +334,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                           label: Text(
                             'Edit Project ',
                             style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.white,
+                            selectionColor: Colors.transparent,
                           ),
                           shadowColor: Colors.white,
-                          backgroundColor: Colors.white,
+                          backgroundColor: Colors.transparent,
                           elevation: 0,
                           autofocus: true,
                         )),
@@ -436,10 +449,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     label: Text(
                       'Add $type',
                       style: const TextStyle(color: Colors.blue, fontSize: 15),
-                      selectionColor: Colors.white,
+                      selectionColor: Colors.transparent,
                     ),
                     shadowColor: Colors.white,
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.transparent,
                     elevation: 0,
                     autofocus: true,
                   )),

@@ -19,7 +19,11 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     currentProject = widget.newProject;
     if (currentProject.id != null) {
       pageTitle = "Edit Project";
+      prevPageName ='Project';
       isNewProject = false;
+    }
+    else{
+      prevPageName ='Projects';
     }
     userFullName = widget.userFullName;
     _nameController.text = currentProject.name as String;
@@ -88,7 +92,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       TextEditingController(text: '');
   final TextEditingController _descriptionController =
       TextEditingController(text: '');
-
+  String prevPageName ='';
   late String projectName, projectAddress, projectDescription, projectUrl;
   late String projectType;
   bool isProjectSingleLevel = false;
@@ -111,17 +115,24 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: Text(prevPageName,style: const TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
-            leadingWidth: 25,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Projects',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
+                
                 Text(
                   pageTitle,
                   style: const TextStyle(
@@ -319,5 +330,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             )));
   }
 
-  void deleteProject(String? id) {}
+  void deleteProject(String? id) {
+
+  }
 }

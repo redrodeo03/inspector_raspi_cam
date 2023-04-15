@@ -115,26 +115,25 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leadingWidth: 20,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Projects',
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-                Text(
+          automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: const Text('Project', style: TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            elevation: 0,
+          title: const Text(
                   'Building',
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.normal),
                 ),
-                SizedBox(
-                  width: 70,
-                ),
-              ]),
         ),
         body: FutureBuilder(
           builder: (ctx, snapshot) {

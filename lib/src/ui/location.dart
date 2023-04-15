@@ -36,26 +36,25 @@ class _LocationPageState extends State<LocationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leadingWidth: 20,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:  [
-                Text(
-                  parenttype,
-                  style:const TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-               Text(
+          automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: Text(parenttype, style: const TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            elevation: 0,
+          title:Text(
                   locationType,
                   style:const TextStyle(
                       color: Colors.black, fontWeight: FontWeight.normal),
                 ),
-                const SizedBox(
-                  width: 70,
-                ),
-              ]),
         ),
         body: FutureBuilder(
           builder: (ctx, snapshot) {
@@ -177,10 +176,10 @@ class _LocationPageState extends State<LocationPage> {
                           label: Text(
                             'Edit',
                             style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.white,
+                            selectionColor: Colors.transparent,
                           ),
                           shadowColor: Colors.white,
-                          backgroundColor: Colors.white,
+                          backgroundColor: Colors.transparent,
                           elevation: 0,
                           autofocus: true,
                         )),
@@ -256,10 +255,10 @@ class _LocationPageState extends State<LocationPage> {
                             label: Text(
                               'Add Location',
                               style: TextStyle(color: Colors.blue),
-                              selectionColor: Colors.white,
+                              selectionColor: Colors.transparent,
                             ),
                             shadowColor: Colors.white,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colors.transparent,
                             elevation: 0,
                             autofocus: true,
                           )),

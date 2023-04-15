@@ -1,3 +1,4 @@
+import 'package:deckinspectors/src/ui/project_details.dart';
 import 'package:flutter/material.dart';
 import '../bloc/locations_bloc.dart';
 import '../models/location_model.dart';
@@ -40,11 +41,13 @@ super.dispose();
       _nameController.text = currentLocation.name as String;
       _descriptionController.text = currentLocation.description as String;
       currentLocation.url ??= "/assets/images/icon.png";
+      prevPagename =
+        currentLocation.parenttype == 'subproject' ? 'Building' : 'Location';
     } else {
       pageTitle = 'Add $pageType';
-    }
-    prevPagename =
+      prevPagename =
         currentLocation.parenttype == 'subproject' ? 'Building' : 'Project';
+    }    
   }
 
   late Location currentLocation;
@@ -88,6 +91,11 @@ super.dispose();
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$pageType saved successfully.')));
         Navigator.pop(context);
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) =>
+        //             ProjectDetailsPage(currentLocation.parentid as String, fullUserName)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to save the ${currentLocation.type}')),
@@ -100,17 +108,24 @@ super.dispose();
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+           automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
+          label: Text(prevPagename, style: const TextStyle(color:Colors.blue),),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
-            leadingWidth: 25,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  prevPagename,
-                  style: const TextStyle(color: Colors.blue, fontSize: 15),
-                ),
+                
                 Text(
                   pageTitle,
                   style: const TextStyle(
@@ -318,8 +333,8 @@ void deleteLocation(BuildContext context) async {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$pageType deleted successfully.')));
-        //Navigator.pop(context);
-        Navigator.of(context)..pop()..pop('edit location');        
+        Navigator.of(context)..pop()..pop();
+               
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),
