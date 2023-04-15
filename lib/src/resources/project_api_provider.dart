@@ -22,7 +22,18 @@ class ProjectsApiProvider {
       throw Exception('Failed to load projects');
     }
   }
-  
+  Future<ProjectResponse> getProject(String id) async {
+    var endPoint = URLS.manageProjectsUrl + id;
+    final baseUrl = Uri.parse(endPoint);
+    final response = await client.get(baseUrl);
+
+    if (response.statusCode == 201) {
+      return ProjectResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to get project details');
+    }
+  }
+
   Future<Object> addProject(Object requestBody) async {
     final baseUrl = Uri.parse( URLS.addProjectsUrl);
     final response = await client.post(

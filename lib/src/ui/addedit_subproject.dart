@@ -2,7 +2,6 @@ import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
 import 'package:deckinspectors/src/models/subproject_model.dart';
 import 'package:flutter/material.dart';
 
-import '../models/location_model.dart';
 import '../models/success_response.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {

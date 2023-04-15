@@ -12,7 +12,8 @@ class Repository {
   //Projects
   final projectsApiProvider = ProjectsApiProvider();
   Future<Projects> fetchAllProjects() => projectsApiProvider.fetchProjects();
-
+Future<Object> getProject(String id) =>
+      projectsApiProvider.getProject(id);
   Future<Object> addProject(Object requestBody) =>
       projectsApiProvider.addProject(requestBody);
   Future<Object> updateProject(Object projectObject, String id) =>

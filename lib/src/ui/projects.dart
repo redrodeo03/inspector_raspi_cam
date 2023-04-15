@@ -35,11 +35,11 @@ late String userFullName;
     );
   }
 
-  void gotoProjectDetails(Project currentProject ) {
+  void gotoProjectDetails(String projectId ) {
     setState(() {});
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ProjectDetailsPage(currentProject,userFullName))
+      MaterialPageRoute(builder: (context) => ProjectDetailsPage(projectId,userFullName))
     );
   }
 
@@ -122,7 +122,7 @@ late String userFullName;
                                   const EdgeInsets.fromLTRB(16, 8.0, 16, 8.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  gotoProjectDetails(projects[index] as Project);
+                                  gotoProjectDetails(projects[index]!.id as String);
                                 },
                                 child: Container(
                                   width: 90.0,
@@ -186,7 +186,7 @@ late String userFullName;
                                               child:
                                               GestureDetector(
                                               onTap: () {
-                                                gotoProjectDetails(projects[index] as Project);
+                                                gotoProjectDetails(projects[index]!.id as String);
                                               },
                                               child: Container(
                                                   alignment:
@@ -212,7 +212,7 @@ late String userFullName;
                                                   padding:
                                                       const EdgeInsets.fromLTRB(8,8,16,8),
                                                   child: const Text(
-                                                    'Invasive',
+                                                    'Create Invasive',
                                                     style: TextStyle(
                                                         color: Colors.blue,
                                                         fontSize: 17),

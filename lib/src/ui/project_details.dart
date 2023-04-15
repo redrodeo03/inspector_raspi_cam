@@ -1,6 +1,7 @@
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
 
+import '../models/error_response.dart';
 import '../models/location_model.dart';
 import '../models/subproject_model.dart';
 import 'addedit_subproject.dart';
@@ -13,10 +14,10 @@ import 'subproject.dart';
 import 'package:intl/intl.dart';
 
 class ProjectDetailsPage extends StatefulWidget {
-  final Project currentProject;
+  final String id;
   final String userFullName;
 
-  const ProjectDetailsPage(this.currentProject, this.userFullName, {Key? key})
+  const ProjectDetailsPage(this.id, this.userFullName, {Key? key})
       : super(key: key);
   @override
   State<ProjectDetailsPage> createState() => _ProjectDetailsPageState();
@@ -34,12 +35,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late List<Child?> locations;
   late List<Child?> buildings;
   late Location newLocation;
-   late SubProject newBuilding;
+  late SubProject newBuilding;
+  String projectId = '';
   //late Building newBuilding;
   @override
   void initState() {
     super.initState();
-    currentProject = widget.currentProject;
+    projectId = widget.id;
     userFullName = widget.userFullName;
     newLocation = Location(
         name: "",
@@ -61,29 +63,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     } else {
       createdAt = "";
     }
-    if (currentProject.children != null) {
-      locations = currentProject.children!
-          .where((element) => element!.type == 'location')
-          .toList();
-      buildings = currentProject.children!
-          .where((element) => element!.type == 'subproject')
-          .toList();
-    } else {
-      locations = List.empty(growable: true);
-    }
-
     _tabController = TabController(vsync: this, length: 2);
 
     _tabController.addListener(_handleTabSelection);
-    
-    projectsBloc.projects.listen((event) {
-         if (event.projects!=null) {
-           var projectList = event.projects as List<Project>;
-           currentProject = projectList.firstWhere((element) => element.id==currentProject.id);
-         }
-        
-     });
-    
+    locations = List.empty(growable: true);
+    buildings = List.empty(growable: true);
+  }
+
+  void refreshProjectDetails() {
+    // var response = await projectsBloc.getProject(currentProject.id as String);
+    // if (response is Project) {
+    //   currentProject = response;
+    // } else {
+    //   //
+    // }
+    setState(() {
+      if (currentProject.children != null) {
+        locations = currentProject.children!
+            .where((element) => element!.type == 'location')
+            .toList();
+        buildings = currentProject.children!
+            .where((element) => element!.type == 'subproject')
+            .toList();
+      }
+    });
   }
 
   void _handleTabSelection() {
@@ -126,46 +129,35 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => AddEditSubProjectPage(newBuilding, userFullName)),
+            builder: (context) =>
+                AddEditSubProjectPage(newBuilding, userFullName)),
       );
     }
   }
 
   void gotoDetails(String? id) {
     if (selectedTabIndex == 0) {
-
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LocationPage(id as String,'Project','Project Locations',userFullName)),
+        MaterialPageRoute(
+            builder: (context) => LocationPage(
+                id as String, 'Project', 'Project Locations', userFullName)),
       );
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SubProjectDetailsPage(id as String, userFullName)),
+        MaterialPageRoute(
+            builder: (context) =>
+                SubProjectDetailsPage(id as String, userFullName)),
       );
     }
-  }
-
-  void gotoLocationDetails() {
-    setState(() {});
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const AddEditProjectPage()),
-    // );
-  }
-
-  void gotoSubProjectDetails() {
-    setState(() {});
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const AddEditProjectPage()),
-    // );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+             
             leadingWidth: 20,
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
@@ -204,14 +196,54 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     )),
               ],
             )),
-        body: SingleChildScrollView(
-            child: Column(
-          children: [
-            projectDetails(),
-            projectChildrenTab(context),
-// Expanded(child: projectChildrenTab())
-          ],
-        )));
+        body: FutureBuilder(
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    '${snapshot.error} occurred',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                );
+
+                // if we got our data
+              } else if (snapshot.hasData) {
+                final data = snapshot.data;
+                if (data is ProjectResponse) {
+                  currentProject = data.item as Project;
+                  locations = currentProject.children!
+                      .where((element) => element!.type == 'location')
+                      .toList();
+                  buildings = currentProject.children!
+                      .where((element) => element!.type == 'subproject')
+                      .toList();
+                  return SingleChildScrollView(
+                      child: Column(
+                    children: [
+                      projectDetails(),
+                      projectChildrenTab(context),
+                    ],
+                  ));
+                }
+                if (data is ErrorResponse) {
+                  return Center(
+                    child: Text(
+                      '${data.message}',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  );
+                }
+              }
+            }
+
+            // Displaying LoadingSpinner to indicate waiting state
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+          future: projectsBloc.getProject(projectId),
+        ));
   }
 
   Widget projectDetails() {
@@ -284,8 +316,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                           addEditProject();
                         },
                         child: const Chip(
-                          avatar:
-                              Icon(Icons.edit_outlined, color: Colors.blue),
+                          avatar: Icon(Icons.edit_outlined, color: Colors.blue),
                           labelPadding: EdgeInsets.all(2),
                           label: Text(
                             'Edit Project ',
@@ -373,7 +404,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ],
           labelColor: Colors.black,
         ),
-        Container(
+        SizedBox(
             height: MediaQuery.of(context).size.height / 2,
             child: TabBarView(controller: _tabController, children: [
               locationsWidget('location'),
@@ -419,30 +450,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     'No $type, Add project $type.',
                     style: const TextStyle(fontSize: 16),
                   ))
-                : type=='location'?
-                Expanded(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: locations.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return horizontalScrollChildren(context, index);
-                        }))
-                        :Expanded(
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: buildings.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return horizontalScrollChildrenBuildings(context, index);
-                        }))
+                : type == 'location'
+                    ? Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: locations.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return horizontalScrollChildren(context, index);
+                            }))
+                    : Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: buildings.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return horizontalScrollChildrenBuildings(
+                                  context, index);
+                            }))
           ],
         ));
   }
 
   //Todo create widget for locations
   Widget horizontalScrollChildren(BuildContext context, int index) {
-
     return SizedBox(
         width: MediaQuery.of(context).size.width / 2,
         child: Padding(
@@ -483,7 +514,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children:  [
+                      children: [
                         Expanded(
                           child: Text(
                             maxLines: 2,
@@ -503,30 +534,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               ),
               Padding(
                   padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(alignment: Alignment.centerLeft,
-                  child:
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          maxLines: 1,
-                          'Locations  Count:',
-                          style: TextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            fontSize: 13,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          textAlign: TextAlign.left,
-                          locations[index]!.count.toString() ,
-                          style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14),
-                          selectionColor: Colors.white,
-                        ),
-                      ]))),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              maxLines: 1,
+                              'Locations  Count:',
+                              style: TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              textAlign: TextAlign.left,
+                              locations[index]!.count.toString(),
+                              style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
+                              selectionColor: Colors.white,
+                            ),
+                          ]))),
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
                 child: OutlinedButton.icon(
@@ -547,9 +578,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ),
         ));
   }
-  
+
   Widget horizontalScrollChildrenBuildings(BuildContext context, int index) {
-    
     return SizedBox(
         width: MediaQuery.of(context).size.width / 2,
         child: Padding(
@@ -590,7 +620,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children:  [
+                      children: [
                         Expanded(
                           child: Text(
                             maxLines: 2,
@@ -610,30 +640,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               ),
               Padding(
                   padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(alignment: Alignment.centerLeft,
-                  child:
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          maxLines: 1,
-                          'Locations  Count:',
-                          style: TextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            fontSize: 13,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          textAlign: TextAlign.left,
-                          buildings[index]!.count.toString() ,
-                          style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14),
-                          selectionColor: Colors.white,
-                        ),
-                      ]))),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              maxLines: 1,
+                              'Locations  Count:',
+                              style: TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              textAlign: TextAlign.left,
+                              buildings[index]!.count.toString(),
+                              style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
+                              selectionColor: Colors.white,
+                            ),
+                          ]))),
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
                 child: OutlinedButton.icon(
@@ -654,5 +684,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ),
         ));
   }
+
   void deleteProject(String? id) {}
 }

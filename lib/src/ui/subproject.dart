@@ -1,6 +1,4 @@
 import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
-import 'package:intl/intl.dart';
-
 import '../models/error_response.dart';
 import '../models/location_model.dart';
 import '../models/project_model.dart';
@@ -179,7 +177,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             );
           },
           future: subProjectsBloc.getSubProject(buildingId),
-        ));
+        )
+        );
   }
 
   Widget buildingDetails() {

@@ -17,7 +17,10 @@ class ProjectsBloc {
     Projects projects = await _repository.fetchAllProjects();
     _projectsFetcher.sink.add(projects);
   }
-
+Future <Object> getProject(String id) async{
+    var response = await _repository.getProject(id);
+    return response;
+  }
   dispose() {
     _projectsFetcher.close();
   }

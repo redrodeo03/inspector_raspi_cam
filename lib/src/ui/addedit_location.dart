@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/number_symbols_data.dart';
-
 import '../bloc/locations_bloc.dart';
 import '../models/location_model.dart';
 import '../models/success_response.dart';
@@ -321,7 +319,7 @@ void deleteLocation(BuildContext context) async {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$pageType deleted successfully.')));
         //Navigator.pop(context);
-        Navigator.of(context)..pop()..pop();
+        Navigator.of(context)..pop()..pop('edit location');        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),

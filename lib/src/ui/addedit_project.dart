@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:deckinspectors/src/ui/project_details.dart';
 import 'package:flutter/material.dart';
 import '../bloc/projects_bloc.dart';
 import '../models/success_response.dart';
@@ -16,9 +17,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   @override
   void initState() {
     currentProject = widget.newProject;
-    if(currentProject.id!=null){
+    if (currentProject.id != null) {
       pageTitle = "Edit Project";
-      isNewProject =false;
+      isNewProject = false;
     }
     userFullName = widget.userFullName;
     _nameController.text = currentProject.name as String;
@@ -29,8 +30,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
     super.initState();
   }
-  bool isNewProject =true;
-  late  String userFullName ;
+
+  bool isNewProject = true;
+  late String userFullName;
   late Project currentProject;
   String pageTitle = "Add Project";
   final _formKey = GlobalKey<FormState>();
@@ -45,16 +47,16 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       currentProject.name = _nameController.text;
       currentProject.address = _addressController.text;
       currentProject.description = _descriptionController.text;
-      if(isNewProject){
-        currentProject.createdby =userFullName;
-      }else{
+      if (isNewProject) {
+        currentProject.createdby = userFullName;
+      } else {
         currentProject.lasteditedby = userFullName;
       }
-      
+
       //TODO : Set image URL
 
       Object result;
-      if (currentProject.id==null) {
+      if (currentProject.id == null) {
         result = await projectsBloc.addProject(currentProject);
       } else {
         result = await projectsBloc.updateProject(currentProject);
@@ -66,13 +68,17 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
+        var response = result ;
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ProjectDetailsPage(response.id as String, userFullName)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the project.')),
         );
       }
-
-      Navigator.pop(context);
     }
   }
 
@@ -107,18 +113,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
         appBar: AppBar(
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
-             leadingWidth: 25,
-             elevation: 0,
+            leadingWidth: 25,
+            elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-               const Text(
-                  'Project',
-                  style: TextStyle(color: Colors.blue,fontSize: 15),
+                const Text(
+                  'Projects',
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
                 ),
                 Text(
                   pageTitle,
-                  style: const TextStyle(color: Colors.black,fontWeight: FontWeight.normal),
+                  style: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.normal),
                 ),
                 InkWell(
                     onTap: () {
@@ -148,25 +155,26 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height*.9,
+                  height: MediaQuery.of(context).size.height * .9,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       if(isNewProject) Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Is Project Single Level',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),                          
-                          Switch( 
-                            onChanged: (value) {
-                              toggleSwitch(value);
-                            },
-                            value: isProjectSingleLevel,                            
-                          ),
-                        ],
-                      ),
+                      if (isNewProject)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Is Project Single Level',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            Switch(
+                              onChanged: (value) {
+                                toggleSwitch(value);
+                              },
+                              value: isProjectSingleLevel,
+                            ),
+                          ],
+                        ),
                       const Text('Project name'),
                       const SizedBox(
                         height: 8,
@@ -239,22 +247,26 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               ],
                             )),
                       )),
-                      if(!isNewProject)
-                      OutlinedButton.icon(
-                        style:
-                      OutlinedButton.styleFrom(
-                            side: BorderSide.none,
-                            // the height is 50, the width is full
-                            minimumSize: const Size.fromHeight(40),
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.blue,
-                            elevation: 2),
-                        onPressed: () {
-                          deleteProject(currentProject.id);
-                        },
-                        icon: const Icon(Icons.delete_outline_outlined, color: Colors.redAccent,),
-                        label: const Text('Delete Project',
-                        style: TextStyle(color: Colors.red   ),)),
+                      if (!isNewProject)
+                        OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                                side: BorderSide.none,
+                                // the height is 50, the width is full
+                                minimumSize: const Size.fromHeight(40),
+                                backgroundColor: Colors.white,
+                                shadowColor: Colors.blue,
+                                elevation: 2),
+                            onPressed: () {
+                              deleteProject(currentProject.id);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.redAccent,
+                            ),
+                            label: const Text(
+                              'Delete Project',
+                              style: TextStyle(color: Colors.red),
+                            )),
                       const SizedBox(
                         height: 30,
                       )
@@ -306,8 +318,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
               borderRadius: BorderRadius.circular(8),
             )));
   }
-  
-  void deleteProject(String? id) {
 
-  }
+  void deleteProject(String? id) {}
 }

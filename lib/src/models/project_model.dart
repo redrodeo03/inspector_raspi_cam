@@ -116,5 +116,25 @@ class Projects {
         return data;
     }
 }
+class ProjectResponse {
+    Project? item;
+    String? message;
+    int? code;
 
+    ProjectResponse({this.item, this.message, this.code}); 
+
+    ProjectResponse.fromJson(Map<String, dynamic> json) {
+        item = json['item'] != null ? Project?.fromJson(json['item']) : null;
+        message = json['message'];
+        code = json['code'];
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = <String, dynamic>{};
+        data['item'] = item!.toJson();
+        data['message'] = message;
+        data['code'] = code;
+        return data;
+    }
+}
 
