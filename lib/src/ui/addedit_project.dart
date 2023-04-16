@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
 import 'package:flutter/material.dart';
 import '../bloc/projects_bloc.dart';
 import '../models/success_response.dart';
+import 'capture_image.dart';
+import 'image_widget.dart';
 
 class AddEditProjectPage extends StatefulWidget {
   final Project newProject;
@@ -19,11 +23,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     currentProject = widget.newProject;
     if (currentProject.id != null) {
       pageTitle = "Edit Project";
-      prevPageName ='Project';
-      isNewProject = false;
-    }
-    else{
-      prevPageName ='Projects';
+      prevPageName = 'Project';
+      isNewProject = false;      
+    } else {
+      prevPageName = 'Projects';
     }
     userFullName = widget.userFullName;
     _nameController.text = currentProject.name as String;
@@ -34,7 +37,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
     super.initState();
   }
-
+  
   bool isNewProject = true;
   late String userFullName;
   late Project currentProject;
@@ -60,7 +63,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       //TODO : Set image URL
 
       Object result;
+      //upload image if changed
+      if (imageURL!=currentProject.url) {
+        var uploadResult = await imagesBloc.uploadImage(currentProject.url);
+      }
       if (currentProject.id == null) {
+
         result = await projectsBloc.addProject(currentProject);
       } else {
         result = await projectsBloc.updateProject(currentProject);
@@ -72,7 +80,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
-        var response = result ;
+        var response = result;
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -92,7 +100,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       TextEditingController(text: '');
   final TextEditingController _descriptionController =
       TextEditingController(text: '');
-  String prevPageName ='';
+  String prevPageName = '';
   late String projectName, projectAddress, projectDescription, projectUrl;
   late String projectType;
   bool isProjectSingleLevel = false;
@@ -115,24 +123,29 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: Text(prevPageName,style: const TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
+            automaticallyImplyLeading: false,
+            leadingWidth: 120,
+            leading: ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.blue,
+              ),
+              label: Text(
+                prevPageName,
+                style: const TextStyle(color: Colors.blue),
+              ),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 Text(
                   pageTitle,
                   style: const TextStyle(
@@ -166,7 +179,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height * .9,
+                  height: MediaQuery.of(context).size.height * 1,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -217,9 +230,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                         borderOnForeground: false,
                         elevation: 8,
                         child: GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               //add logic to open camera.
-                              print('tapped on image');
+                              var xfile = await captureImage(context);
+                              if (xfile != null) {
+                                currentProject.url = xfile.path;
+                              }
                             },
                             child: Stack(
                               alignment: Alignment.bottomCenter,
@@ -227,22 +243,26 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                 Container(
                                   decoration: const BoxDecoration(
                                       color: Colors.orange,
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/icon.png'),
-                                          fit: BoxFit.cover),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
                                       boxShadow: [
                                         BoxShadow(
                                             blurRadius: 1.0, color: Colors.blue)
                                       ]),
+                                  child: isNewProject
+                                      ? Image.file(
+                                          File(currentProject.url as String),
+                                          fit: BoxFit.fill,                                          
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                      : networkImage(currentProject.url),
                                 ),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: const [
                                     Icon(Icons.camera_outlined,
-                                        size: 40, color: Colors.black),
+                                        size: 40, color: Colors.blue),
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
@@ -264,9 +284,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                 side: BorderSide.none,
                                 // the height is 50, the width is full
                                 minimumSize: const Size.fromHeight(40),
-                                backgroundColor: Colors.white,
-                                shadowColor: Colors.blue,
-                                elevation: 2),
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                elevation: 1),
                             onPressed: () {
                               deleteProject(currentProject.id);
                             },
@@ -330,7 +350,5 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             )));
   }
 
-  void deleteProject(String? id) {
-
-  }
+  void deleteProject(String? id) {}
 }
