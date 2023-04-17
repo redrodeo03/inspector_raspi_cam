@@ -1,13 +1,19 @@
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 Image networkImage(String? netWorkImageURL) {
-    String imageURL = "";
-    if (netWorkImageURL == null) {
-      imageURL = "assets/images/blank.png";
-    } else {
-      imageURL = netWorkImageURL;
-    }
+  String imageURL = "";
+  if (netWorkImageURL == null) {
+    return Image.asset(
+          "assets/images/heroimage.png",
+          fit: BoxFit.fill,
+          width: double.infinity,
+        );
+  } else {
+    imageURL = netWorkImageURL;
+  }
+  if (imageURL.startsWith('http')) {
     return Image.network(
       imageURL,
       fit: BoxFit.fill,
@@ -31,11 +37,17 @@ Image networkImage(String? netWorkImageURL) {
       // I showed dummy images from assets when there is an error, you can show some texts or anything you want.
       errorBuilder: (context, exception, stackTrace) {
         return Image.asset(
-          'assets/images/heroimage.png',
-          fit: BoxFit.cover,
-          height: 180,
+          "assets/images/heroimage.png",
+          fit: BoxFit.fill,
           width: double.infinity,
         );
       },
     );
+  } else {
+    return Image.file(
+      File(imageURL ),
+      fit: BoxFit.fill,
+      width: double.infinity,
+    );
   }
+}

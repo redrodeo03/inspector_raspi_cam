@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
 import 'package:deckinspectors/src/models/subproject_model.dart';
 import 'package:flutter/material.dart';
 
 import '../models/success_response.dart';
+import 'image_widget.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
   final SubProject currentBuilding;
@@ -187,10 +190,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                     Container(
                                       decoration: const BoxDecoration(
                                           color: Colors.orange,
-                                          image: DecorationImage(
-                                              image: AssetImage(
-                                                  'assets/images/icon.png'),
-                                              fit: BoxFit.cover),
+                                          
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(8.0)),
                                           boxShadow: [
@@ -198,6 +198,21 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
+                                          child: isNewLocation
+                                          ?( currentBuilding.url == null
+                                              ? Image.asset(
+                                                  'assets/images/heroimage.png',
+                                                  fit: BoxFit.fill,
+                                                  width: double.infinity,
+                                                )
+                                              : Image.file(
+                                                  File(currentBuilding.url
+                                                      as String),
+                                                  fit: BoxFit.fill,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                ))
+                                          : networkImage(currentBuilding.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,

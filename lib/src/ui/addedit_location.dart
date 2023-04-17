@@ -1,8 +1,9 @@
-import 'package:deckinspectors/src/ui/project_details.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../bloc/locations_bloc.dart';
 import '../models/location_model.dart';
 import '../models/success_response.dart';
+import 'image_widget.dart';
 
 class AddEditLocationPage extends StatefulWidget {
   final Location currentLocation;
@@ -23,11 +24,12 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       TextEditingController(text: '');
 
   @override
-  void dispose(){
-_nameController.dispose();
-_descriptionController.dispose();
-super.dispose();
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
+
   @override
   void initState() {
     currentLocation = widget.currentLocation;
@@ -42,12 +44,12 @@ super.dispose();
       _descriptionController.text = currentLocation.description as String;
       currentLocation.url ??= "/assets/images/icon.png";
       prevPagename =
-        currentLocation.parenttype == 'subproject' ? 'Building' : 'Location';
+          currentLocation.parenttype == 'subproject' ? 'Building' : 'Location';
     } else {
       pageTitle = 'Add $pageType';
       prevPagename =
-        currentLocation.parenttype == 'subproject' ? 'Building' : 'Project';
-    }    
+          currentLocation.parenttype == 'subproject' ? 'Building' : 'Project';
+    }
   }
 
   late Location currentLocation;
@@ -108,24 +110,29 @@ super.dispose();
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-           automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: Text(prevPagename, style: const TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
+            automaticallyImplyLeading: false,
+            leadingWidth: 120,
+            leading: ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.blue,
+              ),
+              label: Text(
+                prevPagename,
+                style: const TextStyle(color: Colors.blue),
+              ),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 Text(
                   pageTitle,
                   style: const TextStyle(
@@ -200,10 +207,6 @@ super.dispose();
                                     Container(
                                       decoration: const BoxDecoration(
                                           color: Colors.orange,
-                                          image: DecorationImage(
-                                              image: AssetImage(
-                                                  'assets/images/icon.png'),
-                                              fit: BoxFit.cover),
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(8.0)),
                                           boxShadow: [
@@ -211,6 +214,21 @@ super.dispose();
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
+                                      child: isNewLocation
+                                          ? (currentLocation.url == null
+                                              ? Image.asset(
+                                                  'assets/images/heroimage.png',
+                                                  fit: BoxFit.fill,
+                                                  width: double.infinity,
+                                                )
+                                              : Image.file(
+                                                  File(currentLocation.url
+                                                      as String),
+                                                  fit: BoxFit.fill,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                ))
+                                          : networkImage(currentLocation.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -232,22 +250,26 @@ super.dispose();
                                   ],
                                 )),
                           )),
-                          if(!isNewLocation)
-                      OutlinedButton.icon(
-                        style:
-                      OutlinedButton.styleFrom(
-                            side: BorderSide.none,
-                            // the height is 50, the width is full
-                            minimumSize: const Size.fromHeight(40),
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.blue,
-                            elevation: 0),
-                        onPressed: () {
-                          deleteLocation(context);
-                        },
-                        icon: const Icon(Icons.delete_outline_outlined, color: Colors.redAccent,),
-                        label:  Text('Delete $pageType',
-                        style: const TextStyle(color: Colors.red   ),)),
+                      if (!isNewLocation)
+                        OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                                side: BorderSide.none,
+                                // the height is 50, the width is full
+                                minimumSize: const Size.fromHeight(40),
+                                backgroundColor: Colors.white,
+                                shadowColor: Colors.blue,
+                                elevation: 0),
+                            onPressed: () {
+                              deleteLocation(context);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.redAccent,
+                            ),
+                            label: Text(
+                              'Delete $pageType',
+                              style: const TextStyle(color: Colors.red),
+                            )),
                       const SizedBox(
                         height: 40,
                       )
@@ -315,30 +337,32 @@ super.dispose();
             )));
   }
 
+  void deleteLocation(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Deleting $pageType...')),
+    );
+    //id,type, name, parentId, parentType, isVisible
+    var result = await locationsBloc.deleteLocation(
+        currentLocation.id as String,
+        currentLocation.type,
+        currentLocation.name as String,
+        currentLocation.parentid as String,
+        currentLocation.parenttype as String,
+        false);
 
-
-void deleteLocation(BuildContext context) async {
- 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Deleting $pageType...')),
-      );
-      //id,type, name, parentId, parentType, isVisible
-      var result = await locationsBloc.deleteLocation(
-        currentLocation.id as String,currentLocation.type,currentLocation.name as String,
-      currentLocation.parentid as String,currentLocation.parenttype as String,false);
-      
-      if (!mounted) {
-        return;
-      }
-      if (result is SuccessResponse) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$pageType deleted successfully.')));
-        Navigator.of(context)..pop()..pop();
-               
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),
-        );
-      }
+    if (!mounted) {
+      return;
     }
+    if (result is SuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$pageType deleted successfully.')));
+      Navigator.of(context)
+        ..pop()
+        ..pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),
+      );
+    }
+  }
 }

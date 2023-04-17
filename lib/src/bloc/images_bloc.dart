@@ -12,3 +12,4 @@ class ImagessBloc {
     return response;
   }
 }
+final imagesBloc = ImagessBloc();

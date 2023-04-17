@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
 import 'package:flutter/material.dart';
+import '../bloc/images_bloc.dart';
 import '../bloc/projects_bloc.dart';
 import '../models/success_response.dart';
 import 'capture_image.dart';
@@ -24,7 +25,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     if (currentProject.id != null) {
       pageTitle = "Edit Project";
       prevPageName = 'Project';
-      isNewProject = false;      
+      isNewProject = false;
     } else {
       prevPageName = 'Projects';
     }
@@ -37,7 +38,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
     super.initState();
   }
-  
+
   bool isNewProject = true;
   late String userFullName;
   late Project currentProject;
@@ -64,11 +65,17 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
 
       Object result;
       //upload image if changed
-      if (imageURL!=currentProject.url) {
-        var uploadResult = await imagesBloc.uploadImage(currentProject.url);
+      if (imageURL != currentProject.url) {
+        var uploadResult = await imagesBloc.uploadImage(
+            currentProject.url as String,
+            currentProject.name as String,
+            userFullName,
+            'project');
+        if (uploadResult is ImageResponse) {
+          currentProject.url = uploadResult.url;
+        }
       }
       if (currentProject.id == null) {
-
         result = await projectsBloc.addProject(currentProject);
       } else {
         result = await projectsBloc.updateProject(currentProject);
@@ -80,12 +87,17 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
-        var response = result;
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ProjectDetailsPage(response.id as String, userFullName)));
+        if (currentProject.id == null) {
+          var response = result;
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ProjectDetailsPage(response.id as String, userFullName)));
+        }
+        else{
+          Navigator.pop(context);
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the project.')),
@@ -234,7 +246,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               //add logic to open camera.
                               var xfile = await captureImage(context);
                               if (xfile != null) {
-                                currentProject.url = xfile.path;
+                                setState(() {
+                                  currentProject.url = xfile.path;
+                                });
+                                
                               }
                             },
                             child: Stack(
@@ -252,7 +267,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                   child: isNewProject
                                       ? Image.file(
                                           File(currentProject.url as String),
-                                          fit: BoxFit.fill,                                          
+                                          fit: BoxFit.fill,
                                           width: double.infinity,
                                           height: 250,
                                         )

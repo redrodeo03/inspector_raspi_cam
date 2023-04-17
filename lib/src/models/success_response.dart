@@ -21,6 +21,27 @@ class SuccessResponse {
     }
 }
 
+class ImageResponse {
+    String? url;
+    String? message;   
+
+    ImageResponse({ this.message, this.url}); 
+
+    ImageResponse.fromJson(Map<String, dynamic> json) {
+       
+        message = json['message'];
+        url = json['url'];
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = <String, dynamic>{};
+        
+        data['message'] = message;
+        data['url'] = url;
+        return data;
+    }
+}
+
 // class SuccessResponse {
 //     Data? data;
 

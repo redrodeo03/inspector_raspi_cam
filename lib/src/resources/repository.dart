@@ -4,6 +4,7 @@ import 'package:deckinspectors/src/resources/project_api_provider.dart';
 import 'package:deckinspectors/src/resources/user_provider.dart';
 
 import '../models/login_response.dart';
+import 'image_api_provider.dart';
 import 'location_api_provider.dart';
 import 'section_api_provider.dart';
 import 'subproject_api_provider.dart';
@@ -60,4 +61,8 @@ Future<Object> getSubProject(String id) =>
   final usersApiProvider = UsersApiProvider();
   Future<LoginResponse> login(Object loginReq) =>
       usersApiProvider.login(loginReq);
+  
+   final imageApiProvider = ImagesApiProvider();
+   Future<Object> uploadImage(String path, String containerName, String uploader, String entityName) =>
+      imageApiProvider.uploadImage(path, containerName, uploader, entityName);
 }

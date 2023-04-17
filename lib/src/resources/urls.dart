@@ -16,5 +16,6 @@ static const String manageSubprojectUrl= '$baseUrl/subproject/';
 static const String addSectiontUrl= '$baseUrl/section/add';
 static const String manageSectionUrl= '$baseUrl/section/';
 
+static const String manageImagesUrl= '$baseUrl/image/';
 
 }
