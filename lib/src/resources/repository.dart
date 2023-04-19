@@ -63,6 +63,6 @@ Future<Object> getSubProject(String id) =>
       usersApiProvider.login(loginReq);
   
    final imageApiProvider = ImagesApiProvider();
-   Future<Object> uploadImage(String path, String containerName, String uploader, String entityName) =>
-      imageApiProvider.uploadImage(path, containerName, uploader, entityName);
+   Future<Object> uploadImage(String path, String containerName, String uploader,String id,String parentType,String entityName) =>
+      imageApiProvider.uploadImage(path, containerName, uploader,id,parentType, entityName);
 }

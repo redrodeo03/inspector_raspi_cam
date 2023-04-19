@@ -7,7 +7,7 @@ import '../models/success_response.dart';
 
 class ImagesApiProvider {
   Future<Object> uploadImage(String imageFilePath, String containerName,
-      String uploader, String entityName) async {
+      String uploader,String id,String parentType,String entityName) async {
     var endPoint = '${URLS.manageImagesUrl}upload';
     final baseUrl = Uri.parse(endPoint);
 
@@ -19,9 +19,12 @@ class ImagesApiProvider {
     )
   );
     
+    request.fields['id'] = id;
+    request.fields['parentType'] = parentType;
+    request.fields['type'] = entityName;
     request.fields['containerName'] = containerName;
     request.fields['uploader'] = uploader;
-    request.fields['entityName'] = entityName;
+    
     
     var responseStream = await request.send();
     var response = await http.Response.fromStream(responseStream);
