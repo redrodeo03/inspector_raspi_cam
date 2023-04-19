@@ -22,13 +22,13 @@ class ImagesApiProvider {
     request.fields['id'] = id;
     request.fields['parentType'] = parentType;
     request.fields['type'] = entityName;
-    request.fields['containerName'] = containerName;
+    request.fields['containerName'] = containerName.replaceAll(' ', '').toLowerCase();
     request.fields['uploader'] = uploader;
     
     
     var responseStream = await request.send();
     var response = await http.Response.fromStream(responseStream);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       // print("Uploaded! ");
       // print('response.body '+response.body);
       return ImageResponse.fromJson(json.decode(response.body));

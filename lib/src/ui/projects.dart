@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
+import 'package:deckinspectors/src/ui/image_widget.dart';
 
 import 'package:flutter/material.dart';
 import '../models/project_model.dart';
@@ -14,33 +15,38 @@ class ProjectsPage extends StatefulWidget {
 
 //Add New Project
 class _ProjectsPageState extends State<ProjectsPage> {
-
   //LoginResponse loggedInUser = LoginResponse();
-late String userFullName;
+  late String userFullName;
   late Project newProject;
   @override
-  void initState(){
+  void initState() {
     super.initState();
     var loggedInUser = usersBloc.userDetails;
-    userFullName = loggedInUser.firstname as String ;
+    userFullName = loggedInUser.firstname as String;
     userFullName = "$userFullName ${loggedInUser.lastname as String}";
-    newProject = Project(name: "", description: "",address: "",url: "",createdby: userFullName );
+    newProject = Project(
+        name: "",
+        description: "",
+        address: "",
+        url: "",
+        createdby: userFullName);
   }
-  
+
   void addEditProject() {
     setState(() {});
     Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddEditProjectPage(newProject,userFullName))
-    );
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                AddEditProjectPage(newProject, userFullName)));
   }
 
-  void gotoProjectDetails(String projectId ) {
+  void gotoProjectDetails(String projectId) {
     setState(() {});
     Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ProjectDetailsPage(projectId,userFullName))
-    );
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProjectDetailsPage(projectId, userFullName)));
   }
 
   @override
@@ -48,10 +54,10 @@ late String userFullName;
     projectsBloc.fetchAllProjects();
     return Scaffold(
         appBar: AppBar(
-          leadingWidth: 20,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
+            leadingWidth: 20,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -119,26 +125,31 @@ late String userFullName;
                           children: <Widget>[
                             Padding(
                               padding:
-                                  const EdgeInsets.fromLTRB(16, 8.0, 16, 8.0),
+                                  const EdgeInsets.fromLTRB(8, 8.0, 8, 8.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  gotoProjectDetails(projects[index]!.id as String);
+                                  gotoProjectDetails(
+                                      projects[index]!.id as String);
                                 },
                                 child: Container(
                                   width: 90.0,
                                   height: 90.0,
                                   decoration: const BoxDecoration(
                                       color: Colors.orange,
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/icon.png'),
-                                          fit: BoxFit.cover),
+                                      // image: DecorationImage(
+                                      //     image: AssetImage(
+                                      //         'assets/images/icon.png'),
+                                      //     fit: BoxFit.cover),
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(8.0)),
                                       boxShadow: [
                                         BoxShadow(
                                             blurRadius: 1.0, color: Colors.blue)
                                       ]),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: networkImage(projects[index]!.url),
+                                  ),
                                 ),
                               ),
                             ),
@@ -165,41 +176,51 @@ late String userFullName;
                                     // ),
                                     Expanded(
                                       child: Row(
-                                        mainAxisAlignment:                                        
-                                            MainAxisAlignment.spaceBetween,                                            
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceEvenly,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Padding(padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                                              child:
-                                               Text(
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        0, 8, 0, 0),
+                                                child: Text(
                                                   projType,
                                                   textAlign: TextAlign.left,
                                                   style: const TextStyle(
                                                     color: Colors.black87,
                                                   ),
-                                                ),),
-                                              Padding(padding: const EdgeInsets.fromLTRB(0,12,0,0),
-                                              child:
-                                              GestureDetector(
-                                              onTap: () {
-                                                gotoProjectDetails(projects[index]!.id as String);
-                                              },
-                                              child: Container(
-                                                  alignment:
-                                                      Alignment.bottomRight,
+                                                ),
+                                              ),
+                                              Padding(
                                                   padding:
-                                                      const EdgeInsets.fromLTRB(0,8,8,8),
-                                                  child: const Text(
-                                                    'View Visual',
-                                                    style: TextStyle(
-                                                        color: Colors.blue,
-                                                        fontSize: 17),
-                                                  )))
-                                              )
+                                                      const EdgeInsets.fromLTRB(
+                                                          0, 12, 0, 0),
+                                                  child: GestureDetector(
+                                                      onTap: () {
+                                                        gotoProjectDetails(
+                                                            projects[index]!.id
+                                                                as String);
+                                                      },
+                                                      child: Container(
+                                                          alignment: Alignment
+                                                              .bottomRight,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .fromLTRB(
+                                                                  0, 8, 8, 8),
+                                                          child: const Text(
+                                                            'View Visual',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.blue,
+                                                                fontSize: 17),
+                                                          ))))
                                             ],
                                           ),
                                           GestureDetector(
@@ -210,7 +231,8 @@ late String userFullName;
                                                   alignment:
                                                       Alignment.bottomRight,
                                                   padding:
-                                                      const EdgeInsets.fromLTRB(8,8,16,8),
+                                                      const EdgeInsets.fromLTRB(
+                                                          8, 8, 16, 8),
                                                   child: const Text(
                                                     'Create Invasive',
                                                     style: TextStyle(

@@ -15,7 +15,7 @@ Image networkImage(String? netWorkImageURL) {
   }
   if (imageURL.startsWith('http')) {
     return Image.network(
-      imageURL,
+      imageURL, width: double.infinity,
       fit: BoxFit.fill,
       // When image is loading from the server it takes some time
       // So we will show progress indicator while loading

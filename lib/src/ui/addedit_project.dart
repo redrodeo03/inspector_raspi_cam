@@ -66,14 +66,14 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       Object result;
       //upload image if changed
       if (imageURL != currentProject.url) {
-        var uploadResult = await imagesBloc.uploadImage(
+         imagesBloc.uploadImage(
             currentProject.url as String,
             currentProject.name as String,
             userFullName,currentProject.id as String, '',
             'project');
-        if (uploadResult is ImageResponse) {
-          currentProject.url = uploadResult.url;
-        }
+        // if (uploadResult is ImageResponse) {
+        //   currentProject.url = uploadResult.url;
+        // }
       }
       if (currentProject.id == null) {
         result = await projectsBloc.addProject(currentProject);

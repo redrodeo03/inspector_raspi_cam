@@ -59,7 +59,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         type: 'location',
         parentid: projectId,
         parenttype: 'project');
-    
+
     _tabController = TabController(vsync: this, length: 2);
 
     _tabController.addListener(_handleTabSelection);
@@ -155,49 +155,58 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: const Text('Projects', style: TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
+            leadingWidth: 120,
+            leading: ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.blue,
+              ),
+              label: const Text(
+                'Projects',
+                style: TextStyle(color: Colors.blue),
+              ),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
             elevation: 0,
             title: Row(
-              mainAxisAlignment: MainAxisAlignment.center ,
-              children: [                
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 const Text(
                   'Project',
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.normal),
                 ),
-               Expanded(child:  Align(alignment: Alignment.centerRight,
-                child:
-                InkWell(
-                    onTap: () {
-                      addEditProject();
-                    },
-                    child: const Chip(
-                      avatar: Icon(
-                        Icons.cloud_sync_outlined,
-                        color: Colors.black,
-                      ),
-                      labelPadding: EdgeInsets.all(2),
-                      label: Text(
-                        'Cloud Sync',
-                        style: TextStyle(color: Colors.black),
-                        selectionColor: Colors.white,
-                      ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
-                      autofocus: true,
-                    )),),)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                        onTap: () {
+                          addEditProject();
+                        },
+                        child: const Chip(
+                          avatar: Icon(
+                            Icons.cloud_sync_outlined,
+                            color: Colors.black,
+                          ),
+                          labelPadding: EdgeInsets.all(2),
+                          label: Text(
+                            'Cloud Sync',
+                            style: TextStyle(color: Colors.black),
+                            selectionColor: Colors.white,
+                          ),
+                          shadowColor: Colors.blue,
+                          backgroundColor: Colors.blue,
+                          elevation: 10,
+                          autofocus: true,
+                        )),
+                  ),
+                )
               ],
             )),
         body: FutureBuilder(
@@ -216,15 +225,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 final data = snapshot.data;
                 if (data is ProjectResponse) {
                   currentProject = data.item as Project;
-                  if(currentProject.children!=null){
-locations = currentProject.children!
-                      .where((element) => element!.type == 'location')
-                      .toList();
-                  buildings = currentProject.children!
-                      .where((element) => element!.type == 'subproject')
-                      .toList();
+                  if (currentProject.children != null) {
+                    locations = currentProject.children!
+                        .where((element) => element!.type == 'location')
+                        .toList();
+                    buildings = currentProject.children!
+                        .where((element) => element!.type == 'subproject')
+                        .toList();
                   }
-                  
+
                   return SingleChildScrollView(
                       child: Column(
                     children: [
@@ -275,7 +284,10 @@ locations = currentProject.children!
                 // image: networkImage(currentProject.url as String),
                 borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
-            child: networkImage(currentProject.url),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(currentProject.url),
+            ),
           ),
           //networkImage(currentProject.url as String),
           Align(
