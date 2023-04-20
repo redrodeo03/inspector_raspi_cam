@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../bloc/images_bloc.dart';
 import '../bloc/locations_bloc.dart';
 import '../models/location_model.dart';
 import '../models/success_response.dart';
+import 'capture_image.dart';
 import 'image_widget.dart';
 
 class AddEditLocationPage extends StatefulWidget {
@@ -42,7 +44,10 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       isNewLocation = false;
       _nameController.text = currentLocation.name as String;
       _descriptionController.text = currentLocation.description as String;
-      currentLocation.url ??= "/assets/images/icon.png";
+      //currentLocation.url ??= "/assets/images/icon.png";
+      if (currentLocation.url != null) {
+        imageURL = currentLocation.url as String;
+      }
       prevPagename =
           currentLocation.parenttype == 'subproject' ? 'Building' : 'Location';
     } else {
@@ -59,7 +64,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
   String prevPagename = 'Project';
   bool isNewLocation = true;
   final _formKey = GlobalKey<FormState>();
-
+  String imageURL = 'assets/images/icon.png';
   save(BuildContext context) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
@@ -78,29 +83,61 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       }
 
       //TODO : Set image URL
+      try {
+        Object result;
+        if (currentLocation.id == null) {
+          result = await locationsBloc.addLocation(currentLocation);
+          if (result is SuccessResponse) {
+            currentLocation.id = result.id;
+          }
+        } else {
+          result = await locationsBloc.updateLocation(currentLocation);
+        }
 
-      Object result;
-      if (currentLocation.id == null) {
-        result = await locationsBloc.addLocation(currentLocation);
-      } else {
-        result = await locationsBloc.updateLocation(currentLocation);
-      }
+        dynamic uploadResult;
+        if (imageURL != currentLocation.url) {
+          uploadResult = await imagesBloc.uploadImage(
+              currentLocation.url as String,
+              currentLocation.name as String,
+              fullUserName,
+              currentLocation.id as String,
+              currentLocation.parenttype as String,
+              currentLocation.type as String);
+          // if (uploadResult is ImageResponse) {
+          //   setState(() {
+          //     currentLocation.url = uploadResult.url;
+          //   });
+          // }
+        }
 
-      if (!mounted) {
-        return;
-      }
-      if (result is SuccessResponse) {
+        if (!mounted) {
+          return;
+        }
+        if (result is SuccessResponse) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$pageType saved successfully.')));
+          if (uploadResult is ImageResponse) {
+            setState(() {
+              currentLocation.url = uploadResult.url;
+            });
+          }
+          Navigator.pop(context, currentLocation.url);
+          // Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) =>
+          //             ProjectDetailsPage(currentLocation.parentid as String, fullUserName)));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Failed to save the ${currentLocation.type}')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$pageType saved successfully.')));
-        Navigator.pop(context);
-        // Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) =>
-        //             ProjectDetailsPage(currentLocation.parentid as String, fullUserName)));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save the ${currentLocation.type}')),
+          SnackBar(
+              content: Text(
+                  'Failed to save the ${currentLocation.type} ${e.toString()}')),
         );
       }
     }
@@ -197,9 +234,14 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                             borderOnForeground: false,
                             elevation: 4,
                             child: GestureDetector(
-                                onTap: () {
-//add logic to open camera.
-                                  print('tapped on image');
+                                onTap: () async {
+                                  //add logic to open camera.
+                                  var xfile = await captureImage(context);
+                                  if (xfile != null) {
+                                    setState(() {
+                                      currentLocation.url = xfile.path;
+                                    });
+                                  }
                                 },
                                 child: Stack(
                                   alignment: Alignment.bottomCenter,
@@ -215,19 +257,16 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                                 color: Colors.blue)
                                           ]),
                                       child: isNewLocation
-                                          ? (currentLocation.url == null
-                                              ? Image.asset(
-                                                  'assets/images/heroimage.png',
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                )
+                                          ? currentLocation.url == null
+                                              ? networkImage(
+                                                  currentLocation.url)
                                               : Image.file(
                                                   File(currentLocation.url
                                                       as String),
                                                   fit: BoxFit.fill,
                                                   width: double.infinity,
                                                   height: 250,
-                                                ))
+                                                )
                                           : networkImage(currentLocation.url),
                                     ),
                                     Column(

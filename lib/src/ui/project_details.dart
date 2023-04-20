@@ -516,7 +516,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                child: networkImage(locations[index]!.url),
+                    child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(locations[index]!.url),
+            ),
+                
               ),
               Align(
                 alignment: Alignment.centerLeft,
@@ -622,7 +626,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                child: networkImage(buildings[index]!.url),
+                child:ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(buildings[index]!.url),
+            ) ,
               ),
               Align(
                 alignment: Alignment.centerLeft,

@@ -13,7 +13,10 @@ class LocationPage extends StatefulWidget {
   final String userFullName;
   final String parentType;
   final String locationType;
-  const LocationPage(this.id,this.parentType,this.locationType, this.userFullName, {Key? key}) : super(key: key);
+  const LocationPage(
+      this.id, this.parentType, this.locationType, this.userFullName,
+      {Key? key})
+      : super(key: key);
   @override
   State<LocationPage> createState() => _LocationPageState();
 }
@@ -22,13 +25,14 @@ class _LocationPageState extends State<LocationPage> {
   @override
   void initState() {
     locationId = widget.id;
-    parenttype=widget.parentType;
+    parenttype = widget.parentType;
     userFullName = widget.userFullName;
     locationType = widget.locationType;
     super.initState();
   }
-  String locationType='';
-  String parenttype='Project';
+
+  String locationType = '';
+  String parenttype = 'Project';
   String userFullName = "";
   String locationId = "";
   late Location currentLocation;
@@ -37,24 +41,30 @@ class _LocationPageState extends State<LocationPage> {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: Text(parenttype, style: const TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
+            ),
+            label: Text(
+              parenttype,
+              style: const TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
           ),
-        ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-          title:Text(
-                  locationType,
-                  style:const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          title: Text(
+            locationType,
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.normal),
+          ),
         ),
         body: FutureBuilder(
           builder: (ctx, snapshot) {
@@ -113,11 +123,15 @@ class _LocationPageState extends State<LocationPage> {
             height: 180,
             decoration: const BoxDecoration(
                 color: Colors.orange,
-                image: DecorationImage(
-                    image: AssetImage('assets/images/heroimage.png'),
-                    fit: BoxFit.cover),
+                // image: DecorationImage(
+                //     image: AssetImage('assets/images/heroimage.png'),
+                //     fit: BoxFit.cover),
                 borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(currentLocation.url),
+            ),
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -585,6 +599,10 @@ class _LocationPageState extends State<LocationPage> {
       MaterialPageRoute(
           builder: (context) =>
               AddEditLocationPage(currentLocation, userFullName)),
+    ).then((value) => 
+
+    setState(() => currentLocation.url=value,)
+    
     );
   }
 }

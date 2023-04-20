@@ -4,7 +4,9 @@ import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
 import 'package:deckinspectors/src/models/subproject_model.dart';
 import 'package:flutter/material.dart';
 
+import '../bloc/images_bloc.dart';
 import '../models/success_response.dart';
+import 'capture_image.dart';
 import 'image_widget.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
@@ -37,7 +39,10 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
       isNewLocation = false;
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
-      currentBuilding.url ??= "/assets/images/icon.png";
+      //currentBuilding.url ??= "/assets/images/icon.png";
+       if (currentBuilding.url != null) {
+      imageURL = currentBuilding.url as String;
+    }
     }
   }
 
@@ -47,7 +52,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   late SubProject currentBuilding;
   String name = "";
   final _formKey = GlobalKey<FormState>();
-
+  String imageURL = 'assets/images/icon.png';
   save(BuildContext context) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
@@ -70,9 +75,23 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         Object result;
         if (currentBuilding.id == null) {
           result = await subProjectsBloc.addSubProject(currentBuilding);
+          if (result is SuccessResponse) {
+            currentBuilding.id =result.id;
+          }
         } else {
           result = await subProjectsBloc.updateSubProject(currentBuilding);
         }
+        dynamic uploadResult;
+      if (imageURL != currentBuilding.url) {
+         uploadResult= await imagesBloc.uploadImage(
+            currentBuilding.url as String,
+            currentBuilding.name as String,
+            fullUserName,currentBuilding.id as String, 'project',
+            'building');
+        
+      }
+
+        
 
         if (!mounted) {
           return;
@@ -80,6 +99,11 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         if (result is SuccessResponse) {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
+          if (uploadResult is ImageResponse) {
+          setState(() {
+            currentBuilding.url = uploadResult.url;
+          });          
+        }
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -180,9 +204,15 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                             borderOnForeground: false,
                             elevation: 8,
                             child: GestureDetector(
-                                onTap: () {
-//add logic to open camera.
-                                  print('tapped on image');
+                                 onTap:  () async {
+                              //add logic to open camera.
+                              var xfile = await captureImage(context);
+                              if (xfile != null) {
+                                setState(() {
+                                  currentBuilding.url = xfile.path;
+                                });
+                                
+                              }
                                 },
                                 child: Stack(
                                   alignment: Alignment.bottomCenter,
@@ -198,21 +228,14 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
-                                          child: isNewLocation
-                                          ?( currentBuilding.url == null
-                                              ? Image.asset(
-                                                  'assets/images/heroimage.png',
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                )
-                                              : Image.file(
-                                                  File(currentBuilding.url
-                                                      as String),
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                ))
-                                          : networkImage(currentBuilding.url),
+                                           child: isNewLocation
+                                      ? Image.file(
+                                          File(currentBuilding.url as String),
+                                          fit: BoxFit.fill,
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                      : networkImage(currentBuilding.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,

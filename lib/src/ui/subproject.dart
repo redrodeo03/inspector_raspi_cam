@@ -198,7 +198,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 //     fit: BoxFit.cover),
                 borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
-            child: networkImage(currentBuilding.url),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(currentBuilding.url),
+            ),
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -425,7 +428,11 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                child: networkImage(buildinglocations[index]!.url),
+
+                child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(buildinglocations[index]!.url),
+            ),
               ),
               Align(
                 alignment: Alignment.centerLeft,
@@ -531,7 +538,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                child: networkImage(apartments[index]!.url),
+                child:ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: networkImage(apartments[index]!.url),
+                )
               ),
               Align(
                 alignment: Alignment.centerLeft,

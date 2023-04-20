@@ -60,26 +60,26 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       } else {
         currentProject.lasteditedby = userFullName;
       }
+Object result;
 
-      //TODO : Set image URL
-
-      Object result;
+      if (currentProject.id == null) {
+        result = await projectsBloc.addProject(currentProject);
+        if (result is SuccessResponse) {
+          currentProject.id=result.id;
+        }
+      } else {
+        result = await projectsBloc.updateProject(currentProject);
+      }
+      
       //upload image if changed
       if (imageURL != currentProject.url) {
          imagesBloc.uploadImage(
             currentProject.url as String,
             currentProject.name as String,
             userFullName,currentProject.id as String, '',
-            'project');
-        // if (uploadResult is ImageResponse) {
-        //   currentProject.url = uploadResult.url;
-        // }
+            'project');       
       }
-      if (currentProject.id == null) {
-        result = await projectsBloc.addProject(currentProject);
-      } else {
-        result = await projectsBloc.updateProject(currentProject);
-      }
+      
 
       if (!mounted) {
         return;
@@ -87,7 +87,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
-        if (currentProject.id == null) {
+        if (isNewProject) {
           var response = result;
           Navigator.pushReplacement(
               context,
