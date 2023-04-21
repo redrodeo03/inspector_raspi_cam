@@ -82,7 +82,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
         currentLocation.lasteditedby = fullUserName;
       }
 
-      //TODO : Set image URL
+      
       try {
         Object result;
         if (currentLocation.id == null) {

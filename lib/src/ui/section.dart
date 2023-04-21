@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
-import '../models/error_response.dart';
 import '../models/exteriorelements.dart';
 import '../models/section_model.dart';
 import '../models/success_response.dart';
 import '../bloc/section_bloc.dart';
+import 'capturemultipic.dart';
 
 class SectionPage extends StatefulWidget {
   final String sectionId;
@@ -25,23 +25,28 @@ class _SectionPageState extends State<SectionPage> {
     return Scaffold(
       appBar: AppBar(
           automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: const Text('Locations', style: TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
+            ),
+            label: const Text(
+              'Locations',
+              style: TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
           ),
-        ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              
               const Text(
                 'Details',
                 style: TextStyle(
@@ -92,9 +97,9 @@ class _SectionPageState extends State<SectionPage> {
   Future<Object?> fetchData() async {
     isRunning = true;
     var sectionResponse = await sectionsBloc.getSection(widget.sectionId);
-    if(sectionResponse is SectionResponse ){
+    if (sectionResponse is SectionResponse) {
       currentVisualSection = sectionResponse.item as VisualSection;
-      setInitialValues();  
+      setInitialValues();
     }
     setState(() => isRunning = false);
     return sectionResponse;
@@ -123,7 +128,8 @@ class _SectionPageState extends State<SectionPage> {
     // }
     super.initState();
   }
-  void setInitialValues(){
+
+  void setInitialValues() {
     //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
     _concernsController.text =
@@ -153,6 +159,7 @@ class _SectionPageState extends State<SectionPage> {
     invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
     hasSignsOfLeak = currentVisualSection.visualsignsofleak;
   }
+
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
@@ -169,7 +176,7 @@ class _SectionPageState extends State<SectionPage> {
           selectedExteriorelements.map((element) => element.name).toList();
       currentVisualSection.waterproofingelements =
           selectedWaterproofingElements.map((element) => element.name).toList();
-          
+
       currentVisualSection.visualreview = _review!.name;
       currentVisualSection.conditionalassessment = _assessment!.name;
       currentVisualSection.eee = _eee!.name;
@@ -216,7 +223,7 @@ class _SectionPageState extends State<SectionPage> {
   bool invasiveReviewRequired = false;
 
   Widget sectionForm(BuildContext context) {
-        // Build a Form widget using the _formKey created above.   
+    // Build a Form widget using the _formKey created above.
 
     return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -242,7 +249,14 @@ class _SectionPageState extends State<SectionPage> {
                     children: [
                       const Text('Unit photos'),
                       InkWell(
-                          onTap: () {},
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const CameraScreen()
+                                  ),
+                            );
+                          },
                           child: const Chip(
                             avatar: Icon(
                               Icons.add_a_photo_outlined,

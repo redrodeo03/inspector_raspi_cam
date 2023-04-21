@@ -338,7 +338,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           ],
           labelColor: Colors.black,
         ),
-        Container(
+        SizedBox(
             height: MediaQuery.of(context).size.height / 2,
             child: TabBarView(controller: _tabController, children: [
               locationsWidget('building location'),

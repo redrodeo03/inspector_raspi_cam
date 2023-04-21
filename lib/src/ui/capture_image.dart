@@ -6,6 +6,7 @@ Future<XFile?> captureImage(BuildContext context) async  {
   XFile? imageFile;
   return showModalBottomSheet<XFile?>(
       context: context,
+      isDismissible: true,
       builder: (context) {
         return Wrap(children: [
           ListTile(
@@ -15,7 +16,7 @@ Future<XFile?> captureImage(BuildContext context) async  {
                 
                 imageFile = await picker.pickImage(
                   source: ImageSource.camera,
-                );                
+                );    
                 Navigator.pop(context,imageFile);
               }),
           ListTile(

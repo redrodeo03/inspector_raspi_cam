@@ -70,7 +70,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         currentBuilding.lasteditedby = fullUserName;
       }
 
-      //TODO : Set image URL
+      
       try {
         Object result;
         if (currentBuilding.id == null) {
@@ -83,7 +83,9 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         }
         dynamic uploadResult;
       if (imageURL != currentBuilding.url) {
-         uploadResult= await imagesBloc.uploadImage(
+         uploadResult= await imagesBloc.
+         
+         uploadImage(
             currentBuilding.url as String,
             currentBuilding.name as String,
             fullUserName,currentBuilding.id as String, 'project',

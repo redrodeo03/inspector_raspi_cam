@@ -161,7 +161,7 @@ ScaffoldMessenger.of(context).showSnackBar(
                 ),
               ),
               //sign in button section
-              Container(width: 400,
+              SizedBox(width: 400,
                 child: ElevatedButton.icon(
                   onPressed: isLoading ? null : login,
                   style: ElevatedButton.styleFrom(
