@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import 'captures_screen.dart';
@@ -6,7 +7,7 @@ import 'captures_screen.dart';
 
 class PreviewScreen extends StatelessWidget {
   final File imageFile;
-  final List<File> fileList;
+  final List<XFile> fileList;
 
   const PreviewScreen({super.key, 
     required this.imageFile,

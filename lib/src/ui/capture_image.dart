@@ -23,11 +23,11 @@ Future<XFile?> captureImage(BuildContext context) async  {
             leading: const Icon(Icons.browse_gallery_outlined),
             title: const Text('Gallery'),
             onTap: () async {
-              Navigator.pop(context,imageFile);//todo
+              //todo
               imageFile = await picker.pickImage(
                 source: ImageSource.gallery,
               );
-              
+              Navigator.pop(context,imageFile);
             },
           )
         ]);

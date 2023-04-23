@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
 import '../models/exteriorelements.dart';
@@ -5,6 +6,8 @@ import '../models/section_model.dart';
 import '../models/success_response.dart';
 import '../bloc/section_bloc.dart';
 import 'capturemultipic.dart';
+import 'image_widget.dart';
+import 'multipic_trial.dart';
 
 class SectionPage extends StatefulWidget {
   final String sectionId;
@@ -120,12 +123,7 @@ class _SectionPageState extends State<SectionPage> {
       sectionResponse = fetchData();
     }
     userFullName = widget.userFullName;
-    // if (currentVisualSection.id != null) {
-    //   _nameController.text = currentVisualSection.name as String;
-    //   _concernsController.text =
-    //       currentVisualSection.additionalconsiderations as String;
-    //   isNewSection = false;
-    // }
+    
     super.initState();
   }
 
@@ -164,6 +162,9 @@ class _SectionPageState extends State<SectionPage> {
   final TextEditingController _concernsController =
       TextEditingController(text: '');
   save(BuildContext context) async {
+    if (currentVisualSection.id != null) {      
+      isNewSection = false;
+    }
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
       // you'd often call a server or save the information in a database.
@@ -207,18 +208,19 @@ class _SectionPageState extends State<SectionPage> {
       if (result is SuccessResponse) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
+            Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the location.')),
         );
       }
 
-      Navigator.pop(context);
+      
     }
   }
 
   final _formKey = GlobalKey<FormState>();
-
+  List<XFile> capturedImages = [];
   bool hasSignsOfLeak = false;
   bool invasiveReviewRequired = false;
 
@@ -253,9 +255,17 @@ class _SectionPageState extends State<SectionPage> {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const CameraScreen()
-                                  ),
-                            );
+                                  builder: (context) => const CameraScreen()),
+                            ).then((value) {
+                              setState(() {
+                                capturedImages = value;
+                                for (var element in capturedImages) {
+                                  currentVisualSection.images ??= [];
+                                  currentVisualSection.images
+                                      ?.add(element.path);
+                                }
+                              });
+                            });
                           },
                           child: const Chip(
                             avatar: Icon(
@@ -274,31 +284,45 @@ class _SectionPageState extends State<SectionPage> {
                           )),
                     ],
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 3.5,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 10,
-                        itemBuilder: (BuildContext context, int index) =>
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                              height: 180,
-                              width: 300,
-                              decoration: const BoxDecoration(
-                                  color: Colors.orange,
-                                  image: DecorationImage(
-                                      image:
-                                          AssetImage('assets/images/icon.png'),
-                                      fit: BoxFit.cover),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8.0)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 1.0, color: Colors.blue)
-                                  ]),
-                            )),
-                  ),
+                  capturedImages.isEmpty
+                      ? const SizedBox(
+                          height: 180,
+                          child: Center(
+                              child: Text(
+                            'Add location Images',
+                            style: TextStyle(fontSize: 16),
+                          )))
+                      : SizedBox(
+                          height: MediaQuery.of(context).size.height / 3.5,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: currentVisualSection.images!.length,
+                            itemBuilder: (BuildContext context, int index) =>
+                                Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(2, 8, 8, 8),
+                                    height: 180,
+                                    width: 300,
+                                    decoration: const BoxDecoration(
+                                        color: Colors.orange,
+                                        // image: DecorationImage(
+                                        //     image:
+                                        //         AssetImage('assets/images/icon.png'),
+                                        //     fit: BoxFit.cover),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 1.0,
+                                              color: Colors.blue)
+                                        ]),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: networkImage(
+                                          currentVisualSection.images![index]),
+                                    )),
+                          )),
                   const SizedBox(
                     height: 4,
                   ),
@@ -370,15 +394,7 @@ class _SectionPageState extends State<SectionPage> {
                             title: 'Waterproofing Elements',
                             items: waterproofingElements,
                             selectedItems: selectedWaterproofingElements,
-//                         onSelectionChanged: (value) {
-//                           if(value.any((item) => item.code == '5'))
-//                           {
-//                             selectedWaterproofingElements = waterproofingElements;
-//                           }
-//                           else{
-// selectedWaterproofingElements.remove(value)
-//                           }
-//                         },
+//
                             onChanged: (value) => setState(
                                 () => selectedWaterproofingElements = value),
                           );

@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:deckinspectors/src/ui/preview_screen.dart';
 import 'package:flutter/material.dart';
 
 
 class CapturesScreen extends StatelessWidget {
-  final List<File> imageFileList;
+  final List<XFile> imageFileList;
 
   const CapturesScreen({super.key, required this.imageFileList});
 
@@ -33,7 +34,7 @@ class CapturesScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               children: [
-                for (File imageFile in imageFileList)
+                for (XFile imageFile in imageFileList)
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(
@@ -47,13 +48,13 @@ class CapturesScreen extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => PreviewScreen(
                               fileList: imageFileList,
-                              imageFile: imageFile,
+                              imageFile:  File(imageFile.path),
                             ),
                           ),
                         );
                       },
                       child: Image.file(
-                        imageFile,
+                        File(imageFile.path),
                         fit: BoxFit.cover,
                       ),
                     ),
