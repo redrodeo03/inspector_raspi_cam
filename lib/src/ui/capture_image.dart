@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-Future<XFile?> captureImage(BuildContext context) async  {
+Future<XFile?> captureImage(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
   XFile? imageFile;
   return showModalBottomSheet<XFile?>(
@@ -10,27 +10,32 @@ Future<XFile?> captureImage(BuildContext context) async  {
       builder: (context) {
         return Wrap(children: [
           ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
+              leading: const Icon(
+                Icons.camera_alt_outlined,
+                color: Colors.blue,
+              ),
               title: const Text('Camera'),
               onTap: () async {
-                
                 imageFile = await picker.pickImage(
                   source: ImageSource.camera,
-                );    
-                Navigator.pop(context,imageFile);
+                );
+                Navigator.pop(context, imageFile);
               }),
           ListTile(
-            leading: const Icon(Icons.browse_gallery_outlined),
+            leading: const Icon(
+              Icons.browse_gallery_outlined,
+              color: Colors.blue,
+            ),
             title: const Text('Gallery'),
             onTap: () async {
               //todo
               imageFile = await picker.pickImage(
                 source: ImageSource.gallery,
               );
-              Navigator.pop(context,imageFile);
+              Navigator.pop(context, imageFile);
             },
           )
         ]);
       });
- // return imageFile;
+  // return imageFile;
 }

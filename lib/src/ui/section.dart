@@ -1,4 +1,5 @@
-import 'package:camera/camera.dart';
+import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
 import '../models/exteriorelements.dart';
@@ -7,14 +8,15 @@ import '../models/success_response.dart';
 import '../bloc/section_bloc.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
-import 'multipic_trial.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SectionPage extends StatefulWidget {
   final String sectionId;
   final String userFullName;
-
+  final String parentType;
   final String parentId;
-  const SectionPage(this.sectionId, this.parentId, this.userFullName,
+  const SectionPage(
+      this.sectionId, this.parentId, this.userFullName, this.parentType,
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
@@ -93,6 +95,7 @@ class _SectionPageState extends State<SectionPage> {
 
   bool isRunning = false;
   String userFullName = "";
+  String parentType = "";
   late VisualSection currentVisualSection;
   late Future sectionResponse;
   bool isNewSection = true;
@@ -123,7 +126,7 @@ class _SectionPageState extends State<SectionPage> {
       sectionResponse = fetchData();
     }
     userFullName = widget.userFullName;
-    
+    parentType = widget.parentType;
     super.initState();
   }
 
@@ -156,13 +159,14 @@ class _SectionPageState extends State<SectionPage> {
 
     invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
     hasSignsOfLeak = currentVisualSection.visualsignsofleak;
+    capturedImages = currentVisualSection.images as List<String>;
   }
 
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
   save(BuildContext context) async {
-    if (currentVisualSection.id != null) {      
+    if (currentVisualSection.id != null) {
       isNewSection = false;
     }
     if (_formKey.currentState!.validate()) {
@@ -193,36 +197,104 @@ class _SectionPageState extends State<SectionPage> {
         currentVisualSection.lasteditedby = userFullName;
       }
 
-      //TODO : Set image URL
-
       Object result;
+      String visualsectionId = "";
+      bool isErrorSaving = false;
       if (currentVisualSection.id == null) {
         result = await sectionsBloc.addSection(currentVisualSection);
+        if (result is SuccessResponse) {
+          visualsectionId = result.id as String;
+        } else {
+          isErrorSaving = true;
+        }
       } else {
         result = await sectionsBloc.updateSection(currentVisualSection);
+        if (result is ErrorResponse) {
+          isErrorSaving = true;
+        }
+      }
+      if (!isErrorSaving) {
+        if (capturedImages.isNotEmpty) {
+          imagesBloc.uploadMultipleImages(
+              capturedImages,
+              currentVisualSection.name as String,
+              userFullName,
+              visualsectionId,
+              parentType,
+              'section');
+        }
       }
 
       if (!mounted) {
         return;
       }
-      if (result is SuccessResponse) {
+      if (!isErrorSaving) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
-            Navigator.pop(context);
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the location.')),
         );
       }
-
-      
     }
   }
 
   final _formKey = GlobalKey<FormState>();
-  List<XFile> capturedImages = [];
+  //List<XFile> capturedImages = [];
+  List<String> capturedImages = [];
   bool hasSignsOfLeak = false;
   bool invasiveReviewRequired = false;
+
+  PopupMenuItem _buildPopupMenuItem(
+      String title, IconData iconData, int position) {
+    return PopupMenuItem(
+      value: position,
+      child: Row(
+        children: [
+          Icon(
+            iconData,
+            color: Colors.blue,
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          Text(title),
+        ],
+      ),
+    );
+  }
+
+  _onMenuItemSelected(int value) async {
+    if (value == 1) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CameraScreen()),
+      ).then((value) {
+        setState(() {
+          if (value != null) {
+            capturedImages.addAll(value);
+            for (var element in capturedImages) {
+              currentVisualSection.images ??= [];
+              currentVisualSection.images?.add(element);
+            }
+          }
+        });
+      });
+    } else {
+      //Code toopen gallery
+      final ImagePicker picker = ImagePicker();
+      //todo
+      var imageFiles = await picker.pickMultiImage(imageQuality: 100);
+      setState(() {
+        capturedImages.addAll(imageFiles.map((e) => e.path).toList());
+        for (var element in capturedImages) {
+          currentVisualSection.images ??= [];
+          currentVisualSection.images?.add(element);
+        }
+      });
+    }
+  }
 
   Widget sectionForm(BuildContext context) {
     // Build a Form widget using the _formKey created above.
@@ -250,38 +322,32 @@ class _SectionPageState extends State<SectionPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Unit photos'),
-                      InkWell(
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const CameraScreen()),
-                            ).then((value) {
-                              setState(() {
-                                capturedImages = value;
-                                for (var element in capturedImages) {
-                                  currentVisualSection.images ??= [];
-                                  currentVisualSection.images
-                                      ?.add(element.path);
-                                }
-                              });
-                            });
-                          },
-                          child: const Chip(
-                            avatar: Icon(
-                              Icons.add_a_photo_outlined,
-                              color: Colors.black,
-                            ),
-                            labelPadding: EdgeInsets.all(2),
-                            label: Text(
-                              'Add Photos',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                            shadowColor: Colors.blue,
-                            backgroundColor: Colors.blue,
-                            elevation: 10,
-                            autofocus: true,
-                          )),
+                      PopupMenuButton(
+                        child: const Chip(
+                          avatar: Icon(
+                            Icons.add_a_photo_outlined,
+                            color: Colors.blue,
+                          ),
+                          labelPadding: EdgeInsets.all(2),
+                          label: Text(
+                            'Add Photos',
+                            style: TextStyle(color: Colors.blue, fontSize: 15),
+                          ),
+                          shadowColor: Colors.transparent,
+                          backgroundColor: Colors.transparent,
+                          elevation: 10,
+                          autofocus: true,
+                        ),
+                        onSelected: (value) {
+                          _onMenuItemSelected(value as int);
+                        },
+                        itemBuilder: (ctx) => [
+                          _buildPopupMenuItem(
+                              'Camera', Icons.camera_alt_outlined, 1),
+                          _buildPopupMenuItem(
+                              'Gallery', Icons.browse_gallery_outlined, 2),
+                        ],
+                      ),
                     ],
                   ),
                   capturedImages.isEmpty

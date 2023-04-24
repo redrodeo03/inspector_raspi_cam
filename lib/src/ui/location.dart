@@ -580,16 +580,16 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                SectionPage("", currentLocation.id as String, userFullName)));
+            builder: (context) => SectionPage("", currentLocation.id as String,
+                userFullName, parenttype))).then((value) => setState(() {}));
   }
 
   void gotoDetails(String sectionId) {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SectionPage(
-              sectionId, currentLocation.id as String, userFullName),
+          builder: (context) => SectionPage(sectionId,
+              currentLocation.id as String, userFullName, parenttype),
         ));
   }
 
@@ -599,10 +599,8 @@ class _LocationPageState extends State<LocationPage> {
       MaterialPageRoute(
           builder: (context) =>
               AddEditLocationPage(currentLocation, userFullName)),
-    ).then((value) => 
-
-    setState(() => currentLocation.url=value,)
-    
-    );
+    ).then((value) => setState(
+          () => currentLocation.url = value,
+        ));
   }
 }

@@ -47,5 +47,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to gallery to upload location images for reporting.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to camera to capture location images for reporting.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone to fill in the data in location form.</string>
 </dict>
 </plist>
