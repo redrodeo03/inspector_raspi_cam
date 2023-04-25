@@ -2,6 +2,7 @@ import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -16,13 +17,21 @@ class _LoginPageState extends State<LoginPage> {
   bool showPassword = false;
   bool isLoading = false;
   bool? _isChecked = false;
-  // // Email Validation
-  // final emailPattern =
-  //     r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-  // bool validateEmail(String email) {
-  //   final regExp = RegExp(emailPattern);
-  //   return regExp.hasMatch(email);
-  // }
+
+  Future<void> _loadUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _usernameController.text = prefs.getString('username') ?? '';
+      _passwordController.text = prefs.getString('password') ?? '';
+      _isChecked = prefs.getBool('isChecked') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
 
   // Sign In Function
   Future<void> login() async {
@@ -33,16 +42,22 @@ class _LoginPageState extends State<LoginPage> {
       });
       var loginResult = await usersBloc.login(
           _usernameController.text, _passwordController.text);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (_isChecked == true) {
+        await prefs.setString('username', _usernameController.text);
+        await prefs.setString('password', _passwordController.text);
+        await prefs.setBool('isChecked', _isChecked as bool);
+      }
 
       setState(() {
         isLoading = false;
       });
-      if(loginResult.username==null){
+      if (loginResult.username == null) {
         if (!mounted) return;
-ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Login failed,please check your credentials.')));
-              return;
-      } 
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Login failed,please check your credentials.')));
+        return;
+      }
       if (loginResult.username!.isNotEmpty &&
           loginResult.accesstype != "desktop") {
         if (!mounted) return;
@@ -50,11 +65,10 @@ ScaffoldMessenger.of(context).showSnackBar(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-      }
-      else{
+      } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Login failed,please check your access.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Login failed,please check your access.')));
       }
     }
   }
@@ -161,7 +175,8 @@ ScaffoldMessenger.of(context).showSnackBar(
                 ),
               ),
               //sign in button section
-              SizedBox(width: 400,
+              SizedBox(
+                width: 400,
                 child: ElevatedButton.icon(
                   onPressed: isLoading ? null : login,
                   style: ElevatedButton.styleFrom(
@@ -254,42 +269,39 @@ ScaffoldMessenger.of(context).showSnackBar(
   Widget passwordTextField(Size size) {
     return SizedBox(
       height: size.height / 15,
-      child:
-      Stack( alignment: Alignment.centerRight,
-        children:  [      
-      TextField(
-        obscureText: !showPassword,
-        controller: _passwordController,
-        style: GoogleFonts.inter(
-          fontSize: 18.0,
-          color: const Color(0xFF151624),
-        ),
-        maxLines: 1,
-        keyboardType: TextInputType.emailAddress,
-        cursorColor: const Color(0xFF151624),
-        decoration: InputDecoration(
-          hintText: 'Enter your password',
-          hintStyle: GoogleFonts.inter(
-            fontSize: 14.0,
-            color: const Color(0xFFABB3BB),
-            height: 1.0,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        )
-      ),
-      InkWell(
-        onTap: ()=>{
-           setState(() {
-              showPassword = !showPassword;
-            })
-        },
-        child: 
-      const Padding(padding: EdgeInsets.all(8),
-      child: Icon(Icons.remove_red_eye_outlined),)),
-      ]
-      ),
+      child: Stack(alignment: Alignment.centerRight, children: [
+        TextField(
+            obscureText: !showPassword,
+            controller: _passwordController,
+            style: GoogleFonts.inter(
+              fontSize: 18.0,
+              color: const Color(0xFF151624),
+            ),
+            maxLines: 1,
+            keyboardType: TextInputType.emailAddress,
+            cursorColor: const Color(0xFF151624),
+            decoration: InputDecoration(
+              hintText: 'Enter your password',
+              hintStyle: GoogleFonts.inter(
+                fontSize: 14.0,
+                color: const Color(0xFFABB3BB),
+                height: 1.0,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            )),
+        InkWell(
+            onTap: () => {
+                  setState(() {
+                    showPassword = !showPassword;
+                  })
+                },
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.remove_red_eye_outlined),
+            )),
+      ]),
     );
   }
 

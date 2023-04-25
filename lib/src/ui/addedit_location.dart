@@ -82,7 +82,6 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
         currentLocation.lasteditedby = fullUserName;
       }
 
-      
       try {
         Object result;
         if (currentLocation.id == null) {
@@ -220,16 +219,15 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                       const SizedBox(
                         height: 8,
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: inputWidgetNoValidation('Description', 3),
-                      ),
+
+                      inputWidgetNoValidation('Description', 3),
+
                       const SizedBox(
                         height: 16,
                       ),
 
-                      Expanded(
-                          flex: 3,
+                      SizedBox(
+                          height: 220,
                           child: Card(
                             borderOnForeground: false,
                             elevation: 4,

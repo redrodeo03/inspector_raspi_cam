@@ -5,10 +5,11 @@ import '../resources/repository.dart';
 class SectionBloc {
   final Repository _repository = Repository();
 
-  Future <Object> getSection(String id) async{
+  Future<Object> getSection(String id) async {
     var response = await _repository.getSection(id);
     return response;
   }
+
   Future<Object> addSection(VisualSection visualSection) async {
     final sectionObject = jsonEncode({
       'name': visualSection.name,
@@ -17,7 +18,8 @@ class SectionBloc {
       'additionalconsiderations': visualSection.additionalconsiderations,
       'visualreview': visualSection.visualreview,
       'visualsignsofleak': visualSection.visualsignsofleak,
-      'furtherinvasivereviewrequired': visualSection.furtherinvasivereviewrequired,
+      'furtherinvasivereviewrequired':
+          visualSection.furtherinvasivereviewrequired,
       'conditionalassessment': visualSection.conditionalassessment,
       'eee': visualSection.eee,
       'lbc': visualSection.lbc,
@@ -29,6 +31,7 @@ class SectionBloc {
 
     return response;
   }
+
   Future<Object> updateSection(VisualSection visualSection) async {
     final sectionObject = jsonEncode({
       'name': visualSection.name,
@@ -37,7 +40,8 @@ class SectionBloc {
       'additionalconsiderations': visualSection.additionalconsiderations,
       'visualreview': visualSection.visualreview,
       'visualsignsofleak': visualSection.visualsignsofleak,
-      'furtherinvasivereviewrequired': visualSection.furtherinvasivereviewrequired,
+      'furtherinvasivereviewrequired':
+          visualSection.furtherinvasivereviewrequired,
       'conditionalassessment': visualSection.conditionalassessment,
       'eee': visualSection.eee,
       'lbc': visualSection.lbc,
@@ -45,10 +49,11 @@ class SectionBloc {
       'lasteditedby': visualSection.lasteditedby,
       'parentid': visualSection.parentid,
     });
-    var response = await _repository.updateSection(sectionObject,visualSection.id as String);
+    var response = await _repository.updateSection(
+        sectionObject, visualSection.id as String);
 
     return response;
-  }  
+  }
 }
 
 final sectionsBloc = SectionBloc();

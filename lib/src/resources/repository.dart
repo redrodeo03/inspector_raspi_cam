@@ -13,8 +13,7 @@ class Repository {
   //Projects
   final projectsApiProvider = ProjectsApiProvider();
   Future<Projects> fetchAllProjects() => projectsApiProvider.fetchProjects();
-Future<Object> getProject(String id) =>
-      projectsApiProvider.getProject(id);
+  Future<Object> getProject(String id) => projectsApiProvider.getProject(id);
   Future<Object> addProject(Object requestBody) =>
       projectsApiProvider.addProject(requestBody);
   Future<Object> updateProject(Object projectObject, String id) =>
@@ -24,8 +23,7 @@ Future<Object> getProject(String id) =>
 
 //Locations
   final locationApiProvider = LocationsApiProvider();
-Future<Object> getLocation(String id) =>
-      locationApiProvider.getLocation(id);
+  Future<Object> getLocation(String id) => locationApiProvider.getLocation(id);
   Future<Object> addLocation(Object requestBody) =>
       locationApiProvider.addLocation(requestBody);
   Future<Object> updateLocation(Object projectObject, String id) =>
@@ -34,9 +32,8 @@ Future<Object> getLocation(String id) =>
       locationApiProvider.deleteLocation(projectObject, id);
 
   //Sections
-        final sectionApiProvider = SectionsApiProvider();
-Future<Object> getSection(String id) =>
-      sectionApiProvider.getSection(id);
+  final sectionApiProvider = SectionsApiProvider();
+  Future<Object> getSection(String id) => sectionApiProvider.getSection(id);
   Future<Object> addSection(Object requestBody) =>
       sectionApiProvider.addSection(requestBody);
   Future<Object> updateSection(Object projectObject, String id) =>
@@ -44,9 +41,9 @@ Future<Object> getSection(String id) =>
   Future<Object> deleteSection(Object projectObject, String id) =>
       sectionApiProvider.deleteSection(projectObject, id);
 
-      //SubProject
+  //SubProject
   final subProjectApiProvider = SubProjectApiProvider();
-Future<Object> getSubProject(String id) =>
+  Future<Object> getSubProject(String id) =>
       subProjectApiProvider.getSubProject(id);
   Future<Object> addSubProject(Object requestBody) =>
       subProjectApiProvider.addSubProject(requestBody);
@@ -55,14 +52,14 @@ Future<Object> getSubProject(String id) =>
   Future<Object> deleteSubProject(Object projectObject, String id) =>
       subProjectApiProvider.deleteSubProject(projectObject, id);
 
-  
-
   //Users
   final usersApiProvider = UsersApiProvider();
   Future<LoginResponse> login(Object loginReq) =>
       usersApiProvider.login(loginReq);
-  
-   final imageApiProvider = ImagesApiProvider();
-   Future<Object> uploadImage(String path, String containerName, String uploader,String id,String parentType,String entityName) =>
-      imageApiProvider.uploadImage(path, containerName, uploader,id,parentType, entityName);
+
+  final imageApiProvider = ImagesApiProvider();
+  Future<Object> uploadImage(String path, String containerName, String uploader,
+          String id, String parentType, String entityName) =>
+      imageApiProvider.uploadImage(
+          path, containerName, uploader, id, parentType, entityName);
 }

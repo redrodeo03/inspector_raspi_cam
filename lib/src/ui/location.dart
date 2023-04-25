@@ -6,6 +6,7 @@ import 'package:deckinspectors/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
 import '../models/location_model.dart';
+import 'cachedimage_widget.dart';
 import 'image_widget.dart';
 
 class LocationPage extends StatefulWidget {
@@ -130,7 +131,7 @@ class _LocationPageState extends State<LocationPage> {
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(currentLocation.url),
+              child: cachedNetworkImage(currentLocation.url),
             ),
           ),
           Align(
@@ -207,29 +208,6 @@ class _LocationPageState extends State<LocationPage> {
             indent: 0,
             endIndent: 0,
           ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(0, 8, 0, 0.0),
-          //   child: OutlinedButton.icon(
-          //       style: OutlinedButton.styleFrom(
-          //           side: BorderSide.none,
-          //           // the height is 50, the width is full
-          //           minimumSize: const Size.fromHeight(30),
-          //           backgroundColor: Colors.white,
-          //           surfaceTintColor: Colors.red,
-          //           shadowColor: Colors.red,
-          //           elevation: 2),
-          //       onPressed: () {
-          //         print('Delete Location');
-          //       },
-          //       icon: const Icon(
-          //         Icons.delete_outline,
-          //         color: Colors.red,
-          //       ),
-          //       label: const Text(
-          //         'Delete Location',
-          //         style: TextStyle(color: Colors.red),
-          //       )),
-          // )
         ],
       ),
     );
@@ -342,7 +320,11 @@ class _LocationPageState extends State<LocationPage> {
                 bottom: Radius.circular(00),
               ),
             ),
-            child: networkImage(currentLocation.sections?[index]!.coverUrl),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: cachedNetworkImage(
+                  currentLocation.sections?[index]!.coverUrl),
+            ),
           ),
           InkWell(
               onTap: () =>
@@ -590,6 +572,8 @@ class _LocationPageState extends State<LocationPage> {
         MaterialPageRoute(
           builder: (context) => SectionPage(sectionId,
               currentLocation.id as String, userFullName, parenttype),
+        )).then((value) => setState(
+          () {},
         ));
   }
 

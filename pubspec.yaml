@@ -45,6 +45,8 @@ dependencies:
   camera: ^0.10.4
   path_provider:
   path:
+  shared_preferences: ^2.1.0
+  cached_network_image: ^3.2.3
 
 dev_dependencies:
   flutter_test:

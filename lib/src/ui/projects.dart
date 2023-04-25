@@ -24,15 +24,15 @@ class _ProjectsPageState extends State<ProjectsPage> {
     var loggedInUser = usersBloc.userDetails;
     userFullName = loggedInUser.firstname as String;
     userFullName = "$userFullName ${loggedInUser.lastname as String}";
+  }
+
+  void addEditProject() {
     newProject = Project(
         name: "",
         description: "",
         address: "",
         url: "",
         createdby: userFullName);
-  }
-
-  void addEditProject() {
     setState(() {});
     Navigator.push(
         context,
@@ -93,16 +93,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
               if (snapshot.hasData) {
                 final projects = snapshot.data?.projects;
                 if (projects == null) {
-                  return const Text(
+                  return const Center(
+                      child: Text(
                     'No Projects to display, please add projects',
                     style: TextStyle(fontSize: 16, color: Colors.blue),
-                  );
+                  ));
                 } else {
                   if (projects.isEmpty) {
-                    return const Text(
+                    return const Center(
+                        child: Text(
                       'No Projects to display, please add projects',
                       style: TextStyle(fontSize: 16, color: Colors.blue),
-                    );
+                    ));
                   }
                 }
                 return ListView.builder(

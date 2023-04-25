@@ -20,6 +20,14 @@ class AddEditProjectPage extends StatefulWidget {
 
 class _AddEditProjectPageState extends State<AddEditProjectPage> {
   @override
+  void dispose() {
+    super.dispose();
+    _addressController.dispose();
+    _descriptionController.dispose();
+    _nameController.dispose();
+  }
+
+  @override
   void initState() {
     currentProject = widget.newProject;
     if (currentProject.id != null) {
@@ -60,26 +68,27 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       } else {
         currentProject.lasteditedby = userFullName;
       }
-Object result;
+      Object result;
 
       if (currentProject.id == null) {
         result = await projectsBloc.addProject(currentProject);
         if (result is SuccessResponse) {
-          currentProject.id=result.id;
+          currentProject.id = result.id;
         }
       } else {
         result = await projectsBloc.updateProject(currentProject);
       }
-      
+
       //upload image if changed
       if (imageURL != currentProject.url) {
-         imagesBloc.uploadImage(
+        imagesBloc.uploadImage(
             currentProject.url as String,
             currentProject.name as String,
-            userFullName,currentProject.id as String, '',
-            'project');       
+            userFullName,
+            currentProject.id as String,
+            '',
+            'project');
       }
-      
 
       if (!mounted) {
         return;
@@ -94,8 +103,7 @@ Object result;
               MaterialPageRoute(
                   builder: (context) =>
                       ProjectDetailsPage(response.id as String, userFullName)));
-        }
-        else{
+        } else {
           Navigator.pop(context);
         }
       } else {
@@ -237,62 +245,71 @@ Object result;
                       const SizedBox(
                         height: 16,
                       ),
-                      Expanded(
+                      SizedBox(
+                          height: 220,
                           child: Card(
-                        borderOnForeground: false,
-                        elevation: 8,
-                        child: GestureDetector(
-                            onTap: () async {
-                              //add logic to open camera.
-                              var xfile = await captureImage(context);
-                              if (xfile != null) {
-                                setState(() {
-                                  currentProject.url = xfile.path;
-                                });
-                                
-                              }
-                            },
-                            child: Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Container(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.orange,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            blurRadius: 1.0, color: Colors.blue)
-                                      ]),
-                                  child: isNewProject
-                                      ? Image.file(
-                                          File(currentProject.url as String),
-                                          fit: BoxFit.fill,
-                                          width: double.infinity,
-                                          height: 250,
+                            borderOnForeground: false,
+                            elevation: 8,
+                            child: GestureDetector(
+                                onTap: () async {
+                                  //add logic to open camera.
+                                  var xfile = await captureImage(context);
+                                  if (xfile != null) {
+                                    setState(() {
+                                      currentProject.url = xfile.path;
+                                    });
+                                  }
+                                },
+                                child: Stack(
+                                  alignment: Alignment.bottomCenter,
+                                  children: [
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                          color: Colors.orange,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                blurRadius: 1.0,
+                                                color: Colors.blue)
+                                          ]),
+                                      child: isNewProject
+                                          ? currentProject.url == ""
+                                              ? Image.asset(
+                                                  "assets/images/heroimage.png",
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                )
+                                              : Image.file(
+                                                  File(currentProject.url
+                                                      as String),
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                )
+                                          : networkImage(currentProject.url),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: const [
+                                        Icon(Icons.camera_outlined,
+                                            size: 40, color: Colors.blue),
+                                        Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Add Image',
+                                            style: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15),
+                                          ),
                                         )
-                                      : networkImage(currentProject.url),
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Icon(Icons.camera_outlined,
-                                        size: 40, color: Colors.blue),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Add Image',
-                                        style: TextStyle(
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15),
-                                      ),
+                                      ],
                                     )
                                   ],
-                                )
-                              ],
-                            )),
-                      )),
+                                )),
+                          )),
                       if (!isNewProject)
                         OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(

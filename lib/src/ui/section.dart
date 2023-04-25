@@ -122,8 +122,10 @@ class _SectionPageState extends State<SectionPage> {
           awe: 'one',
           eee: 'one',
           lbc: 'one');
+      capturedImages = [];
     } else {
       sectionResponse = fetchData();
+      capturedImages = [];
     }
     userFullName = widget.userFullName;
     parentType = widget.parentType;
@@ -159,7 +161,9 @@ class _SectionPageState extends State<SectionPage> {
 
     invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
     hasSignsOfLeak = currentVisualSection.visualsignsofleak;
-    capturedImages = currentVisualSection.images as List<String>;
+    if (currentVisualSection.images!.isNotEmpty) {
+      capturedImages = currentVisualSection.images as List<String>;
+    }
   }
 
   final TextEditingController _nameController = TextEditingController(text: '');
@@ -208,6 +212,7 @@ class _SectionPageState extends State<SectionPage> {
           isErrorSaving = true;
         }
       } else {
+        visualsectionId = currentVisualSection.id as String;
         result = await sectionsBloc.updateSection(currentVisualSection);
         if (result is ErrorResponse) {
           isErrorSaving = true;
@@ -215,8 +220,10 @@ class _SectionPageState extends State<SectionPage> {
       }
       if (!isErrorSaving) {
         if (capturedImages.isNotEmpty) {
+          var imagesToUpload =
+              capturedImages.where((e) => !e.startsWith('http')).toList();
           imagesBloc.uploadMultipleImages(
-              capturedImages,
+              imagesToUpload,
               currentVisualSection.name as String,
               userFullName,
               visualsectionId,
@@ -286,13 +293,17 @@ class _SectionPageState extends State<SectionPage> {
       final ImagePicker picker = ImagePicker();
       //todo
       var imageFiles = await picker.pickMultiImage(imageQuality: 100);
-      setState(() {
-        capturedImages.addAll(imageFiles.map((e) => e.path).toList());
-        for (var element in capturedImages) {
-          currentVisualSection.images ??= [];
-          currentVisualSection.images?.add(element);
-        }
-      });
+      if (imageFiles.isNotEmpty) {
+        setState(() {
+          capturedImages.addAll(imageFiles.map((e) => e.path).toList());
+          // if (isNewSection) {
+          //   for (var element in capturedImages) {
+          //     currentVisualSection.images ??= [];
+          //     currentVisualSection.images?.add(element);
+          //   }
+          // }
+        });
+      }
     }
   }
 
@@ -363,7 +374,9 @@ class _SectionPageState extends State<SectionPage> {
                           child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: currentVisualSection.images!.length,
+                            itemCount: isNewSection
+                                ? capturedImages.length
+                                : currentVisualSection.images!.length,
                             itemBuilder: (BuildContext context, int index) =>
                                 Container(
                                     margin:
@@ -385,8 +398,10 @@ class _SectionPageState extends State<SectionPage> {
                                         ]),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      child: networkImage(
-                                          currentVisualSection.images![index]),
+                                      child: networkImage(isNewSection
+                                          ? capturedImages[index]
+                                          : currentVisualSection
+                                              .images![index]),
                                     )),
                           )),
                   const SizedBox(

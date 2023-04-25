@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 
 import '../models/error_response.dart';
 import '../models/location_model.dart';
@@ -110,7 +111,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
       MaterialPageRoute(
           builder: (context) =>
               AddEditProjectPage(currentProject, userFullName)),
-    );
+    ).then((value) => setState(
+          () {},
+        ));
   }
 
   void addNewChild() {
@@ -278,7 +281,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             height: 4,
           ),
           Container(
-            height: 180,
+            height: 220,
             decoration: const BoxDecoration(
                 color: Colors.orange,
                 // image: networkImage(currentProject.url as String),
@@ -286,7 +289,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(currentProject.url),
+              child: cachedNetworkImage(currentProject.url),
             ),
           ),
           //networkImage(currentProject.url as String),
@@ -516,11 +519,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                    child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(locations[index]!.url),
-            ),
-                
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: cachedNetworkImage(locations[index]!.url),
+                ),
               ),
               Align(
                 alignment: Alignment.centerLeft,
@@ -626,10 +628,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-                child:ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(buildings[index]!.url),
-            ) ,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: cachedNetworkImage(buildings[index]!.url),
+                ),
               ),
               Align(
                 alignment: Alignment.centerLeft,

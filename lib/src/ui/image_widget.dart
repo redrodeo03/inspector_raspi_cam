@@ -1,15 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 Image networkImage(String? netWorkImageURL) {
   String imageURL = "";
   if (netWorkImageURL == null) {
     return Image.asset(
-          "assets/images/heroimage.png",
-          fit: BoxFit.fill,
-          width: double.infinity,
-        );
+      "assets/images/heroimage.png",
+      fit: BoxFit.fill,
+      width: double.infinity,
+    );
   } else {
     imageURL = netWorkImageURL;
   }
@@ -45,7 +44,7 @@ Image networkImage(String? netWorkImageURL) {
     );
   } else {
     return Image.file(
-      File(imageURL ),
+      File(imageURL),
       fit: BoxFit.fill,
       width: double.infinity,
     );
