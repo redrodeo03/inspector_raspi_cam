@@ -6,58 +6,58 @@ import 'package:deckinspectors/src/ui/settings.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget{
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
-  
+
   @override
-  State<HomePage> createState()=>_HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>{
-  
+class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final pages =[
+  final pages = [
     const Center(child: ProjectsPage()),
     const Center(child: OfflineModePage()),
-    const Center(child: SettingssPage()),
+    const Center(child: SettingsPage()),
     const Center(child: LoginPage()),
   ];
 
   @override
-  Widget build(BuildContext context){
-    return Scaffold(      
+  Widget build(BuildContext context) {
+    return Scaffold(
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        iconSize: 30,
-        selectedFontSize: 16,
-        unselectedFontSize: 14,
-        fixedColor: Colors.blue, 
-        unselectedItemColor: Colors.lightBlueAccent,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        items: const [
+          currentIndex: _currentIndex,
+          iconSize: 30,
+          selectedFontSize: 16,
+          unselectedFontSize: 14,
+          fixedColor: Colors.blue,
+          unselectedItemColor: Colors.lightBlueAccent,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
               // backgroundColor: Colors.orange
-              ),
-              BottomNavigationBarItem(
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.wifi_off),
               label: 'Offline',
               // backgroundColor: Colors.blueAccent
-              ),BottomNavigationBarItem(
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.settings),
-              label:'Settings',
+              label: 'Settings',
               // backgroundColor: Colors.blue
-              ),
-      ],
-      onTap: (index) {
-        setState((){
-          _currentIndex = index;
-        });
-      }),
+            ),
+          ],
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          }),
     );
   }
 }

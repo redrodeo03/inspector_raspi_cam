@@ -1,9 +1,25 @@
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<XFile?> captureImage(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
   XFile? imageFile;
+  int imageQuality = 100;
+  var quality = appSettings.currentQuality;
+  switch (quality) {
+    case ImageQuality.high:
+      imageQuality = 100;
+      break;
+    case ImageQuality.medium:
+      imageQuality = 70;
+      break;
+    case ImageQuality.low:
+      imageQuality = 40;
+      break;
+    default:
+  }
+
   return showModalBottomSheet<XFile?>(
       context: context,
       isDismissible: true,
@@ -17,8 +33,8 @@ Future<XFile?> captureImage(BuildContext context) async {
               title: const Text('Camera'),
               onTap: () async {
                 imageFile = await picker.pickImage(
-                  source: ImageSource.camera,
-                );
+                    source: ImageSource.camera, imageQuality: imageQuality);
+
                 Navigator.pop(context, imageFile);
               }),
           ListTile(
@@ -30,8 +46,7 @@ Future<XFile?> captureImage(BuildContext context) async {
             onTap: () async {
               //todo
               imageFile = await picker.pickImage(
-                source: ImageSource.gallery,
-              );
+                  source: ImageSource.gallery, imageQuality: imageQuality);
               Navigator.pop(context, imageFile);
             },
           )

@@ -40,9 +40,9 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
       //currentBuilding.url ??= "/assets/images/icon.png";
-       if (currentBuilding.url != null) {
-      imageURL = currentBuilding.url as String;
-    }
+      if (currentBuilding.url != null) {
+        imageURL = currentBuilding.url as String;
+      }
     }
   }
 
@@ -70,30 +70,26 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         currentBuilding.lasteditedby = fullUserName;
       }
 
-      
       try {
         Object result;
         if (currentBuilding.id == null) {
           result = await subProjectsBloc.addSubProject(currentBuilding);
           if (result is SuccessResponse) {
-            currentBuilding.id =result.id;
+            currentBuilding.id = result.id;
           }
         } else {
           result = await subProjectsBloc.updateSubProject(currentBuilding);
         }
         dynamic uploadResult;
-      if (imageURL != currentBuilding.url) {
-         uploadResult= await imagesBloc.
-         
-         uploadImage(
-            currentBuilding.url as String,
-            currentBuilding.name as String,
-            fullUserName,currentBuilding.id as String, 'project',
-            'building');
-        
-      }
-
-        
+        if (imageURL != currentBuilding.url) {
+          uploadResult = await imagesBloc.uploadImage(
+              currentBuilding.url as String,
+              currentBuilding.name as String,
+              fullUserName,
+              currentBuilding.id as String,
+              'project',
+              'building');
+        }
 
         if (!mounted) {
           return;
@@ -102,10 +98,10 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
           if (uploadResult is ImageResponse) {
-          setState(() {
-            currentBuilding.url = uploadResult.url;
-          });          
-        }
+            setState(() {
+              currentBuilding.url = uploadResult.url;
+            });
+          }
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -126,23 +122,28 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label:  Text(prevPagename, style: const TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
+            leadingWidth: 120,
+            leading: ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.blue,
+              ),
+              label: Text(
+                prevPagename,
+                style: const TextStyle(color: Colors.blue),
+              ),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
             elevation: 0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 Text(
                   pageTitle,
                   style: const TextStyle(
@@ -193,28 +194,24 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                       const SizedBox(
                         height: 8,
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: inputWidgetNoValidation('$name Description', 3),
-                      ),
+                      inputWidgetNoValidation('$name Description', 3),
                       const SizedBox(
                         height: 16,
                       ),
-                      Expanded(
-                          flex: 3,
+                      SizedBox(
+                          height: 220,
                           child: Card(
                             borderOnForeground: false,
                             elevation: 8,
                             child: GestureDetector(
-                                 onTap:  () async {
-                              //add logic to open camera.
-                              var xfile = await captureImage(context);
-                              if (xfile != null) {
-                                setState(() {
-                                  currentBuilding.url = xfile.path;
-                                });
-                                
-                              }
+                                onTap: () async {
+                                  //add logic to open camera.
+                                  var xfile = await captureImage(context);
+                                  if (xfile != null) {
+                                    setState(() {
+                                      currentBuilding.url = xfile.path;
+                                    });
+                                  }
                                 },
                                 child: Stack(
                                   alignment: Alignment.bottomCenter,
@@ -222,7 +219,6 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                     Container(
                                       decoration: const BoxDecoration(
                                           color: Colors.orange,
-                                          
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(8.0)),
                                           boxShadow: [
@@ -230,14 +226,18 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
-                                           child: isNewLocation
-                                      ? Image.file(
-                                          File(currentBuilding.url as String),
-                                          fit: BoxFit.fill,
-                                          width: double.infinity,
-                                          height: 250,
-                                        )
-                                      : networkImage(currentBuilding.url),
+                                      child: isNewLocation
+                                          ? currentBuilding.url == null
+                                              ? networkImage(
+                                                  currentBuilding.url)
+                                              : Image.file(
+                                                  File(currentBuilding.url
+                                                      as String),
+                                                  fit: BoxFit.fill,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                )
+                                          : networkImage(currentBuilding.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
