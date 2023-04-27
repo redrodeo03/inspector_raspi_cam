@@ -4,7 +4,6 @@ import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:rxdart/rxdart.dart';
 import '../resources/repository.dart';
 
-
 class ProjectsBloc {
   final Repository _repository = Repository();
 
@@ -17,41 +16,43 @@ class ProjectsBloc {
     Projects projects = await _repository.fetchAllProjects();
     _projectsFetcher.sink.add(projects);
   }
-Future <Object> getProject(String id) async{
+
+  Future<Object> getProject(String id) async {
     var response = await _repository.getProject(id);
     return response;
   }
+
   dispose() {
     _projectsFetcher.close();
   }
 
-Future<Object> addProject(Project project) async {
-    
-    final projectObject =jsonEncode({
+  Future<Object> addProject(Project project) async {
+    final projectObject = jsonEncode({
       'name': project.name,
-      'description':project.description,
-      'address':project.address,
-      'url':project.url,
-      'projectType':project.projecttype,
-      'createdby':project.createdby
+      'description': project.description,
+      'address': project.address,
+      'url': project.url,
+      'projectType': project.projecttype,
+      'createdby': project.createdby
     });
-    var response = await _repository.addProject(projectObject);   
-    fetchAllProjects(); 
+    var response = await _repository.addProject(projectObject);
+    fetchAllProjects();
     return response;
   }
 
   updateProject(Project project) async {
-    final projectObject =jsonEncode({
+    final projectObject = jsonEncode({
       'name': project.name,
-      'description':project.description,
-      'address':project.address,
-      'url':project.url,
-      'projectType':project.projecttype,
-      'lasteditedby':project.lasteditedby
+      'description': project.description,
+      'address': project.address,
+      'url': project.url,
+      'projectType': project.projecttype,
+      'lasteditedby': project.lasteditedby
     });
-    var response = await _repository.updateProject(projectObject,project.id as String);
+    var response =
+        await _repository.updateProject(projectObject, project.id as String);
     return response;
   }
-
 }
+
 final projectsBloc = ProjectsBloc();

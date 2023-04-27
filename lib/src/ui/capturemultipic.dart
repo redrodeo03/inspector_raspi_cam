@@ -341,7 +341,9 @@ class CameraScreenState extends State<CameraScreen>
                                           side: const BorderSide(
                                               color: Colors.blue)))),
                                   onPressed: () {
-                                    Navigator.of(context).pop(capturedImages);
+                                    Navigator.of(context).pop(capturedImages
+                                        .map((e) => e.path)
+                                        .toList());
                                   },
                                   icon: const Icon(
                                     Icons.done,

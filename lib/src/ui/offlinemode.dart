@@ -6,6 +6,7 @@ import '../models/project_model.dart';
 
 class OfflineModePage extends StatelessWidget {
   const OfflineModePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     projectsBloc.fetchAllProjects();
@@ -87,9 +88,6 @@ class OfflineModePage extends StatelessWidget {
                       style: TextStyle(color: Colors.white),
                     ))),
           ]),
-          const SizedBox(
-            height: 20,
-          ),
           const Padding(
               padding: EdgeInsets.all(20),
               child: Align(
@@ -249,24 +247,29 @@ class OfflineModePage extends StatelessWidget {
                                                                 ))))
                                                   ],
                                                 ),
-                                                GestureDetector(
-                                                    onTap: () {
-                                                      print('clicked invasive');
-                                                    },
-                                                    child: Container(
-                                                        alignment: Alignment
-                                                            .bottomRight,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                8, 8, 16, 8),
-                                                        child: const Text(
-                                                          'Download',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.blue,
-                                                              fontSize: 17),
-                                                        )))
+                                                Visibility(
+                                                    visible: projects[index]!
+                                                            .isavailableoffline
+                                                        as bool,
+                                                    child: GestureDetector(
+                                                        onTap: () {},
+                                                        child: Container(
+                                                            alignment: Alignment
+                                                                .bottomRight,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .fromLTRB(
+                                                                    8,
+                                                                    8,
+                                                                    16,
+                                                                    8),
+                                                            child: const Text(
+                                                              'Download',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .blue,
+                                                                  fontSize: 17),
+                                                            ))))
                                               ],
                                             ),
                                           ),
