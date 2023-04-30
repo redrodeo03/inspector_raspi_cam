@@ -39,9 +39,9 @@ class ConclusiveSection {
 class VisualSection {
   String? id;
   String? name;
-  List<String?>? images;
-  List<String?>? exteriorelements;
-  List<String?>? waterproofingelements;
+  List<String>? images;
+  List<String>? exteriorelements;
+  List<String>? waterproofingelements;
   String? additionalconsiderations;
   String? visualreview;
   bool visualsignsofleak = false;

@@ -58,7 +58,7 @@ class Location {
   String? url;
   DateTime? editedat;
   String? lasteditedby;
-  List<Section?>? sections;
+  List<Section>? sections;
 
   Location(
       {this.id,
@@ -108,7 +108,7 @@ class Location {
     data['editedat'] = editedat;
     data['lasteditedby'] = lasteditedby;
     data['sections'] =
-        sections != null ? sections!.map((v) => v?.toJson()).toList() : null;
+        sections != null ? sections!.map((v) => v.toJson()).toList() : null;
     return data;
   }
 }

@@ -648,6 +648,9 @@ class LocalVisualSection extends _LocalVisualSection
     String? createdat,
     DateTime? editedat,
     String? lasteditedby,
+    Iterable<String> images = const [],
+    Iterable<String> exteriorelements = const [],
+    Iterable<String> waterproofingelements = const [],
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalVisualSection>({
@@ -675,6 +678,12 @@ class LocalVisualSection extends _LocalVisualSection
     RealmObjectBase.set(this, 'createdat', createdat);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'images', RealmList<String>(images));
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'exteriorelements', RealmList<String>(exteriorelements));
+    RealmObjectBase.set<RealmList<String>>(this, 'waterproofingelements',
+        RealmList<String>(waterproofingelements));
   }
 
   LocalVisualSection._();
@@ -688,6 +697,29 @@ class LocalVisualSection extends _LocalVisualSection
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
   @override
   set name(String? value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  RealmList<String> get images =>
+      RealmObjectBase.get<String>(this, 'images') as RealmList<String>;
+  @override
+  set images(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<String> get exteriorelements =>
+      RealmObjectBase.get<String>(this, 'exteriorelements')
+          as RealmList<String>;
+  @override
+  set exteriorelements(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<String> get waterproofingelements =>
+      RealmObjectBase.get<String>(this, 'waterproofingelements')
+          as RealmList<String>;
+  @override
+  set waterproofingelements(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   String? get additionalconsiderations =>
@@ -787,6 +819,12 @@ class LocalVisualSection extends _LocalVisualSection
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
+      SchemaProperty('images', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('exteriorelements', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('waterproofingelements', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
       SchemaProperty('additionalconsiderations', RealmPropertyType.string,
           optional: true),
       SchemaProperty('visualreview', RealmPropertyType.string, optional: true),

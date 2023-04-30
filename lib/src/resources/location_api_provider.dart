@@ -20,11 +20,20 @@ class LocationsApiProvider {
     }
   }
 
-  Future<Object> addLocation(Object requestBody) async {
+  Future<Object> addLocation(Location location) async {
+    final locationObject = jsonEncode({
+      'name': location.name,
+      'description': location.description,
+      'parentid': location.parentid,
+      'parenttype': location.parenttype,
+      'url': location.url,
+      'createdby': location.createdby,
+      'type': location.type
+    });
     var endPoint = '${URLS.manageLocationUrl}add';
     final baseUrl = Uri.parse(endPoint);
     final response = await client.post(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: locationObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));
@@ -33,11 +42,17 @@ class LocationsApiProvider {
     }
   }
 
-  Future<Object> updateLocation(Object requestBody, String id) async {
+  Future<Object> updateLocation(Location location, String id) async {
+    final locationObject = jsonEncode({
+      'name': location.name,
+      'description': location.description,
+      'url': location.url,
+      'lasteditedby': location.lasteditedby
+    });
     var endPoint = URLS.manageLocationUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.put(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: locationObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));
@@ -46,7 +61,7 @@ class LocationsApiProvider {
     }
   }
 
-  Future<Object>  deleteLocation(Object requestBody, String id) async {
+  Future<Object> deleteLocation(Object requestBody, String id) async {
     var endPoint = '${URLS.manageLocationUrl}$id/toggleVisibility';
     final baseUrl = Uri.parse(endPoint);
     final response = await client.post(baseUrl,

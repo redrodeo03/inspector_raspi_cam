@@ -21,11 +21,19 @@ class SubProjectApiProvider {
     }
   }
 
-  Future<Object> addSubProject(Object requestBody) async {
+  Future<Object> addSubProject(SubProject subProject) async {
     var endPoint = '${URLS.manageSubprojectUrl}add';
     final baseUrl = Uri.parse(endPoint);
+    final subProjectObject = jsonEncode({
+      'name': subProject.name,
+      'description': subProject.description,
+      'parentid': subProject.parentid,
+      'parenttype': subProject.parenttype,
+      'url': subProject.url,
+      'createdby': subProject.createdby,
+    });
     final response = await client.post(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: subProjectObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));
@@ -34,11 +42,17 @@ class SubProjectApiProvider {
     }
   }
 
-  Future<Object> updateSubProject(Object requestBody, String id) async {
+  Future<Object> updateSubProject(SubProject subProject, String id) async {
+    final subProjectObject = jsonEncode({
+      'name': subProject.name,
+      'description': subProject.description,
+      'url': subProject.url,
+      'lasteditedby': subProject.lasteditedby
+    });
     var endPoint = URLS.manageSubprojectUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.put(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: subProjectObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));

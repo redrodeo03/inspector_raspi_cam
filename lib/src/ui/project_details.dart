@@ -78,10 +78,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     setState(() {
       if (currentProject.children != null) {
         locations = currentProject.children!
-            .where((element) => element!.type == 'location')
+            .where((element) => element.type == 'location')
             .toList();
         buildings = currentProject.children!
-            .where((element) => element!.type == 'subproject')
+            .where((element) => element.type == 'subproject')
             .toList();
       }
     });
@@ -230,10 +230,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   currentProject = data.item as Project;
                   if (currentProject.children != null) {
                     locations = currentProject.children!
-                        .where((element) => element!.type == 'location')
+                        .where((element) => element.type == 'location')
                         .toList();
                     buildings = currentProject.children!
-                        .where((element) => element!.type == 'subproject')
+                        .where((element) => element.type == 'subproject')
                         .toList();
                   }
 

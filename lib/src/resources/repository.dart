@@ -2,13 +2,21 @@ import 'dart:async';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
 
+import 'package:deckinspectors/src/models/section_model.dart';
+import 'package:deckinspectors/src/models/subproject_model.dart';
+
 import 'package:deckinspectors/src/resources/project_api_provider.dart';
-import 'package:deckinspectors/src/resources/realm/project_local_provider.dart';
+
 import 'package:deckinspectors/src/resources/user_provider.dart';
 
+import '../models/location_model.dart';
 import '../models/login_response.dart';
 import 'image_api_provider.dart';
 import 'location_api_provider.dart';
+import 'realm/location_local_provider.dart';
+import 'realm/project_local_provider.dart';
+import 'realm/section_local_provider.dart';
+import 'realm/subproject_local_provider.dart';
 import 'section_api_provider.dart';
 import 'subproject_api_provider.dart';
 
@@ -41,11 +49,11 @@ class Repository {
     }
   }
 
-  Future<Object> updateProject(Object projectObject, String id) {
+  Future<Object> updateProject(Project project, String id) {
     if (appSettings.isAppOfflineMode) {
-      return localProjectsApiProvider.updateProject(projectObject, id);
+      return localProjectsApiProvider.updateProject(project, id);
     } else {
-      return projectsApiProvider.updateProject(projectObject, id);
+      return projectsApiProvider.updateProject(project, id);
     }
   }
 
@@ -65,34 +73,109 @@ class Repository {
 
 //Locations
   final locationApiProvider = LocationsApiProvider();
-  Future<Object> getLocation(String id) => locationApiProvider.getLocation(id);
-  Future<Object> addLocation(Object requestBody) =>
-      locationApiProvider.addLocation(requestBody);
-  Future<Object> updateLocation(Object projectObject, String id) =>
-      locationApiProvider.updateLocation(projectObject, id);
-  Future<Object> deleteLocation(Object projectObject, String id) =>
-      locationApiProvider.deleteLocation(projectObject, id);
+  final localLocationApiProvider = LocalLocationApiProvider();
+
+  Future<Object> getLocation(String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localLocationApiProvider.getLocation(id);
+    } else {
+      return locationApiProvider.getLocation(id);
+    }
+  }
+
+  Future<Object> addLocation(Location location) {
+    if (appSettings.isAppOfflineMode) {
+      return localLocationApiProvider.addLocation(location);
+    } else {
+      return locationApiProvider.addLocation(location);
+    }
+  }
+
+  Future<Object> updateLocation(Location location, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localLocationApiProvider.updateLocation(location, id);
+    } else {
+      return locationApiProvider.updateLocation(location, id);
+    }
+  }
+
+  Future<Object> deleteLocation(Object locationObject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localLocationApiProvider.deleteLocation(locationObject, id);
+    } else {
+      return locationApiProvider.deleteLocation(locationObject, id);
+    }
+  }
 
   //Sections
   final sectionApiProvider = SectionsApiProvider();
-  Future<Object> getSection(String id) => sectionApiProvider.getSection(id);
-  Future<Object> addSection(Object requestBody) =>
-      sectionApiProvider.addSection(requestBody);
-  Future<Object> updateSection(Object projectObject, String id) =>
-      sectionApiProvider.updateSection(projectObject, id);
-  Future<Object> deleteSection(Object projectObject, String id) =>
-      sectionApiProvider.deleteSection(projectObject, id);
+  final localSectionApiProvider = LocalSectionApiProvider();
+  Future<Object> getSection(String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSectionApiProvider.getSection(id);
+    } else {
+      return sectionApiProvider.getSection(id);
+    }
+  }
+
+  Future<Object> addSection(VisualSection visualSection) {
+    if (appSettings.isAppOfflineMode) {
+      return localSectionApiProvider.addVisualSection(visualSection);
+    } else {
+      return sectionApiProvider.addSection(visualSection);
+    }
+  }
+
+  Future<Object> updateSection(VisualSection visualSection, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSectionApiProvider.updateVisualSection(visualSection, id);
+    } else {
+      return sectionApiProvider.updateSection(visualSection, id);
+    }
+  }
+
+  Future<Object> deleteSection(Object visualObject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSectionApiProvider.deleteVisualLocation(visualObject, id);
+    } else {
+      return sectionApiProvider.deleteSection(visualObject, id);
+    }
+  }
 
   //SubProject
   final subProjectApiProvider = SubProjectApiProvider();
-  Future<Object> getSubProject(String id) =>
-      subProjectApiProvider.getSubProject(id);
-  Future<Object> addSubProject(Object requestBody) =>
-      subProjectApiProvider.addSubProject(requestBody);
-  Future<Object> updateSubProject(Object projectObject, String id) =>
-      subProjectApiProvider.updateSubProject(projectObject, id);
-  Future<Object> deleteSubProject(Object projectObject, String id) =>
-      subProjectApiProvider.deleteSubProject(projectObject, id);
+  final localSubProjectApiProvider = LocalSubProjectApiProvider();
+  Future<Object> getSubProject(String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSubProjectApiProvider.getSubProject(id);
+    } else {
+      return subProjectApiProvider.getSubProject(id);
+    }
+  }
+
+  Future<Object> addSubProject(SubProject subProject) {
+    if (appSettings.isAppOfflineMode) {
+      return localSubProjectApiProvider.addSubProject(subProject);
+    } else {
+      return subProjectApiProvider.addSubProject(subProject);
+    }
+  }
+
+  Future<Object> updateSubProject(SubProject subProject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSubProjectApiProvider.updateSubProject(subProject, id);
+    } else {
+      return subProjectApiProvider.updateSubProject(subProject, id);
+    }
+  }
+
+  Future<Object> deleteSubProject(Object subProjectObject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localSubProjectApiProvider.deleteProject(subProjectObject, id);
+    } else {
+      return subProjectApiProvider.deleteSubProject(subProjectObject, id);
+    }
+  }
 
   //Users
   final usersApiProvider = UsersApiProvider();

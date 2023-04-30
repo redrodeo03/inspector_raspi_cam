@@ -22,7 +22,7 @@ class CameraScreenState extends State<CameraScreen>
 
   // Initial values
   bool _isCameraInitialized = false;
-  bool _isCameraPermissionGranted = false;
+  //bool _isCameraPermissionGranted = false;
   //bool _isRearCameraSelected = true;
 
   double _minAvailableExposureOffset = 0.0;
@@ -46,43 +46,14 @@ class CameraScreenState extends State<CameraScreen>
     final cameras = await availableCameras();
     // Get a specific camera from the list of available cameras.
     final firstCamera = cameras.first;
-    //  await Permission.camera.request();
-    // var status = await Permission.camera.status;
 
-    setState(() {
-      _isCameraPermissionGranted = true;
-    });
+    // setState(() {
+    //   _isCameraPermissionGranted = true;
+    // });
     // Set and initialize the new camera
     onNewCameraSelected(firstCamera);
-    //controller!.initialize();
-    //refreshAlreadyCapturedImages();
   }
 
-  // refreshAlreadyCapturedImages() async {
-  //   final directory = await getApplicationDocumentsDirectory();
-  //   List<FileSystemEntity> fileList = await directory.list().toList();
-  //   allFileList.clear();
-  //   List<Map<int, dynamic>> fileNames = [];
-
-  //   for (var file in fileList) {
-  //     if (file.path.contains('.jpg') || file.path.contains('.jpeg')) {
-  //       allFileList.add(File(file.path));
-
-  //       String name = file.path.split('/').last.split('.').first;
-  //       fileNames.add({0: int.parse(name), 1: file.path.split('/').last});
-  //     }
-  //   }
-
-  //   if (fileNames.isNotEmpty) {
-  //     final recentFile =
-  //         fileNames.reduce((curr, next) => curr[0] > next[0] ? curr : next);
-  //     String recentFileName = recentFile[1];
-
-  //       _imageFile = File('${directory.path}/$recentFileName');
-
-  //     setState(() {});
-  //   }
-  // }
   List<XFile> capturedImages = [];
   Future<XFile?> takePicture(BuildContext context) async {
     final CameraController? cameraController = controller;

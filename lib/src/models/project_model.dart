@@ -106,7 +106,7 @@ class Project {
     data['lasteditedby'] = lasteditedby;
     data['assignedto'] = assignedto;
     data['children'] =
-        children != null ? children!.map((v) => v?.toJson()).toList() : null;
+        children != null ? children!.map((v) => v.toJson()).toList() : null;
     return data;
   }
 }

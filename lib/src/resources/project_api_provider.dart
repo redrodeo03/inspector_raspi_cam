@@ -54,11 +54,19 @@ class ProjectsApiProvider {
     }
   }
 
-  Future<Object> updateProject(Object requestBody, String id) async {
+  Future<Object> updateProject(Project project, String id) async {
+    final projectObject = jsonEncode({
+      'name': project.name,
+      'description': project.description,
+      'address': project.address,
+      'url': project.url,
+      'projectType': project.projecttype,
+      'lasteditedby': project.lasteditedby
+    });
     var endPoint = URLS.manageProjectsUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.put(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: projectObject, headers: {'Content-Type': 'application/json'});
     //print(response.body.toString());
 
     if (response.statusCode == 201) {

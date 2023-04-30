@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
-import 'package:deckinspectors/src/ui/projects.dart';
+
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';

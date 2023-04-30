@@ -52,11 +52,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         createdby: userFullName,
         type: 'apartment',
         parentid: buildingId,
-        parenttype: 'subproject');    
+        parenttype: 'subproject');
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.addListener(_handleTabSelection);
-
   }
 
   void _handleTabSelection() {
@@ -80,7 +79,9 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     setState(() {});
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddEditSubProjectPage(currentBuilding,userFullName)),
+      MaterialPageRoute(
+          builder: (context) =>
+              AddEditSubProjectPage(currentBuilding, userFullName)),
     );
   }
 
@@ -103,11 +104,12 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     }
   }
 
-  void gotoDetails(String? id,String type) {
+  void gotoDetails(String? id, String type) {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => LocationPage(id as String,'Building',type, userFullName)),
+          builder: (context) =>
+              LocationPage(id as String, 'Building', type, userFullName)),
     );
   }
 
@@ -116,24 +118,30 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        leading: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios,color: Colors.blue,),
-          label: const Text('Project', style: TextStyle(color:Colors.blue),),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
+            ),
+            label: const Text(
+              'Project',
+              style: TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
           ),
-        ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
           title: const Text(
-                  'Building',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
+            'Building',
+            style:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+          ),
         ),
         body: FutureBuilder(
           builder: (ctx, snapshot) {
@@ -176,8 +184,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             );
           },
           future: subProjectsBloc.getSubProject(buildingId),
-        )
-        );
+        ));
   }
 
   Widget buildingDetails() {
@@ -312,10 +319,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     //   child:
     if (currentBuilding.children != null) {
       buildinglocations = currentBuilding.children!
-          .where((element) => element!.type == 'location')
+          .where((element) => element.type == 'location')
           .toList();
       apartments = currentBuilding.children!
-          .where((element) => element!.type == 'apartment')
+          .where((element) => element.type == 'apartment')
           .toList();
     } else {
       buildinglocations = List.empty(growable: true);
@@ -350,9 +357,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   }
 
   Widget locationsWidget(String type) {
-    
-    bool isLocation=true;
-    isLocation =type=='building location'?buildinglocations.isEmpty: apartments.isEmpty;
+    bool isLocation = true;
+    isLocation = type == 'building location'
+        ? buildinglocations.isEmpty
+        : apartments.isEmpty;
     return Padding(
         padding: const EdgeInsets.all(4),
         child: Column(
@@ -428,11 +436,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
                     ]),
-
                 child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(buildinglocations[index]!.url),
-            ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: networkImage(buildinglocations[index]!.url),
+                ),
               ),
               Align(
                 alignment: Alignment.centerLeft,
@@ -510,7 +517,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         shadowColor: Colors.blue,
                         elevation: 1),
                     onPressed: () {
-                      gotoDetails(buildinglocations[index]!.id,'Common Location');
+                      gotoDetails(
+                          buildinglocations[index]!.id, 'Common Location');
                     },
                     icon: const Icon(Icons.view_carousel_outlined),
                     label: const Text('View Details')),
@@ -529,20 +537,19 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                height: 140,
-                width: 192,
-                decoration: const BoxDecoration(
-                    color: Colors.orange,
-                    // image: networkImage(currentProject.url as String),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    boxShadow: [
-                      BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                    ]),
-                child:ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(apartments[index]!.url),
-                )
-              ),
+                  height: 140,
+                  width: 192,
+                  decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      // image: networkImage(currentProject.url as String),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                      ]),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: networkImage(apartments[index]!.url),
+                  )),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
@@ -619,7 +626,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         shadowColor: Colors.blue,
                         elevation: 1),
                     onPressed: () {
-                      gotoDetails(apartments[index]!.id,'Apartment');
+                      gotoDetails(apartments[index]!.id, 'Apartment');
                     },
                     icon: const Icon(Icons.view_carousel_outlined),
                     label: const Text('View Details')),

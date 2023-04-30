@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 
 import '../models/location_model.dart';
 import 'cachedimage_widget.dart';
-import 'image_widget.dart';
 
 class LocationPage extends StatefulWidget {
   final String id;
@@ -278,7 +277,7 @@ class _LocationPageState extends State<LocationPage> {
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
     String visualReview =
-        (currentLocation.sections?[index]!.visualreview as String);
+        (currentLocation.sections?[index].visualreview as String);
     switch (visualReview) {
       case 'good':
         vreview = 'Good';
@@ -293,7 +292,7 @@ class _LocationPageState extends State<LocationPage> {
     }
     String assessment = '';
     String assessmentActual =
-        (currentLocation.sections?[index]!.conditionalassessment as String);
+        (currentLocation.sections?[index].conditionalassessment as String);
     switch (assessmentActual) {
       case 'pass':
         assessment = 'Pass';
@@ -322,13 +321,13 @@ class _LocationPageState extends State<LocationPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: cachedNetworkImage(
-                  currentLocation.sections?[index]!.coverUrl),
+              child:
+                  cachedNetworkImage(currentLocation.sections?[index].coverUrl),
             ),
           ),
           InkWell(
               onTap: () =>
-                  {gotoDetails(currentLocation.sections?[index]!.id as String)},
+                  {gotoDetails(currentLocation.sections?[index].id as String)},
               child: Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
@@ -339,7 +338,7 @@ class _LocationPageState extends State<LocationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(
-                              currentLocation.sections?[index]!.name as String,
+                              currentLocation.sections?[index].name as String,
                               maxLines: 2,
                               style: const TextStyle(
                                 fontSize: 15,
@@ -414,7 +413,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]!
+                                    currentLocation.sections?[index]
                                                 .visualsignsofleak ==
                                             true
                                         ? 'True'
@@ -450,7 +449,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]!
+                                    currentLocation.sections?[index]
                                                 .furtherinvasivereviewrequired ==
                                             true
                                         ? 'True'
@@ -521,7 +520,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]!.count
+                                    currentLocation.sections?[index].count
                                         .toString() as String,
                                     style: const TextStyle(
                                         color: Colors.blue,

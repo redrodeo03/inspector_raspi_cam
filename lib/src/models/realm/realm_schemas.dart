@@ -86,9 +86,9 @@ class _LocalVisualSection {
   @PrimaryKey()
   String? id;
   String? name;
-  // List<String?>? images;
-  // List<String?>? exteriorelements;
-  // List<String?>? waterproofingelements;
+  List<String> images = [];
+  List<String> exteriorelements = [];
+  List<String> waterproofingelements = [];
   String? additionalconsiderations;
   String? visualreview;
   bool visualsignsofleak = false;
@@ -98,7 +98,7 @@ class _LocalVisualSection {
   String lbc = 'one';
   String awe = 'one';
   String? parentid;
-
+  String? onlineId;
   String? createdby;
   String? createdat;
 

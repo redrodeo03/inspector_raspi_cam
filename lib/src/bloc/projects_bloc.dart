@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:deckinspectors/src/models/project_model.dart';
-import 'package:realm/realm.dart';
+
 import 'package:rxdart/rxdart.dart';
 import '../resources/repository.dart';
 
@@ -39,16 +37,8 @@ class ProjectsBloc {
   }
 
   Future<Object> updateProject(Project project) async {
-    final projectObject = jsonEncode({
-      'name': project.name,
-      'description': project.description,
-      'address': project.address,
-      'url': project.url,
-      'projectType': project.projecttype,
-      'lasteditedby': project.lasteditedby
-    });
     var response =
-        await _repository.updateProject(projectObject, project.id as String);
+        await _repository.updateProject(project, project.id as String);
     return response;
   }
 

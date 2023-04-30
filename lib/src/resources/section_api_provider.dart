@@ -20,11 +20,27 @@ class SectionsApiProvider {
     }
   }
 
-  Future<Object> addSection(Object requestBody) async {
+  Future<Object> addSection(VisualSection visualSection) async {
     var endPoint = '${URLS.manageSectionUrl}add';
     final baseUrl = Uri.parse(endPoint);
+    final sectionObject = jsonEncode({
+      'name': visualSection.name,
+      'exteriorelements': visualSection.exteriorelements,
+      'waterproofingelements': visualSection.waterproofingelements,
+      'additionalconsiderations': visualSection.additionalconsiderations,
+      'visualreview': visualSection.visualreview,
+      'visualsignsofleak': visualSection.visualsignsofleak,
+      'furtherinvasivereviewrequired':
+          visualSection.furtherinvasivereviewrequired,
+      'conditionalassessment': visualSection.conditionalassessment,
+      'eee': visualSection.eee,
+      'lbc': visualSection.lbc,
+      'awe': visualSection.awe,
+      'createdby': visualSection.createdby,
+      'parentid': visualSection.parentid,
+    });
     final response = await client.post(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: sectionObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));
@@ -33,11 +49,27 @@ class SectionsApiProvider {
     }
   }
 
-  Future<Object> updateSection(Object requestBody, String id) async {
+  Future<Object> updateSection(VisualSection visualSection, String id) async {
     var endPoint = URLS.manageSectionUrl + id;
     final baseUrl = Uri.parse(endPoint);
+    final sectionObject = jsonEncode({
+      'name': visualSection.name,
+      'exteriorelements': visualSection.exteriorelements,
+      'waterproofingelements': visualSection.waterproofingelements,
+      'additionalconsiderations': visualSection.additionalconsiderations,
+      'visualreview': visualSection.visualreview,
+      'visualsignsofleak': visualSection.visualsignsofleak,
+      'furtherinvasivereviewrequired':
+          visualSection.furtherinvasivereviewrequired,
+      'conditionalassessment': visualSection.conditionalassessment,
+      'eee': visualSection.eee,
+      'lbc': visualSection.lbc,
+      'awe': visualSection.awe,
+      'lasteditedby': visualSection.lasteditedby,
+      'parentid': visualSection.parentid,
+    });
     final response = await client.put(baseUrl,
-        body: requestBody, headers: {'Content-Type': 'application/json'});
+        body: sectionObject, headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 201) {
       return SuccessResponse.fromJson(json.decode(response.body));

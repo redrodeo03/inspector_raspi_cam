@@ -1,48 +1,26 @@
 import 'package:deckinspectors/src/models/error_response.dart';
+import 'package:deckinspectors/src/models/location_model.dart';
 import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
 import 'package:realm/realm.dart';
+import '../mappers/location_mapper.dart';
 
-import '../../models/project_model.dart';
-import '../mappers/project_mapper.dart';
-
-class LocalProjectApiProvider {
+class LocalLocationApiProvider {
   late Realm realm;
-  final projectMapper = ProjectMapper();
-  LocalProjectApiProvider() {
-    var config = Configuration.local([LocalProject.schema, LocalChild.schema]);
+  final locationMapper = LocationMapper();
+  LocalLocationApiProvider() {
+    var config =
+        Configuration.local([LocalLocation.schema, LocalSection.schema]);
     realm = Realm(config);
   }
 
-  ///Get all local Projects
-  Future<Projects> fetchProjects() {
-    return Future(() => getLocalProjects());
-  }
-
-  Projects getLocalProjects() {
-    Projects projectsObject = Projects();
-    try {
-      List<Project> projects = [];
-      var localProjects = realm.all<LocalProject>().toList();
-      for (var localProject in localProjects) {
-        projects.add(projectMapper.fromLocalProject(localProject) as Project);
-        projectsObject.projects = projects;
-        projectsObject.message = 'Success';
-      }
-    } catch (e) {
-      projectsObject.message = 'failure';
-    }
-
-    return projectsObject;
-  }
-
   /// Get item by [id].
-  Future<Object> getProject(String id) {
-    ProjectResponse projectResponse = ProjectResponse();
+  Future<Object> getLocation(String id) {
+    LocationResponse projectResponse = LocationResponse();
     return Future(() {
       try {
-        final item = realm.find<LocalProject>(id);
-        projectResponse.item = projectMapper.fromLocalProject(item);
+        final item = realm.find<LocalLocation>(id);
+        projectResponse.item = locationMapper.fromLocalLocation(item);
         projectResponse.message = 'Success';
         return projectResponse;
       } catch (e) {
@@ -52,20 +30,20 @@ class LocalProjectApiProvider {
     });
   }
 
-  Future<Object> addProject(Project project) {
+  Future<Object> addLocation(Location location) {
     return Future(() {
       SuccessResponse successResponse = SuccessResponse();
       try {
-        var localproject = projectMapper.fromProject(project);
-        var projectId = ObjectId().toString();
-        localproject.id = projectId;
+        var localLocation = locationMapper.fromLocation(location);
+        var locationId = ObjectId().toString();
+        localLocation.id = locationId;
         var creationtime = DateTime.now.toString();
-        localproject.createdat = creationtime;
+        localLocation.createdat = creationtime;
         realm.writeAsync(() {
-          realm.add(localproject, update: false);
+          realm.add(localLocation, update: false);
         });
 
-        successResponse.id = projectId;
+        successResponse.id = locationId;
         successResponse.message = 'added successfully to realm';
         return successResponse;
       } catch (e) {
@@ -75,14 +53,14 @@ class LocalProjectApiProvider {
     });
   }
 
-  Future<Object> updateProject(Project projectObject, String id) {
+  Future<Object> updateLocation(Location locationObject, String id) {
     return Future(() {
       SuccessResponse successResponse = SuccessResponse();
       try {
-        var project = projectMapper.fromProject(projectObject);
+        var location = locationMapper.fromLocation(locationObject);
 
         realm.writeAsync(() {
-          realm.add(project, update: true);
+          realm.add(location, update: true);
         });
         successResponse.id = id;
         successResponse.message = 'updated successfully to realm';
@@ -94,13 +72,13 @@ class LocalProjectApiProvider {
     });
   }
 
-  Future<Object> deleteProject(Object projectObject, String id) {
+  Future<Object> deleteLocation(Object locationObject, String id) {
     return Future(() {
       SuccessResponse successResponse = SuccessResponse();
       try {
-        var project = projectMapper.fromProject(projectObject as Project);
+        var location = locationMapper.fromLocation(locationObject as Location);
         realm.writeAsync(() {
-          realm.delete(project);
+          realm.delete(location);
         });
         successResponse.id = '';
         successResponse.message = 'deleted successfully from realm';
