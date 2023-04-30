@@ -53,5 +53,7 @@
 	<string>This app needs access to camera to capture location images for reporting.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to microphone to fill in the data in location form.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app needs speech recognition to help users to fill in the data in location form without typing.</string>
 </dict>
 </plist>

@@ -1,11 +1,38 @@
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/project_details.dart';
 import 'package:flutter/material.dart';
 
 import '../bloc/projects_bloc.dart';
+import '../bloc/users_bloc.dart';
+import '../models/error_response.dart';
 import '../models/project_model.dart';
+import 'addedit_project.dart';
 
 class OfflineModePage extends StatelessWidget {
-  const OfflineModePage({super.key});
+  OfflineModePage({super.key});
+
+  late final String userFullName = getFullUsername();
+  String getFullUsername() {
+    var loggedInUser = usersBloc.userDetails;
+    var userFullName = loggedInUser.firstname as String;
+    userFullName = "$userFullName ${loggedInUser.lastname as String}";
+    return userFullName;
+  }
+
+  void addNewProject(BuildContext context) {
+    Project newProject = Project(
+        name: "",
+        description: "",
+        address: "",
+        url: "",
+        createdby: userFullName);
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                AddEditProjectPage(newProject, userFullName)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +54,6 @@ class OfflineModePage extends StatelessWidget {
         children: [
           Container(
               margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.blue,
@@ -44,10 +70,10 @@ class OfflineModePage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   InkWell(
-                      onTap: () {},
+                      onTap: () => addNewProject(context),
                       child: const Chip(
                         padding: EdgeInsets.all(8),
                         labelPadding: EdgeInsets.all(4),
@@ -63,6 +89,185 @@ class OfflineModePage extends StatelessWidget {
                       )),
                 ],
               )),
+          //show offline projects
+          Expanded(
+            child: FutureBuilder(
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        '${snapshot.error} occurred',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    );
+
+                    // if we got our data
+                  } else if (snapshot.hasData) {
+                    final data = snapshot.data;
+                    if (data is Projects) {
+                      var offlineProjects = data.projects;
+
+                      return ListView.builder(
+                          itemCount: offlineProjects!.length,
+                          itemBuilder: (context, index) {
+                            //final projUrl = projects[index]?.url?.isEmpty?'assets/images/icon.png':projects[index]?.url;
+                            final projType =
+                                offlineProjects[index]?.projecttype == null
+                                    ? "Multi-Level"
+                                    : offlineProjects[index]?.projecttype
+                                        as String;
+
+                            return SizedBox(
+                              height: 120,
+                              child: Card(
+                                borderOnForeground: false,
+                                elevation: 4,
+                                child: Row(
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          8, 8.0, 8, 8.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          gotoProjectDetails(
+                                              context,
+                                              offlineProjects[index]!.id
+                                                  as String);
+                                        },
+                                        child: Container(
+                                          width: 90.0,
+                                          height: 90.0,
+                                          decoration: const BoxDecoration(
+                                              color: Colors.orange,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8.0)),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    blurRadius: 1.0,
+                                                    color: Colors.blue)
+                                              ]),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: cachedNetworkImage(
+                                                offlineProjects[index]!.url),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            2, 8, 2, 8),
+                                        child: Column(
+                                          children: <Widget>[
+                                            // Expanded(
+                                            //child:
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                offlineProjects[index]?.name
+                                                    as String,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.fade,
+                                                textAlign: TextAlign.left,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            // ),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(
+                                                                0, 8, 0, 0),
+                                                        child: Text(
+                                                          projType,
+                                                          textAlign:
+                                                              TextAlign.left,
+                                                          style:
+                                                              const TextStyle(
+                                                            color:
+                                                                Colors.black87,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .fromLTRB(
+                                                                  0, 12, 0, 0),
+                                                          child: GestureDetector(
+                                                              onTap: () async {
+                                                                gotoProjectDetails(
+                                                                    context,
+                                                                    offlineProjects[index]!
+                                                                            .id
+                                                                        as String);
+                                                              },
+                                                              child: Container(
+                                                                  alignment: Alignment.bottomRight,
+                                                                  padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                                                                  child: const Text(
+                                                                    'View',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .blue,
+                                                                        fontSize:
+                                                                            17),
+                                                                  ))))
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+                    }
+                    if (data is ErrorResponse) {
+                      return Center(
+                        child: Text(
+                          '${data?.message}',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      );
+                    }
+                  }
+                }
+
+                // Displaying LoadingSpinner to indicate waiting state
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+              future: projectsBloc.fetchAllOfflineProjects(),
+            ),
+          ),
           Stack(alignment: Alignment.center, children: [
             const Divider(
               color: Color.fromARGB(255, 222, 213, 213),
@@ -222,6 +427,7 @@ class OfflineModePage extends StatelessWidget {
                                                         child: GestureDetector(
                                                             onTap: () {
                                                               gotoProjectDetails(
+                                                                  context,
                                                                   projects[index]!
                                                                           .id
                                                                       as String);
@@ -293,5 +499,10 @@ class OfflineModePage extends StatelessWidget {
     );
   }
 
-  void gotoProjectDetails(String id) {}
+  void gotoProjectDetails(BuildContext context, String projectId) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProjectDetailsPage(projectId, userFullName)));
+  }
 }

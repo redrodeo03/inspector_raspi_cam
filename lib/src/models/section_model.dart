@@ -16,6 +16,7 @@ class InvasiveSection {
     return data;
   }
 }
+
 class ConclusiveSection {
   String? conclusivecomments;
   List<String?>? conclusiveimages;
@@ -79,7 +80,6 @@ class VisualSection {
       required this.eee,
       required this.lbc,
       this.createdby,
-      
       this.parentid});
 
   VisualSection.fromJson(Map<String, dynamic> json) {
@@ -129,31 +129,31 @@ class VisualSection {
     data['additionalconsiderations'] = additionalconsiderations;
     data['furtherinvasivereviewrequired'] = furtherinvasivereviewrequired;
     data['conditionalassessment'] = conditionalassessment;
-    
+
     data['lasteditedby'] = lasteditedby;
-   
+
     return data;
   }
 }
 
 class SectionResponse {
-    VisualSection? item;
-    String? message;
-    int? code;
+  VisualSection? item;
+  String? message;
+  int? code;
 
-    SectionResponse({this.item, this.message, this.code}); 
+  SectionResponse({this.item, this.message, this.code});
 
-    SectionResponse.fromJson(Map<String, dynamic> json) {
-        item = json['item'] != null ? VisualSection?.fromJson(json['item']) : null;
-        message = json['message'];
-        code = json['code'];
-    }
+  SectionResponse.fromJson(Map<String, dynamic> json) {
+    item = json['item'] != null ? VisualSection?.fromJson(json['item']) : null;
+    message = json['message'];
+    code = json['code'];
+  }
 
-    Map<String, dynamic> toJson() {
-        final Map<String, dynamic> data = <String, dynamic>{};
-        data['item'] = item!.toJson();
-        data['message'] = message;
-        data['code'] = code;
-        return data;
-    }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['item'] = item!.toJson();
+    data['message'] = message;
+    data['code'] = code;
+    return data;
+  }
 }

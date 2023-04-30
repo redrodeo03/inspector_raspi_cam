@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
+
 import 'package:deckinspectors/src/resources/project_api_provider.dart';
+import 'package:deckinspectors/src/resources/realm/project_local_provider.dart';
 import 'package:deckinspectors/src/resources/user_provider.dart';
 
 import '../models/login_response.dart';
@@ -12,14 +15,53 @@ import 'subproject_api_provider.dart';
 class Repository {
   //Projects
   final projectsApiProvider = ProjectsApiProvider();
-  Future<Projects> fetchAllProjects() => projectsApiProvider.fetchProjects();
-  Future<Object> getProject(String id) => projectsApiProvider.getProject(id);
-  Future<Object> addProject(Object requestBody) =>
-      projectsApiProvider.addProject(requestBody);
-  Future<Object> updateProject(Object projectObject, String id) =>
-      projectsApiProvider.updateProject(projectObject, id);
-  Future<Object> deleteProject(Object projectObject, String id) =>
-      projectsApiProvider.deleteProject(projectObject, id);
+  final localProjectsApiProvider = LocalProjectApiProvider();
+
+  Future<Projects> fetchAllProjects() {
+    return projectsApiProvider.fetchProjects();
+  }
+
+  Future<Projects> fetchLocalProjects() {
+    return localProjectsApiProvider.fetchProjects();
+  }
+
+  Future<Object> getProject(String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localProjectsApiProvider.getProject(id);
+    } else {
+      return projectsApiProvider.getProject(id);
+    }
+  }
+
+  Future<Object> addProject(Project project) {
+    if (appSettings.isAppOfflineMode) {
+      return localProjectsApiProvider.addProject(project);
+    } else {
+      return projectsApiProvider.addProject(project);
+    }
+  }
+
+  Future<Object> updateProject(Object projectObject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localProjectsApiProvider.updateProject(projectObject, id);
+    } else {
+      return projectsApiProvider.updateProject(projectObject, id);
+    }
+  }
+
+  Future<Object> deleteProject(Object projectObject, String id) {
+    if (appSettings.isAppOfflineMode) {
+      return localProjectsApiProvider.deleteProject(projectObject, id);
+    } else {
+      return projectsApiProvider.deleteProject(projectObject, id);
+    }
+  }
+
+  Future<Object> deleteOnlineProjectPermanently(String id) {
+    return projectsApiProvider.deleteProjectPermanently(id);
+  }
+
+//local fetches
 
 //Locations
   final locationApiProvider = LocationsApiProvider();

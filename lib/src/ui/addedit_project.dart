@@ -1,8 +1,12 @@
 import 'dart:io';
 
 import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
+import 'package:deckinspectors/src/ui/projects.dart';
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import '../bloc/images_bloc.dart';
 import '../bloc/projects_bloc.dart';
 import '../models/success_response.dart';
@@ -45,6 +49,31 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       imageURL = currentProject.url as String;
     }
     super.initState();
+    _initSpeech();
+  }
+
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  /// Each time to start a speech recognition session
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {});
+  }
+
+  /// This is the callback that the SpeechToText plugin calls when
+  /// the platform returns recognized words.
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+    });
   }
 
   bool isNewProject = true;
@@ -80,7 +109,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       }
 
       //upload image if changed
-      if (imageURL != currentProject.url) {
+
+      if (imageURL != currentProject.url && result is SuccessResponse) {
         imagesBloc.uploadImage(
             currentProject.url as String,
             currentProject.name as String,
@@ -138,206 +168,226 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
   }
 
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String _lastWords = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 120,
-            leading: ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.blue,
-              ),
-              label: Text(
-                prevPageName,
-                style: const TextStyle(color: Colors.blue),
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-              ),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
             ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  pageTitle,
-                  style: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
-                InkWell(
-                    onTap: () {
-                      save(context);
-                    },
-                    child: const Chip(
-                      avatar: Icon(
-                        Icons.save_outlined,
-                        color: Color(0xFF3F3F3F),
-                      ),
-                      labelPadding: EdgeInsets.all(2),
-                      label: Text(
-                        'Save Project',
-                        style: TextStyle(color: Color(0xFF3F3F3F)),
-                        selectionColor: Colors.white,
-                      ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
-                      autofocus: true,
-                    )),
-              ],
-            )),
-        body: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (isNewProject)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Is Project Single Level',
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                            Switch(
-                              onChanged: (value) {
-                                toggleSwitch(value);
-                              },
-                              value: isProjectSingleLevel,
-                            ),
-                          ],
-                        ),
-                      const Text('Project name'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      inputWidgetwithValidation('Project name',
-                          'Please enter project name', _nameController),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      const Text('Description'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      inputWidgetNoValidation(
-                          'Description', 3, _descriptionController),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      const Text('Address'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      inputWidgetNoValidation('Address', 2, _addressController),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      SizedBox(
-                          height: 220,
-                          child: Card(
-                            borderOnForeground: false,
-                            elevation: 8,
-                            child: GestureDetector(
-                                onTap: () async {
-                                  //add logic to open camera.
-                                  var xfile = await captureImage(context);
-                                  if (xfile != null) {
-                                    setState(() {
-                                      currentProject.url = xfile.path;
-                                    });
-                                  }
-                                },
-                                child: Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.orange,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 1.0,
-                                                color: Colors.blue)
-                                          ]),
-                                      child: isNewProject
-                                          ? currentProject.url == ""
-                                              ? Image.asset(
-                                                  "assets/images/heroimage.png",
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                )
-                                              : Image.file(
-                                                  File(currentProject.url
-                                                      as String),
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                )
-                                          : networkImage(currentProject.url),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: const [
-                                        Icon(Icons.camera_outlined,
-                                            size: 40, color: Colors.blue),
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Add Image',
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                )),
-                          )),
-                      if (!isNewProject)
-                        OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                                side: BorderSide.none,
-                                // the height is 50, the width is full
-                                minimumSize: const Size.fromHeight(40),
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                elevation: 1),
-                            onPressed: () {
-                              deleteProject(currentProject.id);
-                            },
-                            icon: const Icon(
-                              Icons.delete_outline_outlined,
-                              color: Colors.redAccent,
-                            ),
-                            label: const Text(
-                              'Delete Project',
-                              style: TextStyle(color: Colors.red),
-                            )),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ],
-                  ),
-                )),
+            label: Text(
+              prevPageName,
+              style: const TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
           ),
-        ));
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                pageTitle,
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.normal),
+              ),
+              InkWell(
+                  onTap: () {
+                    save(context);
+                  },
+                  child: const Chip(
+                    avatar: Icon(
+                      Icons.save_outlined,
+                      color: Color(0xFF3F3F3F),
+                    ),
+                    labelPadding: EdgeInsets.all(2),
+                    label: Text(
+                      'Save Project',
+                      style: TextStyle(color: Color(0xFF3F3F3F)),
+                      selectionColor: Colors.white,
+                    ),
+                    shadowColor: Colors.blue,
+                    backgroundColor: Colors.blue,
+                    elevation: 10,
+                    autofocus: true,
+                  )),
+            ],
+          )),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+        child: Form(
+          key: _formKey,
+          child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (isNewProject)
+                          const Text(
+                            'Is Project Single Level',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        if (isNewProject)
+                          Switch(
+                            onChanged: (value) {
+                              toggleSwitch(value);
+                            },
+                            value: isProjectSingleLevel,
+                          ),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: FloatingActionButton(
+                              onPressed:
+                                  // If not yet listening for speech start, otherwise stop
+                                  _speechToText.isNotListening
+                                      ? _startListening
+                                      : _stopListening,
+                              tooltip: 'Listen',
+                              child: Icon(_speechToText.isNotListening
+                                  ? Icons.mic_off
+                                  : Icons.mic),
+                            )),
+                      ],
+                    ),
+                    const Text('Project name'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    inputWidgetwithValidation('Project name',
+                        'Please enter project name', _nameController),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    const Text('Description'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    inputWidgetNoValidation(
+                        'Description', 3, _descriptionController),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    const Text('Address'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    inputWidgetNoValidation('Address', 2, _addressController),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                        height: 220,
+                        child: Card(
+                          borderOnForeground: false,
+                          elevation: 8,
+                          child: GestureDetector(
+                              onTap: () async {
+                                //add logic to open camera.
+                                var xfile = await captureImage(context);
+                                if (xfile != null) {
+                                  setState(() {
+                                    currentProject.url = xfile.path;
+                                  });
+                                }
+                              },
+                              child: Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                        color: Colors.orange,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 1.0,
+                                              color: Colors.blue)
+                                        ]),
+                                    child: isNewProject
+                                        ? currentProject.url == ""
+                                            ? Image.asset(
+                                                "assets/images/heroimage.png",
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: 250,
+                                              )
+                                            : Image.file(
+                                                File(currentProject.url
+                                                    as String),
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: 250,
+                                              )
+                                        : networkImage(currentProject.url),
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: const [
+                                      Icon(Icons.camera_outlined,
+                                          size: 40, color: Colors.blue),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Add Image',
+                                          style: TextStyle(
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              )),
+                        )),
+                    if (!isNewProject)
+                      OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                              side: BorderSide.none,
+                              // the height is 50, the width is full
+                              minimumSize: const Size.fromHeight(40),
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              elevation: 1),
+                          onPressed: () {
+                            deleteProject(currentProject.id);
+                          },
+                          icon: const Icon(
+                            Icons.delete_outline_outlined,
+                            color: Colors.redAccent,
+                          ),
+                          label: const Text(
+                            'Delete Project',
+                            style: TextStyle(color: Colors.red),
+                          )),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ],
+                ),
+              )),
+        ),
+      ),
+    );
   }
 
   Widget inputWidgetwithValidation(
@@ -382,5 +432,23 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             )));
   }
 
-  void deleteProject(String? id) {}
+  void deleteProject(String? id) async {
+    var result = await projectsBloc.deleteProjectPermanently(id);
+    if (!mounted) {
+      return;
+    }
+    if (result is SuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Project deleted successfully.')));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const HomePage(
+                    key: Key('Home'),
+                  )));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to deleted project.')));
+    }
+  }
 }

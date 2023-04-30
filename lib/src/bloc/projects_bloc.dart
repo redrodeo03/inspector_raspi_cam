@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:realm/realm.dart';
 import 'package:rxdart/rxdart.dart';
 import '../resources/repository.dart';
 
@@ -17,6 +18,11 @@ class ProjectsBloc {
     _projectsFetcher.sink.add(projects);
   }
 
+  Future<Projects> fetchAllOfflineProjects() async {
+    var response = await _repository.fetchLocalProjects();
+    return response;
+  }
+
   Future<Object> getProject(String id) async {
     var response = await _repository.getProject(id);
     return response;
@@ -27,20 +33,12 @@ class ProjectsBloc {
   }
 
   Future<Object> addProject(Project project) async {
-    final projectObject = jsonEncode({
-      'name': project.name,
-      'description': project.description,
-      'address': project.address,
-      'url': project.url,
-      'projectType': project.projecttype,
-      'createdby': project.createdby
-    });
-    var response = await _repository.addProject(projectObject);
+    var response = await _repository.addProject(project);
     fetchAllProjects();
     return response;
   }
 
-  updateProject(Project project) async {
+  Future<Object> updateProject(Project project) async {
     final projectObject = jsonEncode({
       'name': project.name,
       'description': project.description,
@@ -52,6 +50,10 @@ class ProjectsBloc {
     var response =
         await _repository.updateProject(projectObject, project.id as String);
     return response;
+  }
+
+  Future<Object> deleteProjectPermanently(id) async {
+    return _repository.deleteOnlineProjectPermanently(id);
   }
 }
 

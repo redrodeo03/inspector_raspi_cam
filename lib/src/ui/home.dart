@@ -1,4 +1,5 @@
-import 'package:deckinspectors/src/ui/login.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+
 import 'package:deckinspectors/src/ui/offlinemode.dart';
 import 'package:deckinspectors/src/ui/projects.dart';
 import 'package:deckinspectors/src/ui/settings.dart';
@@ -18,9 +19,9 @@ class _HomePageState extends State<HomePage> {
 
   final pages = [
     const Center(child: ProjectsPage()),
-    const Center(child: OfflineModePage()),
+    Center(child: OfflineModePage()),
     const Center(child: SettingsPage()),
-    const Center(child: LoginPage()),
+    //const Center(child: LoginPage()),
   ];
 
   @override
@@ -56,6 +57,11 @@ class _HomePageState extends State<HomePage> {
           onTap: (index) {
             setState(() {
               _currentIndex = index;
+              if (index == 1) {
+                appSettings.isAppOfflineMode = true;
+              } else {
+                appSettings.isAppOfflineMode = false;
+              }
             });
           }),
     );

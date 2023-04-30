@@ -1,5 +1,3 @@
-import 'package:realm/realm.dart';
-
 class Child {
   String? id;
   String? name;
@@ -37,7 +35,6 @@ class Child {
   }
 }
 
-@RealmModel()
 class Project {
   String? id;
   String? name;
@@ -47,15 +44,12 @@ class Project {
   String? createdby;
   String? createdat;
   String? url;
-  @Ignored()
   bool? isavailableoffline;
-  @Ignored()
   bool? iscomplete;
   DateTime? editedat;
   String? lasteditedby;
-  @Ignored()
   List<String?>? assignedto;
-  List<Child?>? children;
+  List<Child>? children;
 
   Project(
       {this.id,

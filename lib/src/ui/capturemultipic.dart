@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:deckinspectors/src/ui/preview_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:camera/camera.dart';
 
 import 'image_widget.dart';
@@ -23,7 +23,7 @@ class CameraScreenState extends State<CameraScreen>
   // Initial values
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
-  bool _isRearCameraSelected = true;
+  //bool _isRearCameraSelected = true;
 
   double _minAvailableExposureOffset = 0.0;
   double _maxAvailableExposureOffset = 0.0;
