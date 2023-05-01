@@ -36,7 +36,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     currentProject = widget.newProject;
     if (currentProject.id != null) {
       pageTitle = "Edit Project";
-      prevPageName = 'Project';
+      prevPageName = currentProject.name as String; //'Project';
       isNewProject = false;
     } else {
       prevPageName = 'Projects';
@@ -178,7 +178,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
           automaticallyImplyLeading: false,
-          leadingWidth: 120,
+          leadingWidth: 150,
           leading: ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(
@@ -187,7 +187,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             ),
             label: Text(
               prevPageName,
-              style: const TextStyle(color: Colors.blue),
+              style: const TextStyle(
+                  color: Colors.blue, overflow: TextOverflow.clip),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,

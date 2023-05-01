@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import '../models/error_response.dart';
 import '../models/location_model.dart';
 import '../models/project_model.dart';
@@ -12,8 +13,9 @@ import 'package:flutter/material.dart';
 class SubProjectDetailsPage extends StatefulWidget {
   final String id;
   final String userfullName;
-
-  const SubProjectDetailsPage(this.id, this.userfullName, {Key? key})
+  final String prevPageName;
+  const SubProjectDetailsPage(this.id, this.prevPageName, this.userfullName,
+      {Key? key})
       : super(key: key);
   @override
   State<SubProjectDetailsPage> createState() => _SubProjectDetailsPageState();
@@ -33,12 +35,13 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   late List<Child?> apartments;
   late Location newLocation;
   late Location newApartment;
-
+  late String prevPageName;
   @override
   void initState() {
     buildingId = widget.id;
     userFullName = widget.userfullName;
     super.initState();
+    prevPageName = widget.prevPageName;
     newLocation = Location(
         name: "",
         description: "",
@@ -82,7 +85,9 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
       MaterialPageRoute(
           builder: (context) =>
               AddEditSubProjectPage(currentBuilding, userFullName)),
-    );
+    ).then((value) => setState(
+          () {},
+        ));
   }
 
   void addNewChild() {
@@ -108,8 +113,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              LocationPage(id as String, 'Building', type, userFullName)),
+          builder: (context) => LocationPage(id as String,
+              currentBuilding.name as String, type, userFullName)),
     );
   }
 
@@ -125,9 +130,9 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: const Text(
-              'Project',
-              style: TextStyle(color: Colors.blue),
+            label: Text(
+              prevPageName,
+              style: const TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -162,7 +167,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                   return SingleChildScrollView(
                       child: Column(
                     children: [
-                      buildingDetails(),
+                      StatefulBuilder(builder:
+                          (BuildContext context, StateSetter setState) {
+                        return buildingDetails();
+                      }),
                       subProjectChildrenTab(context),
                     ],
                   ));
@@ -207,7 +215,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: networkImage(currentBuilding.url),
+              child: cachedNetworkImage(currentBuilding.url),
             ),
           ),
           Align(
@@ -426,19 +434,24 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                height: 140,
-                width: 192,
-                decoration: const BoxDecoration(
-                    color: Colors.orange,
-                    // image: networkImage(currentProject.url as String),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    boxShadow: [
-                      BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                    ]),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: networkImage(buildinglocations[index]!.url),
+              GestureDetector(
+                onTap: () {
+                  gotoDetails(buildinglocations[index]!.id, 'Common Location');
+                },
+                child: Container(
+                  height: 140,
+                  width: 192,
+                  decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      // image: networkImage(currentProject.url as String),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                      ]),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: cachedNetworkImage(buildinglocations[index]!.url),
+                  ),
                 ),
               ),
               Align(
@@ -506,23 +519,23 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                               selectionColor: Colors.white,
                             ),
                           ]))),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-                child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide.none,
-                        // the height is 50, the width is full
-                        minimumSize: const Size.fromHeight(30),
-                        backgroundColor: Colors.white,
-                        shadowColor: Colors.blue,
-                        elevation: 1),
-                    onPressed: () {
-                      gotoDetails(
-                          buildinglocations[index]!.id, 'Common Location');
-                    },
-                    icon: const Icon(Icons.view_carousel_outlined),
-                    label: const Text('View Details')),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
+              //   child: OutlinedButton.icon(
+              //       style: OutlinedButton.styleFrom(
+              //           side: BorderSide.none,
+              //           // the height is 50, the width is full
+              //           minimumSize: const Size.fromHeight(30),
+              //           backgroundColor: Colors.white,
+              //           shadowColor: Colors.blue,
+              //           elevation: 1),
+              //       onPressed: () {
+              //         gotoDetails(
+              //             buildinglocations[index]!.id, 'Common Location');
+              //       },
+              //       icon: const Icon(Icons.view_carousel_outlined),
+              //       label: const Text('View Details')),
+              // ),
             ],
           ),
         ));
@@ -536,20 +549,25 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                  height: 140,
-                  width: 192,
-                  decoration: const BoxDecoration(
-                      color: Colors.orange,
-                      // image: networkImage(currentProject.url as String),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      boxShadow: [
-                        BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                      ]),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: networkImage(apartments[index]!.url),
-                  )),
+              GestureDetector(
+                onTap: () {
+                  gotoDetails(apartments[index]!.id, 'Apartment');
+                },
+                child: Container(
+                    height: 140,
+                    width: 192,
+                    decoration: const BoxDecoration(
+                        color: Colors.orange,
+                        // image: networkImage(currentProject.url as String),
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        boxShadow: [
+                          BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                        ]),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: cachedNetworkImage(apartments[index]!.url),
+                    )),
+              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
@@ -615,22 +633,22 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                               selectionColor: Colors.white,
                             ),
                           ]))),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-                child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide.none,
-                        // the height is 50, the width is full
-                        minimumSize: const Size.fromHeight(30),
-                        backgroundColor: Colors.white,
-                        shadowColor: Colors.blue,
-                        elevation: 1),
-                    onPressed: () {
-                      gotoDetails(apartments[index]!.id, 'Apartment');
-                    },
-                    icon: const Icon(Icons.view_carousel_outlined),
-                    label: const Text('View Details')),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
+              //   child: OutlinedButton.icon(
+              //       style: OutlinedButton.styleFrom(
+              //           side: BorderSide.none,
+              //           // the height is 50, the width is full
+              //           minimumSize: const Size.fromHeight(30),
+              //           backgroundColor: Colors.white,
+              //           shadowColor: Colors.blue,
+              //           elevation: 1),
+              //       onPressed: () {
+              //         gotoDetails(apartments[index]!.id, 'Apartment');
+              //       },
+              //       icon: const Icon(Icons.view_carousel_outlined),
+              //       label: const Text('View Details')),
+              // ),
             ],
           ),
         ));

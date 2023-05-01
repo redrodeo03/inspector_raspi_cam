@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
 import 'package:deckinspectors/src/models/subproject_model.dart';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../bloc/images_bloc.dart';
@@ -97,16 +98,17 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         if (result is SuccessResponse) {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
-          if (uploadResult is ImageResponse) {
-            setState(() {
-              currentBuilding.url = uploadResult.url;
-            });
-          }
+
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to save the building.')),
           );
+        }
+        if (uploadResult is ImageResponse) {
+          setState(() {
+            currentBuilding.url = uploadResult.url;
+          });
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -237,7 +239,8 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                   width: double.infinity,
                                                   height: 250,
                                                 )
-                                          : networkImage(currentBuilding.url),
+                                          : cachedNetworkImage(
+                                              currentBuilding.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,

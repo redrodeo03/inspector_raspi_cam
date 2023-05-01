@@ -35,10 +35,19 @@ Widget cachedNetworkImage(String? imageUrl) {
               ),
             ));
   } else {
-    return Image.file(
-      File(imageUrl),
-      fit: BoxFit.fill,
-      width: double.infinity,
-    );
+    var imgFile = File(imageUrl);
+    if (imgFile.existsSync()) {
+      return Image.file(
+        File(imageUrl),
+        fit: BoxFit.fill,
+        width: double.infinity,
+      );
+    } else {
+      return Image.asset(
+        "assets/images/heroimage.png",
+        fit: BoxFit.fill,
+        width: double.infinity,
+      );
+    }
   }
 }

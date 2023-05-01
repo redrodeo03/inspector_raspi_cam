@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:flutter/material.dart';
 import '../bloc/images_bloc.dart';
 import '../bloc/locations_bloc.dart';
@@ -265,7 +266,8 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                                   width: double.infinity,
                                                   height: 250,
                                                 )
-                                          : networkImage(currentLocation.url),
+                                          : cachedNetworkImage(
+                                              currentLocation.url),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,

@@ -21,7 +21,7 @@ class ProjectsApiProvider {
     }
   }
 
-  Future<ProjectResponse> getProject(String id) async {
+  Future<Object> getProject(String id) async {
     var endPoint = URLS.manageProjectsUrl + id;
     final baseUrl = Uri.parse(endPoint);
     final response = await client.get(baseUrl);
@@ -29,7 +29,7 @@ class ProjectsApiProvider {
     if (response.statusCode == 201) {
       return ProjectResponse.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to get project details');
+      return ErrorResponse(message: 'failed', code: response.statusCode);
     }
   }
 
@@ -60,7 +60,6 @@ class ProjectsApiProvider {
       'description': project.description,
       'address': project.address,
       'url': project.url,
-      'projectType': project.projecttype,
       'lasteditedby': project.lasteditedby
     });
     var endPoint = URLS.manageProjectsUrl + id;

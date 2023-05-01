@@ -111,9 +111,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
       MaterialPageRoute(
           builder: (context) =>
               AddEditProjectPage(currentProject, userFullName)),
-    ).then((value) => setState(
-          () {},
-        ));
+    ).then((value) => setState(() => {}));
   }
 
   void addNewChild() {
@@ -141,14 +139,17 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         context,
         MaterialPageRoute(
             builder: (context) => LocationPage(
-                id as String, 'Project', 'Project Locations', userFullName)),
+                id as String,
+                currentProject.name as String,
+                'Project Locations',
+                userFullName)),
       ).then(refreshProjectDetails);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                SubProjectDetailsPage(id as String, userFullName)),
+            builder: (context) => SubProjectDetailsPage(
+                id as String, currentProject.name as String, userFullName)),
       ).then(refreshProjectDetails);
     }
   }
@@ -158,7 +159,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
-            leadingWidth: 120,
+            leadingWidth: 140,
             leading: ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(
@@ -166,7 +167,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 color: Colors.blue,
               ),
               label: const Text(
-                'Projects',
+                'Home',
                 style: TextStyle(color: Colors.blue),
               ),
               style: ElevatedButton.styleFrom(
@@ -240,7 +241,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   return SingleChildScrollView(
                       child: Column(
                     children: [
-                      projectDetails(),
+                      StatefulBuilder(builder:
+                          (BuildContext context, StateSetter setState) {
+                        return projectDetails();
+                      }),
                       projectChildrenTab(context),
                     ],
                   ));
@@ -509,19 +513,24 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                height: 140,
-                width: 192,
-                decoration: const BoxDecoration(
-                    color: Colors.orange,
-                    // image: networkImage(currentProject.url as String),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    boxShadow: [
-                      BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                    ]),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: cachedNetworkImage(locations[index]!.url),
+              GestureDetector(
+                onTap: () {
+                  gotoDetails(locations[index]!.id);
+                },
+                child: Container(
+                  height: 140,
+                  width: 192,
+                  decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      // image: networkImage(currentProject.url as String),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                      ]),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: cachedNetworkImage(locations[index]!.url),
+                  ),
                 ),
               ),
               Align(
@@ -589,22 +598,22 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                               selectionColor: Colors.white,
                             ),
                           ]))),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-                child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide.none,
-                        // the height is 50, the width is full
-                        minimumSize: const Size.fromHeight(30),
-                        backgroundColor: Colors.white,
-                        shadowColor: Colors.blue,
-                        elevation: 1),
-                    onPressed: () {
-                      gotoDetails(locations[index]!.id);
-                    },
-                    icon: const Icon(Icons.view_carousel_outlined),
-                    label: const Text('View Details')),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
+              //   child: OutlinedButton.icon(
+              //       style: OutlinedButton.styleFrom(
+              //           side: BorderSide.none,
+              //           // the height is 50, the width is full
+              //           minimumSize: const Size.fromHeight(30),
+              //           backgroundColor: Colors.white,
+              //           shadowColor: Colors.blue,
+              //           elevation: 1),
+              //       onPressed: () {
+              //         gotoDetails(locations[index]!.id);
+              //       },
+              //       icon: const Icon(Icons.view_carousel_outlined),
+              //       label: const Text('View Details')),
+              // ),
             ],
           ),
         ));
@@ -618,19 +627,24 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                height: 140,
-                width: 192,
-                decoration: const BoxDecoration(
-                    color: Colors.orange,
-                    // image: networkImage(currentProject.url as String),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    boxShadow: [
-                      BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                    ]),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: cachedNetworkImage(buildings[index]!.url),
+              GestureDetector(
+                onTap: () {
+                  gotoDetails(buildings[index]!.id);
+                },
+                child: Container(
+                  height: 140,
+                  width: 192,
+                  decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      // image: networkImage(currentProject.url as String),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                      ]),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: cachedNetworkImage(buildings[index]!.url),
+                  ),
                 ),
               ),
               Align(
@@ -698,22 +712,22 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                               selectionColor: Colors.white,
                             ),
                           ]))),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-                child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                        side: BorderSide.none,
-                        // the height is 50, the width is full
-                        minimumSize: const Size.fromHeight(30),
-                        backgroundColor: Colors.white,
-                        shadowColor: Colors.blue,
-                        elevation: 1),
-                    onPressed: () {
-                      gotoDetails(buildings[index]!.id);
-                    },
-                    icon: const Icon(Icons.view_carousel_outlined),
-                    label: const Text('View Details')),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
+              //   child: OutlinedButton.icon(
+              //       style: OutlinedButton.styleFrom(
+              //           side: BorderSide.none,
+              //           // the height is 50, the width is full
+              //           minimumSize: const Size.fromHeight(30),
+              //           backgroundColor: Colors.white,
+              //           shadowColor: Colors.blue,
+              //           elevation: 1),
+              //       onPressed: () {
+              //         gotoDetails(buildings[index]!.id);
+              //       },
+              //       icon: const Icon(Icons.view_carousel_outlined),
+              //       label: const Text('View Details')),
+              // ),
             ],
           ),
         ));
