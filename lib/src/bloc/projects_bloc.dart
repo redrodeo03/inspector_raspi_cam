@@ -42,8 +42,8 @@ class ProjectsBloc {
     return response;
   }
 
-  Future<Object> deleteProjectPermanently(id) async {
-    return _repository.deleteOnlineProjectPermanently(id);
+  Future<Object> deleteProjectPermanently(Project project, String id) async {
+    return _repository.deleteProject(project, id);
   }
 }
 

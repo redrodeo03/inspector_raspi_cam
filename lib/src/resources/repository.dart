@@ -61,7 +61,8 @@ class Repository {
     if (appSettings.isAppOfflineMode) {
       return localProjectsApiProvider.deleteProject(projectObject, id);
     } else {
-      return projectsApiProvider.deleteProject(projectObject, id);
+      return projectsApiProvider.deleteProjectPermanently(id);
+      //return projectsApiProvider.deleteProject(projectObject, id);
     }
   }
 

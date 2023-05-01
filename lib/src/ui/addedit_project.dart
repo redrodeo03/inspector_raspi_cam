@@ -434,7 +434,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   }
 
   void deleteProject(String? id) async {
-    var result = await projectsBloc.deleteProjectPermanently(id);
+    var result = await projectsBloc.deleteProjectPermanently(
+        currentProject, id as String);
     if (!mounted) {
       return;
     }
