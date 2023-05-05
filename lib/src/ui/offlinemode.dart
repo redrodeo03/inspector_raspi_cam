@@ -31,7 +31,9 @@ class OfflineModePage extends StatelessWidget {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                AddEditProjectPage(newProject, userFullName)));
+                AddEditProjectPage(newProject, userFullName))).then((value) {
+      projectsBloc.fetchAllOfflineProjects();
+    });
   }
 
   @override
@@ -118,7 +120,13 @@ class OfflineModePage extends StatelessWidget {
                             final data = snapshot.data;
                             if (data is Projects) {
                               var offlineProjects = data.projects;
-
+                              if (offlineProjects == null) {
+                                return const Center(
+                                    child: Text(
+                                  'No offline projects.',
+                                  style: TextStyle(fontSize: 16),
+                                ));
+                              }
                               return ListView.builder(
                                   itemCount: offlineProjects!.length,
                                   itemBuilder: (context, index) {

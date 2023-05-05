@@ -99,8 +99,9 @@ class LocalProjectApiProvider {
       SuccessResponse successResponse = SuccessResponse();
       try {
         var project = projectMapper.fromProject(projectObject as Project);
-        realm.writeAsync(() {
+        realm.write(() {
           realm.delete(project);
+          //realm.delete(realm.objectForPrimaryKey('LocalProject', project.id));
         });
         successResponse.id = '';
         successResponse.message = 'deleted successfully from realm';

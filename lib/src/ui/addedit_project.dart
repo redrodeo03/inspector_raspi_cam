@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
 
@@ -338,7 +339,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                                 width: double.infinity,
                                                 height: 250,
                                               )
-                                        : networkImage(currentProject.url),
+                                        : cachedNetworkImage(
+                                            currentProject.url),
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
