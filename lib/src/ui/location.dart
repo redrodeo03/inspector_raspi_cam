@@ -1,15 +1,16 @@
-import 'package:deckinspectors/src/bloc/locations_bloc.dart';
-
-import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:deckinspectors/src/ui/addedit_location.dart';
 import 'package:deckinspectors/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
-import '../models/location_model.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
+
+import '../models/realm/realm_schemas.dart';
+import '../resources/realm/realm_services.dart';
 import 'cachedimage_widget.dart';
 
 class LocationPage extends StatefulWidget {
-  final String id;
+  final ObjectId id;
   final String userFullName;
   final String parentType;
   final String locationType;
@@ -34,10 +35,12 @@ class _LocationPageState extends State<LocationPage> {
   String locationType = '';
   String parenttype = 'Project';
   String userFullName = "";
-  String locationId = "";
-  late Location currentLocation;
+  late ObjectId locationId;
+  late LocalLocation currentLocation;
   @override
   Widget build(BuildContext context) {
+    final realmServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -66,51 +69,42 @@ class _LocationPageState extends State<LocationPage> {
                 color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        body: FutureBuilder(
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    '${snapshot.error} occurred',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                );
-
-                // if we got our data
-              } else if (snapshot.hasData) {
+        body: StreamBuilder<RealmObjectChanges<LocalLocation>>(
+            //projectsBloc.projects
+            stream: realmServices.getLocation(locationId)!.changes,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
                 final data = snapshot.data;
-                if (data is LocationResponse) {
-                  currentLocation = data.item as Location;
+
+                if (data == null) {
+                  return Center(
+                    child: Text(
+                      '${snapshot.error} occurred',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  );
+
+                  // if we got our data
+                } else {
+                  currentLocation = data.object;
                   return SingleChildScrollView(
                       child: Column(
                     children: [
-                      locationDetails(data.item as Location),
+                      locationDetails(currentLocation),
                       locationsWidget(context),
                     ],
                   ));
                 }
-                if (data is ErrorResponse) {
-                  return Center(
-                    child: Text(
-                      '${data.message}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  );
-                }
               }
-            }
 
-            // Displaying LoadingSpinner to indicate waiting state
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-          future: locationsBloc.getLocation(locationId),
-        ));
+              // Displaying LoadingSpinner to indicate waiting state
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }));
   }
 
-  Widget locationDetails(Location currentLocation) {
+  Widget locationDetails(LocalLocation currentLocation) {
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -256,7 +250,7 @@ class _LocationPageState extends State<LocationPage> {
                     ),
                   ],
                 ),
-                currentLocation.sections == null
+                currentLocation.sections.isEmpty
                     ? const Center(
                         child: Text(
                         'No locations, Add locations.',
@@ -266,7 +260,7 @@ class _LocationPageState extends State<LocationPage> {
                         child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: currentLocation.sections!.length,
+                            itemCount: currentLocation.sections.length,
                             itemBuilder: (BuildContext context, int index) =>
                                 horizontalScrollChildren(context, index)),
                       )
@@ -277,7 +271,7 @@ class _LocationPageState extends State<LocationPage> {
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
     String visualReview =
-        (currentLocation.sections?[index].visualreview as String);
+        (currentLocation.sections[index].visualreview as String);
     switch (visualReview) {
       case 'good':
         vreview = 'Good';
@@ -292,7 +286,7 @@ class _LocationPageState extends State<LocationPage> {
     }
     String assessment = '';
     String assessmentActual =
-        (currentLocation.sections?[index].conditionalassessment as String);
+        (currentLocation.sections[index].conditionalassessment as String);
     switch (assessmentActual) {
       case 'pass':
         assessment = 'Pass';
@@ -322,12 +316,11 @@ class _LocationPageState extends State<LocationPage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child:
-                  cachedNetworkImage(currentLocation.sections?[index].coverUrl),
+                  cachedNetworkImage(currentLocation.sections[index].coverUrl),
             ),
           ),
           InkWell(
-              onTap: () =>
-                  {gotoDetails(currentLocation.sections?[index].id as String)},
+              onTap: () => {gotoDetails(currentLocation.sections[index].id)},
               child: Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
@@ -338,7 +331,7 @@ class _LocationPageState extends State<LocationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(
-                              currentLocation.sections?[index].name as String,
+                              currentLocation.sections[index].name as String,
                               maxLines: 2,
                               style: const TextStyle(
                                 fontSize: 15,
@@ -413,7 +406,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]
+                                    currentLocation.sections[index]
                                                 .visualsignsofleak ==
                                             true
                                         ? 'True'
@@ -449,7 +442,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index]
+                                    currentLocation.sections[index]
                                                 .furtherinvasivereviewrequired ==
                                             true
                                         ? 'True'
@@ -520,8 +513,8 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections?[index].count
-                                        .toString() as String,
+                                    currentLocation.sections[index].count
+                                        .toString(),
                                     style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
@@ -531,26 +524,29 @@ class _LocationPageState extends State<LocationPage> {
                             ],
                           )),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                              side: BorderSide.none,
-                              // the height is 50, the width is full
-                              minimumSize: const Size.fromHeight(30),
-                              backgroundColor: Colors.white,
-                              shadowColor: Colors.blue,
-                              elevation: 0),
-                          onPressed: () {
-                            print('clickd delete');
-                          },
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                          ),
-                          label: const Text('Delete Location',
-                              style: TextStyle(color: Colors.red))),
-                    ),
+                    const SizedBox(
+                      height: 10,
+                    )
+                    // Padding(
+                    //   padding: const EdgeInsets.all(0),
+                    //   child: OutlinedButton.icon(
+                    //       style: OutlinedButton.styleFrom(
+                    //           side: BorderSide.none,
+                    //           // the height is 50, the width is full
+                    //           minimumSize: const Size.fromHeight(30),
+                    //           backgroundColor: Colors.white,
+                    //           shadowColor: Colors.blue,
+                    //           elevation: 0),
+                    //       onPressed: () {
+                    //         deleteSection(currentLocation.sections[index]);
+                    //       },
+                    //       icon: const Icon(
+                    //         Icons.delete_outline,
+                    //         color: Colors.red,
+                    //       ),
+                    //       label: const Text('Delete Location',
+                    //           style: TextStyle(color: Colors.red))),
+                    // ),
                   ])))
         ]),
       ),
@@ -561,29 +557,36 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SectionPage("", currentLocation.id as String,
-                userFullName, parenttype))).then((value) => setState(() {}));
+            builder: (context) => SectionPage(
+                ObjectId(),
+                currentLocation.id,
+                userFullName,
+                parenttype,
+                true))).then((value) => setState(() {}));
   }
 
-  void gotoDetails(String sectionId) {
+  void gotoDetails(ObjectId sectionId) {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SectionPage(sectionId,
-              currentLocation.id as String, userFullName, parenttype),
-        )).then((value) => setState(
-          () {},
-        ));
+          builder: (context) => SectionPage(
+              sectionId, currentLocation.id, userFullName, parenttype, false),
+        )).then((value) {
+      if (!mounted) {
+        return;
+      }
+      setState(
+        () {},
+      );
+    });
   }
 
-  void addEditLocation(Location currentLocation) {
+  void addEditLocation(LocalLocation currentLocation) {
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) =>
-              AddEditLocationPage(currentLocation, userFullName)),
-    ).then((value) => setState(
-          () => currentLocation.url = value,
-        ));
+              AddEditLocationPage(currentLocation, false, userFullName)),
+    );
   }
 }

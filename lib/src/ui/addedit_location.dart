@@ -1,18 +1,23 @@
 import 'dart:io';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/location.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
-import '../bloc/locations_bloc.dart';
-import '../models/location_model.dart';
+import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
+import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
 import 'image_widget.dart';
 
 class AddEditLocationPage extends StatefulWidget {
-  final Location currentLocation;
+  final LocalLocation currentLocation;
   final String fullUserName;
+  final bool isNewLocation;
   // final Object currentBuilding;
-  const AddEditLocationPage(this.currentLocation, this.fullUserName, {Key? key})
+  const AddEditLocationPage(
+      this.currentLocation, this.isNewLocation, this.fullUserName,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -30,6 +35,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+
     super.dispose();
   }
 
@@ -40,7 +46,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
 
     super.initState();
     pageType = currentLocation.type == 'apartment' ? 'Apartment' : 'Location';
-    if (currentLocation.id != null) {
+    if (!widget.isNewLocation) {
       pageTitle = 'Edit $pageType';
       isNewLocation = false;
       _nameController.text = currentLocation.name as String;
@@ -58,7 +64,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
     }
   }
 
-  late Location currentLocation;
+  late LocalLocation currentLocation;
 
   String pageType = '';
   String pageTitle = 'Add';
@@ -66,7 +72,8 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
   bool isNewLocation = true;
   final _formKey = GlobalKey<FormState>();
   String imageURL = 'assets/images/icon.png';
-  save(BuildContext context) async {
+
+  save(BuildContext context, RealmProjectServices realmServices) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
@@ -74,64 +81,54 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Saving $pageType...')),
       );
-      currentLocation.name = _nameController.text;
+      //location details
+      String name, description, url, id, parenttype, type;
+      name = _nameController.text;
 
-      currentLocation.description = _descriptionController.text;
-      if (isNewLocation) {
-        currentLocation.createdby = fullUserName;
-      } else {
-        currentLocation.lasteditedby = fullUserName;
-      }
-
+      description = _descriptionController.text;
       try {
-        Object result;
-        if (currentLocation.id == null) {
-          result = await locationsBloc.addLocation(currentLocation);
-          if (result is SuccessResponse) {
-            currentLocation.id = result.id;
-          }
-        } else {
-          result = await locationsBloc.updateLocation(currentLocation);
-        }
-
-        dynamic uploadResult;
-        if (imageURL != currentLocation.url) {
-          uploadResult = await imagesBloc.uploadImage(
-              currentLocation.url as String,
-              currentLocation.name as String,
-              fullUserName,
-              currentLocation.id as String,
-              currentLocation.parenttype as String,
-              currentLocation.type as String);
-          // if (uploadResult is ImageResponse) {
-          //   setState(() {
-          //     currentLocation.url = uploadResult.url;
-          //   });
-          // }
-        }
+        var result = realmServices.addupdateLocation(
+            currentLocation, name, description, fullUserName, isNewLocation);
 
         if (!mounted) {
           return;
         }
-        if (result is SuccessResponse) {
+        if (result) {
           ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('$pageType saved successfully.')));
-          if (uploadResult is ImageResponse) {
-            setState(() {
-              currentLocation.url = uploadResult.url;
-            });
-          }
-          Navigator.pop(context, currentLocation.url);
-          // Navigator.pushReplacement(
-          //     context,
-          //     MaterialPageRoute(
-          //         builder: (context) =>
-          //             ProjectDetailsPage(currentLocation.parentid as String, fullUserName)));
+
+          //Navigator.pop(context, currentLocation.url);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => LocationPage(
+                      currentLocation.id,
+                      currentLocation.parenttype as String,
+                      pageType,
+                      fullUserName)));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Failed to save the ${currentLocation.type}')),
           );
+        }
+        url = currentLocation.url == null ? "" : currentLocation.url as String;
+        id = currentLocation.id.toString();
+
+        parenttype = currentLocation.parenttype as String;
+        type = currentLocation.type as String;
+        if (url == "") {
+          return;
+        }
+        if (imageURL != url) {
+          imagesBloc
+              .uploadImage(url, name, fullUserName, id, parenttype, type)
+              .then((value) async {
+            if (value is ImageResponse) {
+              realmServices.updateLocationUrl(
+                  currentLocation, value.url as String);
+            }
+          });
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,6 +142,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final realmServices = Provider.of<RealmProjectServices>(context);
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -177,7 +175,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                 ),
                 InkWell(
                     onTap: () {
-                      save(context);
+                      save(context, realmServices);
                     },
                     child: Chip(
                       avatar: const Icon(
@@ -299,7 +297,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                 shadowColor: Colors.blue,
                                 elevation: 0),
                             onPressed: () {
-                              deleteLocation(context);
+                              deleteLocation(context, realmServices);
                             },
                             icon: const Icon(
                               Icons.delete_outline_outlined,
@@ -376,28 +374,30 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
             )));
   }
 
-  void deleteLocation(BuildContext context) async {
+  void deleteLocation(
+      BuildContext context, RealmProjectServices realmServices) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Deleting $pageType...')),
     );
     //id,type, name, parentId, parentType, isVisible
-    var result = await locationsBloc.deleteLocation(
-        currentLocation.id as String,
-        currentLocation.type,
-        currentLocation.name as String,
-        currentLocation.parentid as String,
-        currentLocation.parenttype as String,
-        false);
+    // var result = await locationsBloc.deleteLocation(
+    //     currentLocation.id as String,
+    //     currentLocation.type,
+    //     currentLocation.name as String,
+    //     currentLocation.parentid as String,
+    //     currentLocation.parenttype as String,
+    //     false);
 
-    if (!mounted) {
-      return;
-    }
-    if (result is SuccessResponse) {
+    // if (!mounted) {
+    //   return;
+    // }
+    var result = realmServices.deleteLocation(currentLocation);
+    if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$pageType deleted successfully.')));
       Navigator.of(context)
         ..pop()
-        ..pop();
+        ..pop(currentLocation);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete the ${currentLocation.type}')),

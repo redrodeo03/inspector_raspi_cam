@@ -2,7 +2,10 @@ import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../resources/realm/app_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -35,6 +38,7 @@ class _LoginPageState extends State<LoginPage> {
 
   // Sign In Function
   Future<void> login() async {
+    final appServices = Provider.of<AppServices>(context, listen: false);
     if (_usernameController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       setState(() {
@@ -61,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
       if (loginResult.username!.isNotEmpty &&
           loginResult.accesstype != "desktop") {
         if (!mounted) return;
+        appServices.logInAnonymously();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),

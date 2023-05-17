@@ -1,22 +1,27 @@
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
-import 'package:deckinspectors/src/models/error_response.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
 import '../models/exteriorelements.dart';
-import '../models/section_model.dart';
+import '../models/realm/realm_schemas.dart';
+
 import '../models/success_response.dart';
-import '../bloc/section_bloc.dart';
+
+import '../resources/realm/realm_services.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SectionPage extends StatefulWidget {
-  final String sectionId;
+  final ObjectId sectionId;
   final String userFullName;
   final String parentType;
-  final String parentId;
-  const SectionPage(
-      this.sectionId, this.parentId, this.userFullName, this.parentType,
+  final ObjectId parentId;
+  final bool isNewSection;
+  const SectionPage(this.sectionId, this.parentId, this.userFullName,
+      this.parentType, this.isNewSection,
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
@@ -25,6 +30,7 @@ class SectionPage extends StatefulWidget {
 }
 
 class _SectionPageState extends State<SectionPage> {
+  late RealmProjectServices realmServices;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +65,7 @@ class _SectionPageState extends State<SectionPage> {
               ),
               InkWell(
                   onTap: () {
-                    save(context);
+                    save(context, realmServices);
                   },
                   child: const Chip(
                     avatar: Icon(
@@ -96,36 +102,38 @@ class _SectionPageState extends State<SectionPage> {
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late VisualSection currentVisualSection;
+  late LocalVisualSection currentVisualSection;
   late Future sectionResponse;
-  bool isNewSection = true;
+  late bool isNewSection;
 
-  Future<Object?> fetchData() async {
+  void fetchData() {
     isRunning = true;
-    var sectionResponse = await sectionsBloc.getSection(widget.sectionId);
-    if (sectionResponse is SectionResponse) {
-      currentVisualSection = sectionResponse.item as VisualSection;
-      setInitialValues();
-    }
-    setState(() => isRunning = false);
-    return sectionResponse;
+    currentVisualSection =
+        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+    setInitialValues();
+    isRunning = false;
+  }
+
+  LocalVisualSection getNewVisualSection() {
+    return LocalVisualSection(ObjectId(), widget.parentId,
+        visualsignsofleak: false,
+        createdby: userFullName,
+        furtherinvasivereviewrequired: false,
+        awe: 'one',
+        eee: 'one',
+        lbc: 'one');
   }
 
   @override
   void initState() {
-    if (widget.sectionId == "") {
-      currentVisualSection = VisualSection(
-          parentid: widget.parentId,
-          visualsignsofleak: false,
-          createdby: userFullName,
-          furtherinvasivereviewrequired: false,
-          awe: 'one',
-          eee: 'one',
-          lbc: 'one');
+    realmServices = Provider.of<RealmProjectServices>(context, listen: false);
+    isNewSection = widget.isNewSection;
+    if (isNewSection) {
+      currentVisualSection = getNewVisualSection();
       capturedImages = [];
     } else {
-      sectionResponse = fetchData();
-      capturedImages = [];
+      capturedImages.clear();
+      fetchData();
     }
     userFullName = widget.userFullName;
     parentType = widget.parentType;
@@ -138,13 +146,13 @@ class _SectionPageState extends State<SectionPage> {
     _concernsController.text =
         currentVisualSection.additionalconsiderations as String;
     selectedExteriorelements = exteriorElements
-        .where((item) =>
-            currentVisualSection.exteriorelements!.contains(item.name))
+        .where(
+            (item) => currentVisualSection.exteriorelements.contains(item.name))
         .toList();
 
     selectedWaterproofingElements = waterproofingElements
         .where((item) =>
-            currentVisualSection.waterproofingelements!.contains(item.name))
+            currentVisualSection.waterproofingelements.contains(item.name))
         .toList();
 
     _review = VisualReview.values
@@ -161,81 +169,42 @@ class _SectionPageState extends State<SectionPage> {
 
     invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
     hasSignsOfLeak = currentVisualSection.visualsignsofleak;
-    if (currentVisualSection.images!.isNotEmpty) {
-      capturedImages = currentVisualSection.images as List<String>;
+    if (currentVisualSection.images.isNotEmpty) {
+      capturedImages.addAll(currentVisualSection.images);
     }
   }
 
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
-  save(BuildContext context) async {
-    if (currentVisualSection.id != null) {
-      isNewSection = false;
-    }
+  save(BuildContext context, RealmProjectServices realmServices) async {
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
       // you'd often call a server or save the information in a database.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Location...')),
       );
-      currentVisualSection.name = _nameController.text;
-      currentVisualSection.additionalconsiderations = _concernsController.text;
-      currentVisualSection.exteriorelements =
-          selectedExteriorelements.map((element) => element.name).toList();
-      currentVisualSection.waterproofingelements =
-          selectedWaterproofingElements.map((element) => element.name).toList();
 
-      currentVisualSection.visualreview = _review!.name;
-      currentVisualSection.conditionalassessment = _assessment!.name;
-      currentVisualSection.eee = _eee!.name;
-      currentVisualSection.lbc = _lbc!.name;
-      currentVisualSection.awe = _awe!.name;
-      currentVisualSection.furtherinvasivereviewrequired =
-          invasiveReviewRequired;
-      currentVisualSection.visualsignsofleak = hasSignsOfLeak;
-
-      if (isNewSection) {
-        currentVisualSection.createdby = userFullName;
-      } else {
-        currentVisualSection.lasteditedby = userFullName;
-      }
-
-      Object result;
-      String visualsectionId = "";
-      bool isErrorSaving = false;
-      if (currentVisualSection.id == null) {
-        result = await sectionsBloc.addSection(currentVisualSection);
-        if (result is SuccessResponse) {
-          visualsectionId = result.id as String;
-        } else {
-          isErrorSaving = true;
-        }
-      } else {
-        visualsectionId = currentVisualSection.id as String;
-        result = await sectionsBloc.updateSection(currentVisualSection);
-        if (result is ErrorResponse) {
-          isErrorSaving = true;
-        }
-      }
-      if (!isErrorSaving) {
-        if (capturedImages.isNotEmpty) {
-          var imagesToUpload =
-              capturedImages.where((e) => !e.startsWith('http')).toList();
-          imagesBloc.uploadMultipleImages(
-              imagesToUpload,
-              currentVisualSection.name as String,
-              userFullName,
-              visualsectionId,
-              parentType,
-              'section');
-        }
-      }
+      var saveResult = realmServices.addupdateVisualSection(
+          currentVisualSection,
+          _nameController.text,
+          _concernsController.text,
+          selectedExteriorelements,
+          selectedWaterproofingElements,
+          _review,
+          _assessment,
+          _eee,
+          _lbc,
+          _awe,
+          invasiveReviewRequired,
+          hasSignsOfLeak,
+          isNewSection,
+          userFullName);
 
       if (!mounted) {
         return;
       }
-      if (!isErrorSaving) {
+      if (saveResult) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
         Navigator.pop(context);
@@ -243,6 +212,32 @@ class _SectionPageState extends State<SectionPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the location.')),
         );
+      }
+      if (saveResult) {
+        if (capturedImages.isNotEmpty) {
+          var imagesToUpload =
+              capturedImages.where((e) => !e.startsWith('http')).toList();
+          if (imagesToUpload.isEmpty) {
+            return;
+          }
+          imagesBloc
+              .uploadMultipleImages(
+                  imagesToUpload,
+                  currentVisualSection.name as String,
+                  userFullName,
+                  currentVisualSection.id.toString(),
+                  parentType,
+                  'section')
+              .then((value) {
+            List<String> urls = [];
+            for (var element in value) {
+              if (element is ImageResponse) {
+                urls.add(element.url as String);
+              }
+            }
+            realmServices.addImagesUrl(currentVisualSection, urls);
+          });
+        }
       }
     }
   }
@@ -281,10 +276,18 @@ class _SectionPageState extends State<SectionPage> {
         setState(() {
           if (value != null) {
             capturedImages.addAll(value);
-            for (var element in capturedImages) {
-              currentVisualSection.images ??= [];
-              currentVisualSection.images?.add(element);
+            if (value.isNotEmpty) {
+              setState(() {
+                // currentVisualSection.realm.write(() {
+                //   currentVisualSection.images
+                //       .addAll(value.map((e) => e.path).toList());
+                // });
+              });
             }
+            // for (var element in capturedImages) {
+            //   //currentVisualSection.images ??= RealmList<String>[];
+            //   currentVisualSection.images.add(element);
+            // }
           }
         });
       });
@@ -296,12 +299,10 @@ class _SectionPageState extends State<SectionPage> {
       if (imageFiles.isNotEmpty) {
         setState(() {
           capturedImages.addAll(imageFiles.map((e) => e.path).toList());
-          // if (isNewSection) {
-          //   for (var element in capturedImages) {
-          //     currentVisualSection.images ??= [];
-          //     currentVisualSection.images?.add(element);
-          //   }
-          // }
+          // currentVisualSection.realm.write(() {
+          //   currentVisualSection.images
+          //       .addAll(imageFiles.map((e) => e.path).toList());
+          // });
         });
       }
     }
@@ -374,9 +375,7 @@ class _SectionPageState extends State<SectionPage> {
                           child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: isNewSection
-                                ? capturedImages.length
-                                : currentVisualSection.images!.length,
+                            itemCount: capturedImages.length,
                             itemBuilder: (BuildContext context, int index) =>
                                 Container(
                                     margin:
@@ -398,10 +397,8 @@ class _SectionPageState extends State<SectionPage> {
                                         ]),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      child: networkImage(isNewSection
-                                          ? capturedImages[index]
-                                          : currentVisualSection
-                                              .images![index]),
+                                      child:
+                                          networkImage(capturedImages[index]),
                                     )),
                           )),
                   const SizedBox(
@@ -475,7 +472,6 @@ class _SectionPageState extends State<SectionPage> {
                             title: 'Waterproofing Elements',
                             items: waterproofingElements,
                             selectedItems: selectedWaterproofingElements,
-//
                             onChanged: (value) => setState(
                                 () => selectedWaterproofingElements = value),
                           );
@@ -622,6 +618,28 @@ class _SectionPageState extends State<SectionPage> {
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   radioWidget('AWE', 4),
+                  isNewSection
+                      ? Container()
+                      : Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                  side: BorderSide.none,
+                                  // the height is 50, the width is full
+                                  minimumSize: const Size.fromHeight(30),
+                                  backgroundColor: Colors.white,
+                                  shadowColor: Colors.blue,
+                                  elevation: 0),
+                              onPressed: () {
+                                deleteSection(context, currentVisualSection);
+                              },
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              label: const Text('Delete Location',
+                                  style: TextStyle(color: Colors.red))),
+                        )
                 ],
               ),
             )));
@@ -1027,6 +1045,26 @@ class _SectionPageState extends State<SectionPage> {
         Expanded(flex: 3, child: getListTile(radioType, 3))
       ],
     );
+  }
+
+  void deleteSection(
+      BuildContext context, LocalVisualSection currentVisualSection) {
+    var locationame = currentVisualSection.name;
+    var result = realmServices.deleteVisualSection(currentVisualSection);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Deleting $locationame')),
+    );
+
+    if (result == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${currentVisualSection.name} deleted successfully.')));
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete the $locationame')),
+      );
+    }
   }
 }
 

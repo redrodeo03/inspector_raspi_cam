@@ -1,17 +1,18 @@
-import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import '../models/error_response.dart';
-import '../models/location_model.dart';
-import '../models/project_model.dart';
-import '../models/subproject_model.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
+
+import '../models/realm/realm_schemas.dart';
+
+import '../resources/realm/realm_services.dart';
 import 'addedit_location.dart';
 import 'addedit_subproject.dart';
-import 'image_widget.dart';
+
 import 'location.dart';
 import 'package:flutter/material.dart';
 
 class SubProjectDetailsPage extends StatefulWidget {
-  final String id;
+  final ObjectId id;
   final String userfullName;
   final String prevPageName;
   const SubProjectDetailsPage(this.id, this.prevPageName, this.userfullName,
@@ -28,34 +29,30 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
 //Tab Controls
   late TabController _tabController;
   String userFullName = "";
-  String buildingId = "";
+  late ObjectId buildingId;
 
-  late SubProject currentBuilding;
-  late List<Child?> buildinglocations;
-  late List<Child?> apartments;
-  late Location newLocation;
-  late Location newApartment;
+  late LocalSubProject currentBuilding;
+  late List<LocalChild?> buildinglocations;
+  late List<LocalChild?> apartments;
+  late LocalLocation newLocation;
+  late LocalLocation newApartment;
   late String prevPageName;
+
+  LocalLocation getLocation(String type) {
+    return LocalLocation(ObjectId(), buildingId,
+        name: "",
+        description: "",
+        createdby: userFullName,
+        type: type,
+        parenttype: 'subproject');
+  }
+
   @override
   void initState() {
     buildingId = widget.id;
     userFullName = widget.userfullName;
     super.initState();
     prevPageName = widget.prevPageName;
-    newLocation = Location(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'location',
-        parentid: buildingId,
-        parenttype: 'subproject');
-    newApartment = Location(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'apartment',
-        parentid: buildingId,
-        parenttype: 'subproject');
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.addListener(_handleTabSelection);
@@ -84,7 +81,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
       context,
       MaterialPageRoute(
           builder: (context) =>
-              AddEditSubProjectPage(currentBuilding, userFullName)),
+              AddEditSubProjectPage(currentBuilding, false, userFullName)),
     ).then((value) => setState(
           () {},
         ));
@@ -96,30 +93,31 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                AddEditLocationPage(newLocation, userFullName)),
+            builder: (context) => AddEditLocationPage(
+                getLocation('buildinglocation'), true, userFullName)),
       );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                AddEditLocationPage(newApartment, userFullName)),
+            builder: (context) => AddEditLocationPage(
+                getLocation('apartment'), true, userFullName)),
       );
     }
   }
 
-  void gotoDetails(String? id, String type) {
+  void gotoDetails(ObjectId id, String type) {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => LocationPage(id as String,
-              currentBuilding.name as String, type, userFullName)),
+          builder: (context) => LocationPage(
+              id, currentBuilding.name as String, type, userFullName)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final realmServices = Provider.of<RealmProjectServices>(context);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -148,10 +146,14 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        body: FutureBuilder(
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
+        body: StreamBuilder<RealmObjectChanges<LocalSubProject>>(
+          //projectsBloc.projects
+          stream: realmServices.getSubProject(buildingId)!.changes,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final data = snapshot.data;
+
+              if (data == null) {
                 return Center(
                   child: Text(
                     '${snapshot.error} occurred',
@@ -160,29 +162,18 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 );
 
                 // if we got our data
-              } else if (snapshot.hasData) {
-                final data = snapshot.data;
-                if (data is SubProjectResponse) {
-                  currentBuilding = data.item as SubProject;
-                  return SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      StatefulBuilder(builder:
-                          (BuildContext context, StateSetter setState) {
-                        return buildingDetails();
-                      }),
-                      subProjectChildrenTab(context),
-                    ],
-                  ));
-                }
-                if (data is ErrorResponse) {
-                  return Center(
-                    child: Text(
-                      '${data.message}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  );
-                }
+              } else {
+                currentBuilding = data.object;
+                return SingleChildScrollView(
+                    child: Column(
+                  children: [
+                    StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                      return buildingDetails();
+                    }),
+                    subProjectChildrenTab(context),
+                  ],
+                ));
               }
             }
 
@@ -191,7 +182,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               child: CircularProgressIndicator(),
             );
           },
-          future: subProjectsBloc.getSubProject(buildingId),
         ));
   }
 
@@ -279,8 +269,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                             style: TextStyle(color: Colors.blue),
                             selectionColor: Colors.white,
                           ),
-                          shadowColor: Colors.white,
-                          backgroundColor: Colors.white,
+                          shadowColor: Colors.transparent,
+                          backgroundColor: Colors.transparent,
                           elevation: 0,
                           autofocus: true,
                         )),
@@ -294,28 +284,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             indent: 0,
             endIndent: 0,
           ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(0, 8, 0, 0.0),
-          //   child: OutlinedButton.icon(
-          //       style: OutlinedButton.styleFrom(
-          //           side: BorderSide.none,
-          //           // the height is 50, the width is full
-          //           minimumSize: const Size.fromHeight(30),
-          //           backgroundColor: Colors.white,
-          //           shadowColor: Colors.red,
-          //           elevation: 2),
-          //       onPressed: () {
-          //         print('delete building');
-          //       },
-          //       icon: const Icon(
-          //         Icons.delete_outlined,
-          //         color: Colors.red,
-          //       ),
-          //       label: const Text(
-          //         'Delete Building',
-          //         style: TextStyle(color: Colors.red),
-          //       )),
-          // )
         ],
       ),
     );
@@ -325,29 +293,28 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     // return DefaultTabController(
     //   length: 2,
     //   child:
-    if (currentBuilding.children != null) {
-      buildinglocations = currentBuilding.children!
-          .where((element) => element.type == 'location')
-          .toList();
-      apartments = currentBuilding.children!
-          .where((element) => element.type == 'apartment')
-          .toList();
-    } else {
-      buildinglocations = List.empty(growable: true);
-      apartments = List.empty(growable: true);
-    }
+    buildinglocations = List.empty(growable: true);
+    apartments = List.empty(growable: true);
+
+    buildinglocations = currentBuilding.children
+        .where((element) => element.type == 'location')
+        .toList();
+    apartments = currentBuilding.children
+        .where((element) => element.type == 'apartment')
+        .toList();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         TabBar(
           controller: _tabController,
-          tabs: const [
+          tabs: [
             Tab(
-              text: "Building Locations",
+              text: "Building Locations (${buildinglocations.length})",
               height: 32,
             ),
             Tab(
-              text: "Apartments",
+              text: "Apartments(${apartments.length})",
               height: 32,
             ),
           ],
@@ -391,8 +358,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                       style: const TextStyle(color: Colors.blue, fontSize: 15),
                       selectionColor: Colors.white,
                     ),
-                    shadowColor: Colors.white,
-                    backgroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
                     elevation: 0,
                     autofocus: true,
                   )),
@@ -493,49 +460,32 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              buildinglocations[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
               // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(
-              //             buildinglocations[index]!.id, 'Common Location');
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
+              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
+              //     child: Align(
+              //         alignment: Alignment.centerLeft,
+              //         child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //             children: [
+              //               const Text(
+              //                 maxLines: 1,
+              //                 'Locations  Count:',
+              //                 style: TextStyle(
+              //                   overflow: TextOverflow.ellipsis,
+              //                   fontSize: 13,
+              //                 ),
+              //                 textAlign: TextAlign.center,
+              //               ),
+              //               Text(
+              //                 textAlign: TextAlign.left,
+              //                 buildinglocations[index]!.count.toString(),
+              //                 style: const TextStyle(
+              //                     color: Colors.blue,
+              //                     fontWeight: FontWeight.bold,
+              //                     fontSize: 14),
+              //                 selectionColor: Colors.white,
+              //               ),
+              //             ]))),
             ],
           ),
         ));
@@ -607,48 +557,32 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              apartments[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
               // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(apartments[index]!.id, 'Apartment');
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
+              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
+              //     child: Align(
+              //         alignment: Alignment.centerLeft,
+              //         child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //             children: [
+              //               const Text(
+              //                 maxLines: 1,
+              //                 'Locations  Count:',
+              //                 style: TextStyle(
+              //                   overflow: TextOverflow.ellipsis,
+              //                   fontSize: 13,
+              //                 ),
+              //                 textAlign: TextAlign.center,
+              //               ),
+              //               Text(
+              //                 textAlign: TextAlign.left,
+              //                 apartments[index]!.count.toString(),
+              //                 style: const TextStyle(
+              //                     color: Colors.blue,
+              //                     fontWeight: FontWeight.bold,
+              //                     fontSize: 14),
+              //                 selectionColor: Colors.white,
+              //               ),
+              //             ]))),
             ],
           ),
         ));

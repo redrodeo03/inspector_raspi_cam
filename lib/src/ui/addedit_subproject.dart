@@ -1,19 +1,22 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
-import 'package:deckinspectors/src/models/subproject_model.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../bloc/images_bloc.dart';
+import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
+import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
 import 'image_widget.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
-  final SubProject currentBuilding;
+  final LocalSubProject currentBuilding;
   final String fullUserName;
-  const AddEditSubProjectPage(this.currentBuilding, this.fullUserName,
+  final bool isNewBuilding;
+  const AddEditSubProjectPage(
+      this.currentBuilding, this.isNewBuilding, this.fullUserName,
       {Key? key})
       : super(key: key);
 
@@ -34,10 +37,11 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     pageTitle = 'Add Building';
     name = "Building";
     super.initState();
-    if (currentBuilding.id != null) {
+    isNewBuilding = widget.isNewBuilding;
+    if (!widget.isNewBuilding) {
       pageTitle = 'Edit Building';
       prevPagename = 'Building';
-      isNewLocation = false;
+
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
       //currentBuilding.url ??= "/assets/images/icon.png";
@@ -49,12 +53,12 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
 
   String pageTitle = 'Add';
   String prevPagename = 'Project';
-  bool isNewLocation = true;
-  late SubProject currentBuilding;
+  late bool isNewBuilding;
+  late LocalSubProject currentBuilding;
   String name = "";
   final _formKey = GlobalKey<FormState>();
   String imageURL = 'assets/images/icon.png';
-  save(BuildContext context) async {
+  save(BuildContext context, RealmProjectServices realmServices) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
@@ -62,40 +66,19 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Building...')),
       );
-      currentBuilding.name = _nameController.text;
-
-      currentBuilding.description = _descriptionController.text;
-      if (isNewLocation) {
-        currentBuilding.createdby = fullUserName;
-      } else {
-        currentBuilding.lasteditedby = fullUserName;
-      }
 
       try {
-        Object result;
-        if (currentBuilding.id == null) {
-          result = await subProjectsBloc.addSubProject(currentBuilding);
-          if (result is SuccessResponse) {
-            currentBuilding.id = result.id;
-          }
-        } else {
-          result = await subProjectsBloc.updateSubProject(currentBuilding);
-        }
-        dynamic uploadResult;
-        if (imageURL != currentBuilding.url) {
-          uploadResult = await imagesBloc.uploadImage(
-              currentBuilding.url as String,
-              currentBuilding.name as String,
-              fullUserName,
-              currentBuilding.id as String,
-              'project',
-              'building');
-        }
+        bool result = realmServices.addupdateSubProject(
+            currentBuilding,
+            _nameController.text,
+            _descriptionController.text,
+            isNewBuilding,
+            fullUserName);
 
         if (!mounted) {
           return;
         }
-        if (result is SuccessResponse) {
+        if (result) {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
 
@@ -105,9 +88,23 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
             const SnackBar(content: Text('Failed to save the building.')),
           );
         }
-        if (uploadResult is ImageResponse) {
-          setState(() {
-            currentBuilding.url = uploadResult.url;
+        if (currentBuilding.url == null) {
+          return;
+        }
+        if (imageURL != currentBuilding.url) {
+          await imagesBloc
+              .uploadImage(
+                  currentBuilding.url as String,
+                  currentBuilding.name as String,
+                  fullUserName,
+                  currentBuilding.id.toString(),
+                  'project',
+                  'building')
+              .then((value) {
+            var response = value as ImageResponse;
+
+            realmServices.updateSubProjectUrl(
+                currentBuilding, response.url as String);
           });
         }
       } catch (e) {
@@ -121,6 +118,8 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final realmServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -153,7 +152,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                 ),
                 InkWell(
                     onTap: () {
-                      save(context);
+                      save(context, realmServices);
                     },
                     child: Chip(
                       avatar: const Icon(
@@ -228,7 +227,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
-                                      child: isNewLocation
+                                      child: isNewBuilding
                                           ? currentBuilding.url == null
                                               ? networkImage(
                                                   currentBuilding.url)
@@ -263,8 +262,31 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                 )),
                           )),
                       const SizedBox(
-                        height: 30,
-                      )
+                        height: 20,
+                      ),
+                      if (!isNewBuilding)
+                        OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                                side: BorderSide.none,
+                                // the height is 50, the width is full
+                                minimumSize: const Size.fromHeight(40),
+                                backgroundColor: Colors.white,
+                                shadowColor: Colors.blue,
+                                elevation: 0),
+                            onPressed: () {
+                              deleteSubProject(context, realmServices);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.redAccent,
+                            ),
+                            label: Text(
+                              'Delete ${currentBuilding.type}',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                      const SizedBox(
+                        height: 40,
+                      ),
                     ],
                   ),
                 ),
@@ -310,5 +332,25 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             )));
+  }
+
+  void deleteSubProject(
+      BuildContext context, RealmProjectServices realmServices) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Deleting ${currentBuilding.type}...')),
+    );
+
+    var result = realmServices.deleteSubProject(currentBuilding);
+    if (result == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Building deleted successfully.')));
+      Navigator.of(context)
+        ..pop()
+        ..pop(currentBuilding);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete the ${currentBuilding.type}')),
+      );
+    }
   }
 }

@@ -1,12 +1,12 @@
-import 'dart:async';
+import 'dart:async' as async;
 
-import 'package:deckinspectors/src/bloc/projects_bloc.dart';
-import 'package:deckinspectors/src/models/project_model.dart';
+import 'package:deckinspectors/src/resources/realm/realm_services.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
 
-import '../models/error_response.dart';
-import '../models/location_model.dart';
-import '../models/subproject_model.dart';
+import '../models/realm/realm_schemas.dart';
+
 import 'addedit_subproject.dart';
 
 import 'location.dart';
@@ -17,7 +17,7 @@ import 'subproject.dart';
 import 'package:intl/intl.dart';
 
 class ProjectDetailsPage extends StatefulWidget {
-  final String id;
+  final ObjectId id;
   final String userFullName;
 
   const ProjectDetailsPage(this.id, this.userFullName, {Key? key})
@@ -29,37 +29,43 @@ class ProjectDetailsPage extends StatefulWidget {
 //Add New Project
 class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     with SingleTickerProviderStateMixin {
-  late Project currentProject;
+  late LocalProject currentProject;
   late int selectedTabIndex = 0;
 //Tab Controls
   late TabController _tabController;
   late String userFullName;
   late String createdAt;
-  late List<Child?> locations;
-  late List<Child?> buildings;
-  late Location newLocation;
-  late SubProject newBuilding;
-  String projectId = '';
+  late List<LocalChild?> locations;
+  late List<LocalChild?> buildings;
+
+  late ObjectId projectId;
   //late Building newBuilding;
+
+  LocalLocation getNewLocation() {
+    var newLocation = LocalLocation(ObjectId(), projectId,
+        name: "",
+        description: "",
+        createdby: userFullName,
+        type: 'projectlocation',
+        parenttype: 'project');
+    return newLocation;
+  }
+
+  LocalSubProject getNewBuilding() {
+    var newBuilding = LocalSubProject(ObjectId(), projectId,
+        name: "",
+        description: "",
+        createdby: userFullName,
+        type: 'subproject',
+        parenttype: 'project');
+    return newBuilding;
+  }
+
   @override
   void initState() {
     super.initState();
     projectId = widget.id;
     userFullName = widget.userFullName;
-    newLocation = Location(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'location',
-        parentid: projectId,
-        parenttype: 'project');
-    newBuilding = SubProject(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'location',
-        parentid: projectId,
-        parenttype: 'project');
 
     _tabController = TabController(vsync: this, length: 2);
 
@@ -68,7 +74,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     buildings = List.empty(growable: true);
   }
 
-  FutureOr refreshProjectDetails(dynamic value) async {
+  async.FutureOr refreshProjectDetails(dynamic value) async {
     // var response = await projectsBloc.getProject(currentProject.id as String);
     // if (response is Project) {
     //   currentProject = response;
@@ -76,11 +82,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     //   //
     // }
     setState(() {
-      if (currentProject.children != null) {
-        locations = currentProject.children!
+      if (currentProject.isValid) {
+        locations = currentProject.children
             .where((element) => element.type == 'location')
             .toList();
-        buildings = currentProject.children!
+        buildings = currentProject.children
             .where((element) => element.type == 'subproject')
             .toList();
       }
@@ -105,13 +111,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   void addEditProject() {
-    setState(() {});
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) =>
-              AddEditProjectPage(currentProject, userFullName)),
-    ).then((value) => setState(() => {}));
+              AddEditProjectPage(currentProject, false, userFullName)),
+    );
   }
 
   void addNewChild() {
@@ -121,41 +126,40 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         context,
         MaterialPageRoute(
             builder: (context) =>
-                AddEditLocationPage(newLocation, userFullName)),
-      ).then(refreshProjectDetails);
+                AddEditLocationPage(getNewLocation(), true, userFullName)),
+      ); //.then(refreshProjectDetails);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) =>
-                AddEditSubProjectPage(newBuilding, userFullName)),
-      ).then(refreshProjectDetails);
+                AddEditSubProjectPage(getNewBuilding(), true, userFullName)),
+      ); //.then(refreshProjectDetails);
     }
   }
 
-  void gotoDetails(String? id) {
+  void gotoDetails(ObjectId id, String name) {
     if (selectedTabIndex == 0) {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => LocationPage(
-                id as String,
-                currentProject.name as String,
-                'Project Locations',
-                userFullName)),
-      ).then(refreshProjectDetails);
+            builder: (context) =>
+                LocationPage(id, name, 'Project Locations', userFullName)),
+      ).then((value) => locations.remove(value));
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SubProjectDetailsPage(
-                id as String, currentProject.name as String, userFullName)),
-      ).then(refreshProjectDetails);
+            builder: (context) =>
+                SubProjectDetailsPage(id, name, userFullName)),
+      ).then((value) => buildings.remove(value));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final realmServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -213,10 +217,14 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 )
               ],
             )),
-        body: FutureBuilder(
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
+        body: StreamBuilder<RealmObjectChanges<LocalProject>>(
+          //projectsBloc.projects
+          stream: realmServices.getProject(projectId)?.changes,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final data = snapshot.data;
+
+              if (data == null) {
                 return Center(
                   child: Text(
                     '${snapshot.error} occurred',
@@ -225,38 +233,42 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 );
 
                 // if we got our data
-              } else if (snapshot.hasData) {
-                final data = snapshot.data;
-                if (data is ProjectResponse) {
-                  currentProject = data.item as Project;
-                  if (currentProject.children != null) {
-                    locations = currentProject.children!
-                        .where((element) => element.type == 'location')
-                        .toList();
-                    buildings = currentProject.children!
-                        .where((element) => element.type == 'subproject')
-                        .toList();
+              } else {
+                currentProject = data.object;
+                if (currentProject.isValid) {
+                  locations = currentProject.children
+                      .where((element) => element.type == 'location')
+                      .toList();
+                  buildings = currentProject.children
+                      .where((element) => element.type == 'subproject')
+                      .toList();
+                  var shortDate =
+                      DateTime.tryParse(currentProject.createdat as String);
+                  if (shortDate != null) {
+                    createdAt = DateFormat.yMMMEd().format(shortDate);
+                  } else {
+                    createdAt = "";
                   }
+                }
 
-                  return SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      StatefulBuilder(builder:
-                          (BuildContext context, StateSetter setState) {
-                        return projectDetails();
-                      }),
-                      projectChildrenTab(context),
-                    ],
-                  ));
-                }
-                if (data is ErrorResponse) {
-                  return Center(
-                    child: Text(
-                      '${data.message}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  );
-                }
+                return SingleChildScrollView(
+                    child: Column(
+                  children: [
+                    // StatefulBuilder(builder: (context, StateSetter setState) {
+                    projectDetails(),
+                    //}),
+                    projectChildrenTab(context),
+                  ],
+                ));
+
+                // if (data is ErrorResponse) {
+                //   return Center(
+                //     child: Text(
+                //       '${data.message}',
+                //       style: const TextStyle(fontSize: 18),
+                //     ),
+                //   );
+                // }
               }
             }
 
@@ -265,17 +277,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               child: CircularProgressIndicator(),
             );
           },
-          future: projectsBloc.getProject(projectId),
         ));
   }
 
   Widget projectDetails() {
-    var shortDate = DateTime.tryParse(currentProject.createdat as String);
-    if (shortDate != null) {
-      createdAt = DateFormat.yMMMEd().format(shortDate);
-    } else {
-      createdAt = "";
-    }
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -424,13 +429,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
       children: <Widget>[
         TabBar(
           controller: _tabController,
-          tabs: const [
+          tabs: [
             Tab(
-              text: "Project Locations",
+              text: "Project Locations (${locations.length})",
               height: 32,
             ),
             Tab(
-              text: "Buildings",
+              text: "Buildings (${buildings.length})",
               height: 32,
             ),
           ],
@@ -515,7 +520,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             children: [
               GestureDetector(
                 onTap: () {
-                  gotoDetails(locations[index]!.id);
+                  gotoDetails(
+                      locations[index]!.id, currentProject.name as String);
                 },
                 child: Container(
                   height: 140,
@@ -572,48 +578,32 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              locations[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
               // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(locations[index]!.id);
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
+              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
+              //     child: Align(
+              //         alignment: Alignment.centerLeft,
+              //         child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //             children: [
+              //               const Text(
+              //                 maxLines: 1,
+              //                 'Locations  Count:',
+              //                 style: TextStyle(
+              //                   overflow: TextOverflow.ellipsis,
+              //                   fontSize: 13,
+              //                 ),
+              //                 textAlign: TextAlign.center,
+              //               ),
+              //               Text(
+              //                 textAlign: TextAlign.left,
+              //                 locations[index]!.count.toString(),
+              //                 style: const TextStyle(
+              //                     color: Colors.blue,
+              //                     fontWeight: FontWeight.bold,
+              //                     fontSize: 14),
+              //                 selectionColor: Colors.white,
+              //               ),
+              //             ]))),
             ],
           ),
         ));
@@ -629,7 +619,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             children: [
               GestureDetector(
                 onTap: () {
-                  gotoDetails(buildings[index]!.id);
+                  gotoDetails(
+                      buildings[index]!.id, currentProject.name as String);
                 },
                 child: Container(
                   height: 140,
@@ -686,32 +677,32 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              buildings[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
+              // Padding(
+              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
+              //     child: Align(
+              //         alignment: Alignment.centerLeft,
+              //         child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //             children: [
+              //               const Text(
+              //                 maxLines: 1,
+              //                 'Locations  Count:',
+              //                 style: TextStyle(
+              //                   overflow: TextOverflow.ellipsis,
+              //                   fontSize: 13,
+              //                 ),
+              //                 textAlign: TextAlign.center,
+              //               ),
+              //               Text(
+              //                 textAlign: TextAlign.left,
+              //                 buildings[index]!.count.toString(),
+              //                 style: const TextStyle(
+              //                     color: Colors.blue,
+              //                     fontWeight: FontWeight.bold,
+              //                     fontSize: 14),
+              //                 selectionColor: Colors.white,
+              //               ),
+              //             ]))),
               // Padding(
               //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
               //   child: OutlinedButton.icon(
@@ -732,6 +723,4 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ),
         ));
   }
-
-  void deleteProject(String? id) {}
 }

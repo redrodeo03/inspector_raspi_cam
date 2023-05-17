@@ -1,23 +1,30 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../bloc/images_bloc.dart';
-import '../bloc/projects_bloc.dart';
+
+import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
+import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
-import 'image_widget.dart';
 
 class AddEditProjectPage extends StatefulWidget {
-  final Project newProject;
+  final LocalProject newProject;
   final String userFullName;
-  const AddEditProjectPage(this.newProject, this.userFullName, {Key? key})
+
+  final bool isNewProject;
+
+  const AddEditProjectPage(
+      this.newProject, this.isNewProject, this.userFullName,
+      {Key? key})
       : super(key: key);
   @override
   State<AddEditProjectPage> createState() => _AddEditProjectPageState();
@@ -35,7 +42,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   @override
   void initState() {
     currentProject = widget.newProject;
-    if (currentProject.id != null) {
+
+    if (!widget.isNewProject) {
       pageTitle = "Edit Project";
       prevPageName = currentProject.name as String; //'Project';
       isNewProject = false;
@@ -46,6 +54,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     _nameController.text = currentProject.name as String;
     _addressController.text = currentProject.address as String;
     _descriptionController.text = currentProject.description as String;
+
     if (currentProject.url != null) {
       imageURL = currentProject.url as String;
     }
@@ -77,9 +86,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     });
   }
 
+  late RealmProjectServices realmProjServices;
   bool isNewProject = true;
   late String userFullName;
-  late Project currentProject;
+  late LocalProject currentProject;
   String pageTitle = "Add Project";
   final _formKey = GlobalKey<FormState>();
 
@@ -90,50 +100,38 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Project...')),
       );
-      currentProject.name = _nameController.text;
-      currentProject.address = _addressController.text;
-      currentProject.description = _descriptionController.text;
-      if (isNewProject) {
-        currentProject.createdby = userFullName;
-      } else {
-        currentProject.lasteditedby = userFullName;
-      }
-      Object result;
 
-      if (currentProject.id == null) {
-        result = await projectsBloc.addProject(currentProject);
-        if (result is SuccessResponse) {
-          currentProject.id = result.id;
-        }
-      } else {
-        result = await projectsBloc.updateProject(currentProject);
-      }
+      bool result;
 
-      //upload image if changed
+      // if (currentProject.id == null) {
+      //   result = await projectsBloc.addProject(currentProject);
+      //   if (result is SuccessResponse) {
+      //     currentProject.id = result.id;
+      //   }
+      // } else {
+      //   result = await projectsBloc.updateProject(currentProject);
+      // }
 
-      if (imageURL != currentProject.url && result is SuccessResponse) {
-        imagesBloc.uploadImage(
-            currentProject.url as String,
-            currentProject.name as String,
-            userFullName,
-            currentProject.id as String,
-            '',
-            'project');
-      }
+      result = realmProjServices.addupdateProject(
+          currentProject,
+          _nameController.text,
+          _addressController.text,
+          _descriptionController.text,
+          userFullName,
+          isNewProject);
 
       if (!mounted) {
         return;
       }
-      if (result is SuccessResponse) {
+      if (result) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
         if (isNewProject) {
-          var response = result;
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      ProjectDetailsPage(response.id as String, userFullName)));
+                      ProjectDetailsPage(currentProject.id, userFullName)));
         } else {
           Navigator.pop(context);
         }
@@ -141,6 +139,35 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the project.')),
         );
+      }
+      //upload image if changed
+      if (currentProject.url == null) {
+        return;
+      }
+      if (imageURL != currentProject.url) {
+        Object result;
+        // if (realmProjServices.offlineModeOn) {
+        //   result = await imagesBloc.saveImageLocally(
+        //       imageURL,
+        //       currentProject.name as String,
+        //       userFullName,
+        //       currentProject.id.toString(),
+        //       '',
+        //       'project');
+        // } else {
+        result = await imagesBloc.uploadImage(
+            imageURL,
+            currentProject.name as String,
+            userFullName,
+            currentProject.id.toString(),
+            '',
+            'project');
+        //}
+
+        if (result is ImageResponse) {
+          realmProjServices.updateProjectUrl(
+              currentProject, result.url as String);
+        }
       }
     }
   }
@@ -175,6 +202,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    realmProjServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -307,7 +336,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                 var xfile = await captureImage(context);
                                 if (xfile != null) {
                                   setState(() {
-                                    currentProject.url = xfile.path;
+                                    imageURL = xfile.path;
                                   });
                                 }
                               },
@@ -333,14 +362,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                                 height: 250,
                                               )
                                             : Image.file(
-                                                File(currentProject.url
-                                                    as String),
+                                                File(imageURL),
                                                 fit: BoxFit.cover,
                                                 width: double.infinity,
                                                 height: 250,
                                               )
-                                        : cachedNetworkImage(
-                                            currentProject.url),
+                                        : cachedNetworkImage(imageURL),
                                   ),
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
@@ -362,6 +389,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                 ],
                               )),
                         )),
+                    const SizedBox(
+                      height: 30,
+                    ),
                     if (!isNewProject)
                       OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
@@ -372,7 +402,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               shadowColor: Colors.transparent,
                               elevation: 1),
                           onPressed: () {
-                            deleteProject(currentProject.id);
+                            deleteProject();
                           },
                           icon: const Icon(
                             Icons.delete_outline_outlined,
@@ -435,13 +465,14 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             )));
   }
 
-  void deleteProject(String? id) async {
-    var result = await projectsBloc.deleteProjectPermanently(
-        currentProject, id as String);
-    if (!mounted) {
-      return;
-    }
-    if (result is SuccessResponse) {
+  void deleteProject() async {
+    // var result = await projectsBloc.deleteProjectPermanently(
+    //     currentProject, id as String);
+    // if (!mounted) {
+    //   return;
+    // }
+    var result = realmProjServices.deleteProject(currentProject);
+    if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Project deleted successfully.')));
       Navigator.pushReplacement(

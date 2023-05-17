@@ -1,6 +1,5 @@
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 
-import 'package:deckinspectors/src/ui/offlinemode.dart';
 import 'package:deckinspectors/src/ui/projects.dart';
 import 'package:deckinspectors/src/ui/settings.dart';
 // import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final pages = [
     const Center(child: ProjectsPage()),
-    Center(child: OfflineModePage()),
+    //Center(child: OfflineModePage()),
     const Center(child: SettingsPage()),
     //const Center(child: LoginPage()),
   ];
@@ -43,11 +42,11 @@ class _HomePageState extends State<HomePage> {
               label: 'Home',
               // backgroundColor: Colors.orange
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.wifi_off),
-              label: 'Offline',
-              // backgroundColor: Colors.blueAccent
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.wifi_off),
+            //   label: 'Offline',
+            //   // backgroundColor: Colors.blueAccent
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: 'Settings',

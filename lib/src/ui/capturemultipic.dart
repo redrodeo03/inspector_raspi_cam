@@ -67,7 +67,10 @@ class CameraScreenState extends State<CameraScreen>
       XFile file = await cameraController.takePicture();
       return file;
     } on CameraException catch (e) {
-      print('Error occured while taking picture: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error occured while taking picture: $e')),
+      );
+
       return null;
     }
   }
@@ -120,7 +123,12 @@ class CameraScreenState extends State<CameraScreen>
 
       _currentFlashMode = controller!.value.flashMode;
     } on CameraException catch (e) {
-      print('Error initializing camera: $e');
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error initializing camera: $e')),
+      );
     }
 
     if (mounted) {
@@ -338,8 +346,13 @@ class CameraScreenState extends State<CameraScreen>
                                       capturedImages.add(file);
                                       _imageFile = File(file.path);
                                     } on CameraException catch (e) {
-                                      print(
-                                          'Error occured while taking picture: $e');
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Error occured while taking picture: $e')),
+                                      );
+
                                       return;
                                     }
                                   },

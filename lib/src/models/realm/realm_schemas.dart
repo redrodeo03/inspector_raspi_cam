@@ -3,9 +3,10 @@ part 'realm_schemas.g.dart';
 
 @RealmModel()
 class _LocalProject {
+  @MapTo('_id')
   @PrimaryKey()
-  late String? id;
-  late String? onlineid;
+  late ObjectId id;
+
   late String? name;
   late String? projecttype;
   late String? description;
@@ -13,37 +14,37 @@ class _LocalProject {
   late String? createdby;
   late String? createdat;
   late String? url;
-
-  DateTime? editedat;
+  late DateTime? editedat;
   String? lasteditedby;
-
+  late Set<String> assignedto;
   List<_LocalChild> children = [];
 }
 
-@RealmModel()
+@RealmModel(ObjectType.embeddedObject)
 class _LocalChild {
-  String? id;
-  String? name;
-  String? type;
-  String? description;
-  String? url;
+  @MapTo('_id')
+  late ObjectId id;
+  late String? name;
+  late String? type;
+  late String? description;
+  late String? url;
   int count = 0;
 }
 
 @RealmModel()
 class _LocalSubProject {
   @PrimaryKey()
-  String? id;
-  late String? onlineid;
+  @MapTo('_id')
+  late ObjectId id;
   String? name;
   String? type;
   String? description;
-  String? parentid;
+  late ObjectId parentid;
   String? parenttype;
   String? createdby;
   String? createdat;
   String? url;
-
+  late Set<String> assignedto;
   DateTime? editedat;
   String? lasteditedby;
 
@@ -53,12 +54,13 @@ class _LocalSubProject {
 @RealmModel()
 class _LocalLocation {
   @PrimaryKey()
-  String? id;
-  String? onlineid;
+  @MapTo('_id')
+  late ObjectId id;
+
   String? name;
   String? type;
   String? description;
-  String? parentid;
+  late ObjectId parentid;
   String? parenttype;
   String? createdby;
   String? createdat;
@@ -68,10 +70,11 @@ class _LocalLocation {
   List<_LocalSection> sections = [];
 }
 
-@RealmModel()
+@RealmModel(ObjectType.embeddedObject)
 class _LocalSection {
-  String? id;
-  String? name;
+  @MapTo('_id')
+  late ObjectId id;
+  late String? name;
 
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = false;
@@ -84,11 +87,12 @@ class _LocalSection {
 @RealmModel()
 class _LocalVisualSection {
   @PrimaryKey()
-  String? id;
+  @MapTo('_id')
+  late ObjectId id;
   String? name;
-  List<String> images = [];
-  List<String> exteriorelements = [];
-  List<String> waterproofingelements = [];
+  late List<String> images;
+  late List<String> exteriorelements;
+  late List<String> waterproofingelements;
   String? additionalconsiderations;
   String? visualreview;
   bool visualsignsofleak = false;
@@ -97,13 +101,26 @@ class _LocalVisualSection {
   String eee = 'one';
   String lbc = 'one';
   String awe = 'one';
-  String? parentid;
-  String? onlineId;
+  late ObjectId parentid;
   String? createdby;
   String? createdat;
-
   // InvasiveSection? invasiveSection;
   // ConclusiveSection? conclusiveSection;
   DateTime? editedat;
   String? lasteditedby;
+}
+
+@RealmModel()
+class _DeckImage {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late String imageLocalPath;
+  late String onlinePath;
+  late bool isUploaded;
+  late ObjectId parentId;
+  late String parentType;
+  late String entityName;
+  late String containerName;
+  late String uploadedBy;
 }

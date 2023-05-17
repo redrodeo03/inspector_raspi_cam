@@ -20,7 +20,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   @override
   void initState() {
     super.initState();
-    defaultCamera =widget.defaultCamera;
+    defaultCamera = widget.defaultCamera;
     _controller = CameraController(
       // Get a specific camera from the list of available cameras.
       defaultCamera,
@@ -29,7 +29,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     );
 
     // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = _controller.initialize();   
+    _initializeControllerFuture = _controller.initialize();
   }
 
   @override
@@ -85,7 +85,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             );
           } catch (e) {
             // If an error occurs, log the error to the console.
-            print(e);
           }
         },
         child: const Icon(Icons.camera_alt),
