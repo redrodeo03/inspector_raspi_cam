@@ -102,4 +102,18 @@ class ProjectsApiProvider {
       return ErrorResponse.fromJson(json.decode(response.body));
     }
   }
+
+  Future<Object> downloadReport(String id, String fileType) async {
+    var endPoint = '${URLS.manageProjectsUrl}$id/generatereport';
+    final baseUrl = Uri.parse(endPoint);
+    final response = await client
+        .get(baseUrl, headers: {'Content-Type': 'application/json'});
+    //print(response.body.toString());
+
+    if (response.statusCode == 200) {
+      return SuccessResponse.fromJson(json.decode(response.body));
+    } else {
+      return ErrorResponse.fromJson(json.decode(response.body));
+    }
+  }
 }

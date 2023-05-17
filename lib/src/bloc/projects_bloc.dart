@@ -46,6 +46,10 @@ class ProjectsBloc {
   Future<Object> deleteProjectPermanently(Project project, String id) async {
     return _repository.deleteProject(project, id);
   }
+
+  Future<Object> downloadProjectReport(String id, String fileType) {
+    return _repository.downloadProjectReport(id, fileType);
+  }
 }
 
 final projectsBloc = ProjectsBloc();

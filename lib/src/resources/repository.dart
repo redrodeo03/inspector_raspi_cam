@@ -123,4 +123,8 @@ class Repository {
     return imageApiProvider.uploadImageLocally(
         path, containerName, uploader, id, parentType, entityName);
   }
+
+  Future<Object> downloadProjectReport(String id, String fileType) {
+    return projectsApiProvider.downloadReport(id, fileType);
+  }
 }

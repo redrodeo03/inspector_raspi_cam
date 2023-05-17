@@ -1,5 +1,6 @@
 import 'dart:async' as async;
 
+import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:provider/provider.dart';
@@ -309,17 +310,39 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-              child: Text(
-                currentProject.name as String,
-                maxLines: 2,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.left,
-              ),
-            ),
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      currentProject.name as String,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          downloadProjectReport(currentProject.id);
+                        },
+                        child: const Chip(
+                          avatar: Icon(Icons.file_download_done_outlined,
+                              color: Colors.blue),
+                          labelPadding: EdgeInsets.all(2),
+                          label: Text(
+                            'Download Report ',
+                            style: TextStyle(color: Colors.blue),
+                            selectionColor: Colors.transparent,
+                          ),
+                          shadowColor: Colors.white,
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          autofocus: true,
+                        )),
+                  ],
+                )),
           ),
           const Align(
             alignment: Alignment.centerLeft,
@@ -726,5 +749,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             ],
           ),
         ));
+  }
+
+  void downloadProjectReport(ObjectId id) {
+    projectsBloc.downloadProjectReport(id.toString(), 'pdf');
   }
 }

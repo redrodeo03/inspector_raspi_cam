@@ -18,6 +18,7 @@ class _LocalProject {
   String? lasteditedby;
   late Set<String> assignedto;
   List<_LocalChild> children = [];
+  List<_LocalChild> invasiveChildren = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -49,6 +50,7 @@ class _LocalSubProject {
   String? lasteditedby;
 
   List<_LocalChild> children = [];
+  List<_LocalChild> invasiveChildren = [];
 }
 
 @RealmModel()
@@ -68,6 +70,7 @@ class _LocalLocation {
   DateTime? editedat;
   String? lasteditedby;
   List<_LocalSection> sections = [];
+  List<_LocalSection> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -108,6 +111,31 @@ class _LocalVisualSection {
   // ConclusiveSection? conclusiveSection;
   DateTime? editedat;
   String? lasteditedby;
+}
+
+@RealmModel()
+class _LocalInvasiveSection {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId parentid;
+  bool postinvasiverepairsrequired = false;
+  late List<String> invasiveimages;
+}
+
+@RealmModel()
+class _LocalConclusiveSection {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId parentid;
+  bool propowneragreed = false;
+  bool invasiverepairsinspectedandcompleted = false;
+  late String conclusiveconsiderations;
+  String eeeconclusive = 'one';
+  String lbcconclusive = 'one';
+  String aweconclusive = 'one';
+  late List<String> conclusiveimages;
 }
 
 @RealmModel()
