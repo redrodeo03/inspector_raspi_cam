@@ -19,9 +19,10 @@ class SectionPage extends StatefulWidget {
   final String userFullName;
   final String parentType;
   final ObjectId parentId;
+  final String parentName;
   final bool isNewSection;
   const SectionPage(this.sectionId, this.parentId, this.userFullName,
-      this.parentType, this.isNewSection,
+      this.parentType, this.parentName, this.isNewSection,
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
@@ -43,9 +44,9 @@ class _SectionPageState extends State<SectionPage> {
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: const Text(
-              'Locations',
-              style: TextStyle(color: Colors.blue),
+            label: Text(
+              prevPageName,
+              style: const TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -105,7 +106,7 @@ class _SectionPageState extends State<SectionPage> {
   late LocalVisualSection currentVisualSection;
   late Future sectionResponse;
   late bool isNewSection;
-
+  late String prevPageName;
   void fetchData() {
     isRunning = true;
     currentVisualSection =
@@ -137,6 +138,7 @@ class _SectionPageState extends State<SectionPage> {
     }
     userFullName = widget.userFullName;
     parentType = widget.parentType;
+    prevPageName = widget.parentName;
     super.initState();
   }
 

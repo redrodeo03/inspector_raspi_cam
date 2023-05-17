@@ -297,7 +297,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     apartments = List.empty(growable: true);
 
     buildinglocations = currentBuilding.children
-        .where((element) => element.type == 'location')
+        .where((element) => element.type == 'buildinglocation')
         .toList();
     apartments = currentBuilding.children
         .where((element) => element.type == 'apartment')

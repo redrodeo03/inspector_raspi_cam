@@ -23,7 +23,7 @@ class App extends StatelessWidget {
         child: const MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Deck Inspectors',
-          home: LoginPage(),
+          home: SafeArea(child: LoginPage()),
         ));
   }
 }

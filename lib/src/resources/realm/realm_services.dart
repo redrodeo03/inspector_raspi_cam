@@ -48,7 +48,7 @@ class RealmProjectServices with ChangeNotifier {
       }
       //set offline mode value;
       SharedPreferences.getInstance().then((value) {
-        var configValue = value.getString('appSync') ?? 'false';
+        var configValue = value.getString('appSync') ?? 'true';
         if (configValue == 'false') {
           offlineModeOn = true;
         } else {
@@ -198,7 +198,7 @@ class RealmProjectServices with ChangeNotifier {
 
 //Update Project Children data
   void updateProjectChildren(ObjectId childId, ObjectId parentId, String name,
-      String type, String description, String url) {
+      String type, String description) {
     var parentProject = realm.find<LocalProject>(parentId);
 
     if (parentProject != null) {
@@ -206,12 +206,11 @@ class RealmProjectServices with ChangeNotifier {
           parentProject.children.where((element) => element.id == childId);
       if (found.isEmpty) {
         parentProject.children.add(LocalChild(childId,
-            name: name, type: type, description: description, url: url));
+            name: name, type: type, description: description, url: ""));
       } else {
         var foundChild = found.first;
         foundChild.name = name;
         foundChild.description = description;
-        foundChild.url = url;
       }
     }
   }
@@ -238,8 +237,13 @@ class RealmProjectServices with ChangeNotifier {
   }
 
 //Update SubProject Children data
-  void updateSubProjectChildren(ObjectId childId, ObjectId parentId,
-      String name, String type, String description, String url) {
+  void updateSubProjectChildren(
+    ObjectId childId,
+    ObjectId parentId,
+    String name,
+    String type,
+    String description,
+  ) {
     var parentProject = realm.find<LocalSubProject>(parentId);
 
     if (parentProject != null) {
@@ -247,12 +251,11 @@ class RealmProjectServices with ChangeNotifier {
           parentProject.children.where((element) => element.id == childId);
       if (found.isEmpty) {
         parentProject.children.add(LocalChild(childId,
-            name: name, type: type, description: description, url: url));
+            name: name, type: type, description: description, url: ""));
       } else {
         var foundChild = found.first;
         foundChild.name = name;
         foundChild.description = description;
-        foundChild.url = url;
       }
     }
   }
@@ -361,8 +364,7 @@ class RealmProjectServices with ChangeNotifier {
             subProject.parentid,
             subProject.name as String,
             subProject.type as String,
-            subProject.description as String,
-            subProject.url as String);
+            subProject.description as String);
         realm.add<LocalSubProject>(subProject, update: true);
       });
       notifyListeners();
@@ -460,16 +462,14 @@ class RealmProjectServices with ChangeNotifier {
               location.parentid,
               location.name as String,
               location.type as String,
-              location.description as String,
-              location.url as String);
+              location.description as String);
         } else {
           updateSubProjectChildren(
               location.id,
               location.parentid,
               location.name as String,
               location.type as String,
-              location.description as String,
-              location.url as String);
+              location.description as String);
         }
         realm.add<LocalLocation>(location, update: true);
       });

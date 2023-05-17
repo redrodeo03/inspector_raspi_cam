@@ -562,6 +562,7 @@ class _LocationPageState extends State<LocationPage> {
                 currentLocation.id,
                 userFullName,
                 parenttype,
+                currentLocation.name as String,
                 true))).then((value) => setState(() {}));
   }
 
@@ -569,8 +570,8 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SectionPage(
-              sectionId, currentLocation.id, userFullName, parenttype, false),
+          builder: (context) => SectionPage(sectionId, currentLocation.id,
+              userFullName, parenttype, currentLocation.name as String, false),
         )).then((value) {
       if (!mounted) {
         return;

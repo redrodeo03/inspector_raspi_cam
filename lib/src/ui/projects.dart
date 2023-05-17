@@ -63,6 +63,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     final realmServices = Provider.of<RealmProjectServices>(context);
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             leadingWidth: 20,
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,

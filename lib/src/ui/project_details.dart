@@ -84,7 +84,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     setState(() {
       if (currentProject.isValid) {
         locations = currentProject.children
-            .where((element) => element.type == 'location')
+            .where((element) => element.type == 'projectlocation')
             .toList();
         buildings = currentProject.children
             .where((element) => element.type == 'subproject')
@@ -162,61 +162,65 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 140,
-            leading: ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.blue,
-              ),
-              label: const Text(
-                'Home',
-                style: TextStyle(color: Colors.blue),
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-              ),
+          automaticallyImplyLeading: false,
+          leadingWidth: 140,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
             ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Project',
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: InkWell(
-                        onTap: () {
-                          addEditProject();
-                        },
-                        child: const Chip(
-                          avatar: Icon(
-                            Icons.cloud_sync_outlined,
-                            color: Colors.black,
-                          ),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Cloud Sync',
-                            style: TextStyle(color: Colors.black),
-                            selectionColor: Colors.white,
-                          ),
-                          shadowColor: Colors.blue,
-                          backgroundColor: Colors.blue,
-                          elevation: 10,
-                          autofocus: true,
-                        )),
-                  ),
-                )
-              ],
-            )),
+            label: const Text(
+              'Home',
+              style: TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          title: const Text(
+            'Project',
+            style:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start  ,
+          //   children: const [
+          //     Text(
+          //       'Project',
+          //       style: TextStyle(
+          //           color: Colors.black, fontWeight: FontWeight.normal),
+          //     ),
+          // Expanded(
+          //   child: Align(
+          //     alignment: Alignment.centerRight,
+          //     child: InkWell(
+          //         onTap: () {
+          //           addEditProject();
+          //         },
+          //         child: const Chip(
+          //           avatar: Icon(
+          //             Icons.cloud_sync_outlined,
+          //             color: Colors.black,
+          //           ),
+          //           labelPadding: EdgeInsets.all(2),
+          //           label: Text(
+          //             'Cloud Sync',
+          //             style: TextStyle(color: Colors.black),
+          //             selectionColor: Colors.white,
+          //           ),
+          //           shadowColor: Colors.blue,
+          //           backgroundColor: Colors.blue,
+          //           elevation: 10,
+          //           autofocus: true,
+          //         )),
+          //   ),
+          // )
+        ),
         body: StreamBuilder<RealmObjectChanges<LocalProject>>(
           //projectsBloc.projects
           stream: realmServices.getProject(projectId)?.changes,
@@ -237,7 +241,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 currentProject = data.object;
                 if (currentProject.isValid) {
                   locations = currentProject.children
-                      .where((element) => element.type == 'location')
+                      .where((element) => element.type == 'projectlocation')
                       .toList();
                   buildings = currentProject.children
                       .where((element) => element.type == 'subproject')
@@ -400,7 +404,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     Text(
                       createdAt,
                       style: const TextStyle(
-                        color: Colors.blue,
+                        color: Colors.black,
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.left,
