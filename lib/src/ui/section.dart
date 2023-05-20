@@ -35,6 +35,14 @@ class _SectionPageState extends State<SectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          tooltip: 'Save and Create New',
+          elevation: 8,
+          onPressed: () {
+            saveAndNext(context, realmServices);
+          },
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.save)),
       appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 120,
@@ -1067,6 +1075,15 @@ class _SectionPageState extends State<SectionPage> {
         SnackBar(content: Text('Failed to delete the $locationame')),
       );
     }
+  }
+
+  void saveAndNext(BuildContext context, RealmProjectServices realmServices) {
+    save(context, realmServices);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SectionPage(ObjectId(), widget.parentId,
+                userFullName, widget.parentType, widget.parentName, true)));
   }
 }
 

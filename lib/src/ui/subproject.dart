@@ -44,6 +44,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         description: "",
         createdby: userFullName,
         type: type,
+        url: "",
         parenttype: 'subproject');
   }
 
@@ -80,28 +81,28 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              AddEditSubProjectPage(currentBuilding, false, userFullName)),
+          builder: (context) => AddEditSubProjectPage(currentBuilding, false,
+              userFullName, currentBuilding.name as String)),
     ).then((value) => setState(
           () {},
         ));
   }
 
-  void addNewChild() {
+  void addNewChild(String name) {
     setState(() {});
     if (selectedTabIndex == 0) {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddEditLocationPage(
-                getLocation('buildinglocation'), true, userFullName)),
+                getLocation('buildinglocation'), true, userFullName, name)),
       );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddEditLocationPage(
-                getLocation('apartment'), true, userFullName)),
+                getLocation('apartment'), true, userFullName, name)),
       );
     }
   }
@@ -345,7 +346,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               alignment: Alignment.topRight,
               child: InkWell(
                   onTap: () {
-                    addNewChild();
+                    addNewChild(currentBuilding.name as String);
                   },
                   child: Chip(
                     avatar: const Icon(

@@ -586,8 +586,8 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>
-              AddEditLocationPage(currentLocation, false, userFullName)),
+          builder: (context) => AddEditLocationPage(currentLocation, false,
+              userFullName, currentLocation.name as String)),
     );
   }
 }

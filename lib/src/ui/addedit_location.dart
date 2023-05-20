@@ -8,15 +8,15 @@ import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
-import 'image_widget.dart';
 
 class AddEditLocationPage extends StatefulWidget {
   final LocalLocation currentLocation;
   final String fullUserName;
   final bool isNewLocation;
+  final String prevPageName;
   // final Object currentBuilding;
-  const AddEditLocationPage(
-      this.currentLocation, this.isNewLocation, this.fullUserName,
+  const AddEditLocationPage(this.currentLocation, this.isNewLocation,
+      this.fullUserName, this.prevPageName,
       {Key? key})
       : super(key: key);
 
@@ -52,16 +52,13 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       _nameController.text = currentLocation.name as String;
       _descriptionController.text = currentLocation.description as String;
       //currentLocation.url ??= "/assets/images/icon.png";
-      if (currentLocation.url != null) {
-        imageURL = currentLocation.url as String;
-      }
-      prevPagename =
-          currentLocation.parenttype == 'subproject' ? 'Building' : 'Location';
     } else {
       pageTitle = 'Add $pageType';
-      prevPagename =
-          currentLocation.parenttype == 'subproject' ? 'Building' : 'Project';
     }
+    if (currentLocation.url != null) {
+      imageURL = currentLocation.url as String;
+    }
+    prevPagename = widget.prevPageName;
   }
 
   late LocalLocation currentLocation;
@@ -82,7 +79,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
         SnackBar(content: Text('Saving $pageType...')),
       );
       //location details
-      String name, description, url, id, parenttype, type;
+      String name, description, id, parenttype, type;
       name = _nameController.text;
 
       description = _descriptionController.text;
@@ -98,37 +95,40 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
               SnackBar(content: Text('$pageType saved successfully.')));
 
           //Navigator.pop(context, currentLocation.url);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => LocationPage(
-                      currentLocation.id,
-                      currentLocation.parenttype as String,
-                      pageType,
-                      fullUserName)));
+          if (isNewLocation) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LocationPage(
+                        currentLocation.id,
+                        currentLocation.parenttype as String,
+                        pageType,
+                        fullUserName)));
+          } else {
+            Navigator.pop(context);
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Failed to save the ${currentLocation.type}')),
           );
         }
-        url = currentLocation.url == null ? "" : currentLocation.url as String;
+
         id = currentLocation.id.toString();
 
         parenttype = currentLocation.parenttype as String;
         type = currentLocation.type as String;
-        if (url == "") {
+        if (currentLocation.url == null) {
           return;
         }
-        if (imageURL != url) {
-          imagesBloc
-              .uploadImage(url, name, fullUserName, id, parenttype, type)
-              .then((value) async {
-            if (value is ImageResponse) {
-              realmServices.updateLocationUrl(
-                  currentLocation, value.url as String);
-            }
-          });
+        if (imageURL != currentLocation.url) {
+          var result = await imagesBloc.uploadImage(
+              imageURL, name, fullUserName, id, parenttype, type);
+
+          if (result is ImageResponse) {
+            realmServices.updateLocationUrl(
+                currentLocation, result.url as String);
+          }
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +236,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                   var xfile = await captureImage(context);
                                   if (xfile != null) {
                                     setState(() {
-                                      currentLocation.url = xfile.path;
+                                      imageURL = xfile.path;
                                     });
                                   }
                                 },
@@ -254,18 +254,20 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                                 color: Colors.blue)
                                           ]),
                                       child: isNewLocation
-                                          ? currentLocation.url == null
-                                              ? networkImage(
-                                                  currentLocation.url)
+                                          ? currentLocation.url == ""
+                                              ? Image.asset(
+                                                  "assets/images/heroimage.png",
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                )
                                               : Image.file(
-                                                  File(currentLocation.url
-                                                      as String),
+                                                  File(imageURL),
                                                   fit: BoxFit.fill,
                                                   width: double.infinity,
                                                   height: 250,
                                                 )
-                                          : cachedNetworkImage(
-                                              currentLocation.url),
+                                          : cachedNetworkImage(imageURL),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,

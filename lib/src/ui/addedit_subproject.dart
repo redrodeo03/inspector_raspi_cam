@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/subproject.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +15,10 @@ import 'image_widget.dart';
 class AddEditSubProjectPage extends StatefulWidget {
   final LocalSubProject currentBuilding;
   final String fullUserName;
+  final String prevPageName;
   final bool isNewBuilding;
-  const AddEditSubProjectPage(
-      this.currentBuilding, this.isNewBuilding, this.fullUserName,
+  const AddEditSubProjectPage(this.currentBuilding, this.isNewBuilding,
+      this.fullUserName, this.prevPageName,
       {Key? key})
       : super(key: key);
 
@@ -40,15 +42,15 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     isNewBuilding = widget.isNewBuilding;
     if (!widget.isNewBuilding) {
       pageTitle = 'Edit Building';
-      prevPagename = 'Building';
 
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
       //currentBuilding.url ??= "/assets/images/icon.png";
-      if (currentBuilding.url != null) {
-        imageURL = currentBuilding.url as String;
-      }
     }
+    if (currentBuilding.url != null) {
+      imageURL = currentBuilding.url as String;
+    }
+    prevPagename = widget.prevPageName;
   }
 
   String pageTitle = 'Add';
@@ -82,7 +84,15 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
 
-          Navigator.pop(context);
+          if (isNewBuilding) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SubProjectDetailsPage(
+                        currentBuilding.id, prevPagename, fullUserName)));
+          } else {
+            Navigator.pop(context);
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to save the building.')),
@@ -91,21 +101,20 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
         if (currentBuilding.url == null) {
           return;
         }
-        if (imageURL != currentBuilding.url) {
-          await imagesBloc
-              .uploadImage(
-                  currentBuilding.url as String,
-                  currentBuilding.name as String,
-                  fullUserName,
-                  currentBuilding.id.toString(),
-                  'project',
-                  'building')
-              .then((value) {
-            var response = value as ImageResponse;
 
+        if (imageURL != currentBuilding.url) {
+          var result = await imagesBloc.uploadImage(
+              imageURL,
+              currentBuilding.name as String,
+              fullUserName,
+              currentBuilding.id.toString(),
+              'project',
+              'building');
+
+          if (result is ImageResponse) {
             realmServices.updateSubProjectUrl(
-                currentBuilding, response.url as String);
-          });
+                currentBuilding, result.url as String);
+          }
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -210,7 +219,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                   var xfile = await captureImage(context);
                                   if (xfile != null) {
                                     setState(() {
-                                      currentBuilding.url = xfile.path;
+                                      imageURL = xfile.path;
                                     });
                                   }
                                 },
@@ -228,18 +237,20 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 color: Colors.blue)
                                           ]),
                                       child: isNewBuilding
-                                          ? currentBuilding.url == null
-                                              ? networkImage(
-                                                  currentBuilding.url)
+                                          ? currentBuilding.url == ""
+                                              ? Image.asset(
+                                                  "assets/images/heroimage.png",
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: 250,
+                                                )
                                               : Image.file(
-                                                  File(currentBuilding.url
-                                                      as String),
+                                                  File(imageURL),
                                                   fit: BoxFit.fill,
                                                   width: double.infinity,
                                                   height: 250,
                                                 )
-                                          : cachedNetworkImage(
-                                              currentBuilding.url),
+                                          : cachedNetworkImage(imageURL),
                                     ),
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -280,9 +291,9 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                               Icons.delete_outline_outlined,
                               color: Colors.redAccent,
                             ),
-                            label: Text(
-                              'Delete ${currentBuilding.type}',
-                              style: const TextStyle(color: Colors.red),
+                            label: const Text(
+                              'Delete Building',
+                              style: TextStyle(color: Colors.red),
                             )),
                       const SizedBox(
                         height: 40,
@@ -337,7 +348,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   void deleteSubProject(
       BuildContext context, RealmProjectServices realmServices) async {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Deleting ${currentBuilding.type}...')),
+      const SnackBar(content: Text('Deleting Building...')),
     );
 
     var result = realmServices.deleteSubProject(currentBuilding);
@@ -346,7 +357,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
           const SnackBar(content: Text('Building deleted successfully.')));
       Navigator.of(context)
         ..pop()
-        ..pop(currentBuilding);
+        ..pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete the ${currentBuilding.type}')),

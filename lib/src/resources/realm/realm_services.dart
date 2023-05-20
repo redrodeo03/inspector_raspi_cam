@@ -402,7 +402,7 @@ class RealmProjectServices with ChangeNotifier {
         });
       }
       realm.write(() {
-        if (currentLocation.type == 'project') {
+        if (currentLocation.type == 'projectlocation') {
           updateChildUrl(currentLocation.id, currentLocation.parentid, url);
         } else {
           updateSubChildUrl(currentLocation.id, currentLocation.parentid, url);

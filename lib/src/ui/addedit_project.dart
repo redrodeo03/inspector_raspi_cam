@@ -146,15 +146,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       }
       if (imageURL != currentProject.url) {
         Object result;
-        // if (realmProjServices.offlineModeOn) {
-        //   result = await imagesBloc.saveImageLocally(
-        //       imageURL,
-        //       currentProject.name as String,
-        //       userFullName,
-        //       currentProject.id.toString(),
-        //       '',
-        //       'project');
-        // } else {
+
         result = await imagesBloc.uploadImage(
             imageURL,
             currentProject.name as String,
@@ -162,7 +154,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             currentProject.id.toString(),
             '',
             'project');
-        //}
 
         if (result is ImageResponse) {
           realmProjServices.updateProjectUrl(

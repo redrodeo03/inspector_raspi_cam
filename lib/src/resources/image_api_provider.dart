@@ -18,12 +18,15 @@ class ImagesApiProvider {
       'picture',
       imageFilePath,
     ));
-
+    if (containerName.length < 3) {
+      containerName = containerName + uploader;
+    }
     request.fields['id'] = id;
     request.fields['parentType'] = parentType;
     request.fields['type'] = entityName;
     request.fields['containerName'] =
         containerName.replaceAll(' ', '').toLowerCase();
+
     request.fields['uploader'] = uploader;
 
     var responseStream = await request.send();

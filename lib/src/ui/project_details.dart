@@ -46,6 +46,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     var newLocation = LocalLocation(ObjectId(), projectId,
         name: "",
         description: "",
+        url: "",
         createdby: userFullName,
         type: 'projectlocation',
         parenttype: 'project');
@@ -56,6 +57,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     var newBuilding = LocalSubProject(ObjectId(), projectId,
         name: "",
         description: "",
+        url: "",
         createdby: userFullName,
         type: 'subproject',
         parenttype: 'project');
@@ -120,21 +122,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     );
   }
 
-  void addNewChild() {
+  void addNewChild(String name) {
     //setState(() {});
     if (selectedTabIndex == 0) {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                AddEditLocationPage(getNewLocation(), true, userFullName)),
+            builder: (context) => AddEditLocationPage(
+                getNewLocation(), true, userFullName, name)),
       ); //.then(refreshProjectDetails);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                AddEditSubProjectPage(getNewBuilding(), true, userFullName)),
+            builder: (context) => AddEditSubProjectPage(
+                getNewBuilding(), true, userFullName, name)),
       ); //.then(refreshProjectDetails);
     }
   }
@@ -153,7 +155,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         MaterialPageRoute(
             builder: (context) =>
                 SubProjectDetailsPage(id, name, userFullName)),
-      ).then((value) => buildings.remove(value));
+      ); //.then((value) => buildings.remove(value));
     }
   }
 
@@ -312,35 +314,39 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      currentProject.name as String,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        currentProject.name as String,
+                        maxLines: 2,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          overflow: TextOverflow.ellipsis,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.left,
                       ),
-                      textAlign: TextAlign.left,
                     ),
-                    InkWell(
-                        onTap: () {
-                          downloadProjectReport(currentProject.id);
-                        },
-                        child: const Chip(
-                          avatar: Icon(Icons.file_download_done_outlined,
-                              color: Colors.blue),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Download Report ',
-                            style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.transparent,
-                          ),
-                          shadowColor: Colors.white,
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          autofocus: true,
-                        )),
+                    Expanded(
+                      child: InkWell(
+                          onTap: () {
+                            downloadProjectReport(currentProject.id);
+                          },
+                          child: const Chip(
+                            avatar: Icon(Icons.file_download_done_outlined,
+                                color: Colors.blue),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Download Report ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.transparent,
+                            ),
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    ),
                   ],
                 )),
           ),
@@ -489,7 +495,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               alignment: Alignment.topRight,
               child: InkWell(
                   onTap: () {
-                    addNewChild();
+                    addNewChild(currentProject.name as String);
                   },
                   child: Chip(
                     avatar: const Icon(
