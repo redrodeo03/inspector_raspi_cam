@@ -196,7 +196,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             height: 4,
           ),
           Container(
-            height: 180,
+            height: 220,
             decoration: const BoxDecoration(
                 color: Colors.orange,
                 // image: DecorationImage(

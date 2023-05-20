@@ -125,7 +125,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                               : "Multi-Level";
 
                       return SizedBox(
-                        height: 120,
+                        height: 140,
                         child: Card(
                           borderOnForeground: false,
 //                color: Colors.blue,
@@ -146,8 +146,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                     }
                                   },
                                   child: Container(
-                                    width: 90.0,
-                                    height: 90.0,
+                                    width: 100.0,
+                                    height: 100.0,
                                     decoration: const BoxDecoration(
                                         color: Colors.orange,
                                         // image: DecorationImage(
@@ -198,45 +198,57 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                           children: [
                                             Column(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
+                                                  MainAxisAlignment.start,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          0, 8, 0, 0),
-                                                  child: Text(
-                                                    projType,
-                                                    textAlign: TextAlign.left,
-                                                    style: const TextStyle(
-                                                      color: Colors.black87,
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(0, 8, 0, 0),
+                                                    child: Text(
+                                                      projType,
+                                                      textAlign: TextAlign.left,
+                                                      style: const TextStyle(
+                                                        color: Colors.black87,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                                Padding(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(0, 12, 0, 0),
-                                                    child: GestureDetector(
-                                                        onTap: () {
-                                                          gotoProjectDetails(
-                                                              projects[index]
-                                                                  .id);
-                                                        },
-                                                        child: Container(
-                                                            alignment: Alignment
-                                                                .bottomRight,
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .fromLTRB(
-                                                                    0, 8, 8, 8),
-                                                            child: const Text(
-                                                              'View Visual',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .blue,
-                                                                  fontSize: 17),
-                                                            ))))
+                                                Expanded(
+                                                    flex: 2,
+                                                    child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(0,
+                                                                8, 0, 0),
+                                                        child: GestureDetector(
+                                                            onTap: () {
+                                                              gotoProjectDetails(
+                                                                  projects[
+                                                                          index]
+                                                                      .id);
+                                                            },
+                                                            child: Container(
+                                                                alignment: Alignment
+                                                                    .bottomRight,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .fromLTRB(
+                                                                        0,
+                                                                        8,
+                                                                        8,
+                                                                        8),
+                                                                child:
+                                                                    const Text(
+                                                                  'View Visual',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .blue,
+                                                                      fontSize:
+                                                                          17),
+                                                                )))))
                                               ],
                                             ),
                                             GestureDetector(

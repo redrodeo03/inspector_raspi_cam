@@ -12,14 +12,8 @@ class App extends StatelessWidget {
     final currentUser =
         Provider.of<RealmProjectServices?>(context, listen: false)?.currentUser;
 
-    return Listener(
-        onPointerDown: (_) {
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus &&
-              currentFocus.focusedChild != null) {
-            currentFocus.focusedChild!.unfocus();
-          }
-        },
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: const MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Deck Inspectors',

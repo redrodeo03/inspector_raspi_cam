@@ -596,7 +596,7 @@ class RealmProjectServices with ChangeNotifier {
         realm.write(() {
           localVisualSection.images.addAll(urls);
           updateImageCount(localVisualSection.id, localVisualSection.parentid,
-              localVisualSection.images.length);
+              localVisualSection.images.length, urls.last);
         });
       }
 
@@ -719,13 +719,15 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
-  void updateImageCount(ObjectId id, ObjectId parentid, int length) {
+  void updateImageCount(
+      ObjectId id, ObjectId parentid, int length, String url) {
     var parentProject = realm.find<LocalLocation>(parentid);
 
     if (parentProject != null) {
       var found = parentProject.sections.where((element) => element.id == id);
       var foundChild = found.first;
       foundChild.count = length;
+      foundChild.coverUrl = url;
     }
   }
 }

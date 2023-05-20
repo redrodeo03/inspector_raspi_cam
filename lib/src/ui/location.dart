@@ -114,7 +114,7 @@ class _LocationPageState extends State<LocationPage> {
             height: 4,
           ),
           Container(
-            height: 180,
+            height: 220,
             decoration: const BoxDecoration(
                 color: Colors.orange,
                 // image: DecorationImage(

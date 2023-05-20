@@ -101,9 +101,9 @@ class _LocalVisualSection {
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = true;
   String? conditionalassessment;
-  String eee = 'one';
-  String lbc = 'one';
-  String awe = 'one';
+  late String eee;
+  late String lbc;
+  late String awe;
   late ObjectId parentid;
   String? createdby;
   String? createdat;

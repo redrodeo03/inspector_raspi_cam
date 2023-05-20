@@ -124,13 +124,13 @@ class _SectionPageState extends State<SectionPage> {
   }
 
   LocalVisualSection getNewVisualSection() {
-    return LocalVisualSection(ObjectId(), widget.parentId,
-        visualsignsofleak: false,
-        createdby: userFullName,
-        furtherinvasivereviewrequired: false,
-        awe: 'one',
-        eee: 'one',
-        lbc: 'one');
+    return LocalVisualSection(
+      ObjectId(),
+      widget.parentId,
+      visualsignsofleak: false,
+      createdby: userFullName,
+      furtherinvasivereviewrequired: false,
+    );
   }
 
   @override
@@ -189,8 +189,9 @@ class _SectionPageState extends State<SectionPage> {
       TextEditingController(text: '');
   save(BuildContext context, RealmProjectServices realmServices) async {
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, display a snackbar. In the real world,
-      // you'd often call a server or save the information in a database.
+      //check if everything is filled.
+      //TODO
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Location...')),
       );
@@ -1025,11 +1026,11 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
-  VisualReview? _review = VisualReview.good;
-  ConditionalAssessment? _assessment = ConditionalAssessment.pass;
-  ExpectancyYears? _eee = ExpectancyYears.four;
-  ExpectancyYears? _lbc = ExpectancyYears.four;
-  ExpectancyYears? _awe = ExpectancyYears.four;
+  VisualReview? _review; //= VisualReview.good;
+  ConditionalAssessment? _assessment; //= ConditionalAssessment.pass;
+  ExpectancyYears? _eee; //= ExpectancyYears.four;
+  ExpectancyYears? _lbc; // = ExpectancyYears.four;
+  ExpectancyYears? _awe; //= ExpectancyYears.four;
 
   Widget radioWidget(String radioType, int radioCount) {
     if (radioCount == 4) {
