@@ -1,4 +1,7 @@
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+
 import 'package:deckinspectors/src/ui/addedit_location.dart';
+import 'package:deckinspectors/src/ui/invasivesection.dart';
 import 'package:deckinspectors/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +11,7 @@ import 'package:realm/realm.dart';
 import '../models/realm/realm_schemas.dart';
 import '../resources/realm/realm_services.dart';
 import 'cachedimage_widget.dart';
+import 'showprojecttype_widget.dart';
 
 class LocationPage extends StatefulWidget {
   final ObjectId id;
@@ -113,17 +117,19 @@ class _LocationPageState extends State<LocationPage> {
           const SizedBox(
             height: 4,
           ),
+          const ProjectType(),
           Container(
             height: 220,
-            decoration: const BoxDecoration(
-                color: Colors.orange,
-                // image: DecorationImage(
-                //     image: AssetImage('assets/images/heroimage.png'),
-                //     fit: BoxFit.cover),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
+            decoration: BoxDecoration(
+                color: appSettings.isInvasiveMode ? Colors.orange : Colors.blue,
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(8.0)),
+                boxShadow: const [
+                  BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                ]),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(8.0)),
               child: cachedNetworkImage(currentLocation.url),
             ),
           ),
@@ -171,26 +177,29 @@ class _LocationPageState extends State<LocationPage> {
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    InkWell(
-                        onTap: () {
-                          addEditLocation(currentLocation);
-                        },
-                        child: const Chip(
-                          avatar: Icon(
-                            Icons.edit_outlined,
-                            color: Colors.blue,
-                          ),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Edit',
-                            style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.transparent,
-                          ),
-                          shadowColor: Colors.white,
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          autofocus: true,
-                        )),
+                    Visibility(
+                      visible: !appSettings.isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            addEditLocation(currentLocation);
+                          },
+                          child: const Chip(
+                            avatar: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.blue,
+                            ),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.transparent,
+                            ),
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    ),
                   ],
                 )),
           ),
@@ -225,53 +234,75 @@ class _LocationPageState extends State<LocationPage> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: InkWell(
-                          onTap: () {
-                            addNewChild();
-                          },
-                          child: const Chip(
-                            avatar: Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.blue,
-                            ),
-                            labelPadding: EdgeInsets.all(2),
-                            label: Text(
-                              'Add Location',
-                              style: TextStyle(color: Colors.blue),
-                              selectionColor: Colors.transparent,
-                            ),
-                            shadowColor: Colors.white,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            autofocus: true,
-                          )),
+                    Visibility(
+                      visible: !appSettings.isInvasiveMode,
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: InkWell(
+                            onTap: () {
+                              addNewChild();
+                            },
+                            child: const Chip(
+                              avatar: Icon(
+                                Icons.add_circle_outline,
+                                color: Colors.blue,
+                              ),
+                              labelPadding: EdgeInsets.all(2),
+                              label: Text(
+                                'Add Location',
+                                style: TextStyle(color: Colors.blue),
+                                selectionColor: Colors.transparent,
+                              ),
+                              shadowColor: Colors.white,
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              autofocus: true,
+                            )),
+                      ),
                     ),
                   ],
                 ),
-                currentLocation.sections.isEmpty
-                    ? const Center(
-                        child: Text(
-                        'No locations, Add locations.',
-                        style: TextStyle(fontSize: 16),
-                      ))
-                    : Expanded(
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: currentLocation.sections.length,
-                            itemBuilder: (BuildContext context, int index) =>
-                                horizontalScrollChildren(context, index)),
-                      )
+                appSettings.isInvasiveMode
+                    ? currentLocation.invasiveSections.isEmpty
+                        ? const Center(
+                            child: Text(
+                            'No invasive locations to show.',
+                            style: TextStyle(fontSize: 16),
+                          ))
+                        : Expanded(
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemCount:
+                                    currentLocation.invasiveSections.length,
+                                itemBuilder: (BuildContext context,
+                                        int index) =>
+                                    horizontalScrollChildren(context, index)),
+                          )
+                    : currentLocation.sections.isEmpty
+                        ? const Center(
+                            child: Text(
+                            'No locations, Add locations.',
+                            style: TextStyle(fontSize: 16),
+                          ))
+                        : Expanded(
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: currentLocation.sections.length,
+                                itemBuilder: (BuildContext context,
+                                        int index) =>
+                                    horizontalScrollChildren(context, index)),
+                          )
               ],
             )));
   }
 
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
-    String visualReview =
-        (currentLocation.sections[index].visualreview as String);
+    String visualReview = appSettings.isInvasiveMode
+        ? (currentLocation.invasiveSections[index].visualreview as String)
+        : (currentLocation.sections[index].visualreview as String);
     switch (visualReview) {
       case 'good':
         vreview = 'Good';
@@ -285,8 +316,13 @@ class _LocationPageState extends State<LocationPage> {
       default:
     }
     String assessment = '';
-    String assessmentActual =
-        (currentLocation.sections[index].conditionalassessment as String);
+    String? coverUrl = appSettings.isInvasiveMode
+        ? currentLocation.invasiveSections[index].coverUrl
+        : currentLocation.sections[index].coverUrl;
+    String assessmentActual = appSettings.isInvasiveMode
+        ? (currentLocation.invasiveSections[index].conditionalassessment
+            as String)
+        : (currentLocation.sections[index].conditionalassessment as String);
     switch (assessmentActual) {
       case 'pass':
         assessment = 'Pass';
@@ -299,6 +335,13 @@ class _LocationPageState extends State<LocationPage> {
         break;
       default:
     }
+    bool furtherInvasive = appSettings.isInvasiveMode
+        ? currentLocation.invasiveSections[index].furtherinvasivereviewrequired
+        : currentLocation.sections[index].furtherinvasivereviewrequired;
+
+    bool visualLeaks = appSettings.isInvasiveMode
+        ? currentLocation.invasiveSections[index].visualsignsofleak
+        : currentLocation.sections[index].visualsignsofleak;
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       child: Padding(
@@ -306,21 +349,27 @@ class _LocationPageState extends State<LocationPage> {
         child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
           Container(
             height: 180,
-            decoration: const BoxDecoration(
-              color: Colors.orange,
-              borderRadius: BorderRadius.vertical(
+            decoration: BoxDecoration(
+              color: appSettings.isInvasiveMode ? Colors.orange : Colors.blue,
+              borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(10),
                 bottom: Radius.circular(00),
               ),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child:
-                  cachedNetworkImage(currentLocation.sections[index].coverUrl),
+              child: cachedNetworkImage(coverUrl),
             ),
           ),
           InkWell(
-              onTap: () => {gotoDetails(currentLocation.sections[index].id)},
+              onTap: () {
+                if (appSettings.isInvasiveMode) {
+                  gotoInvasiveDetails(
+                      currentLocation.invasiveSections[index].id);
+                } else {
+                  gotoDetails(currentLocation.sections[index].id);
+                }
+              },
               child: Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
@@ -331,7 +380,11 @@ class _LocationPageState extends State<LocationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(
-                              currentLocation.sections[index].name as String,
+                              appSettings.isInvasiveMode
+                                  ? currentLocation.invasiveSections[index].name
+                                      as String
+                                  : currentLocation.sections[index].name
+                                      as String,
                               maxLines: 2,
                               style: const TextStyle(
                                 fontSize: 15,
@@ -406,11 +459,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections[index]
-                                                .visualsignsofleak ==
-                                            true
-                                        ? 'True'
-                                        : 'False',
+                                    visualLeaks == true ? 'True' : 'False',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -442,11 +491,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections[index]
-                                                .furtherinvasivereviewrequired ==
-                                            true
-                                        ? 'True'
-                                        : 'False',
+                                    furtherInvasive == true ? 'True' : 'False',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -513,8 +558,12 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    currentLocation.sections[index].count
-                                        .toString(),
+                                    appSettings.isInvasiveMode
+                                        ? currentLocation
+                                            .invasiveSections[index].count
+                                            .toString()
+                                        : currentLocation.sections[index].count
+                                            .toString(),
                                     style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,
@@ -527,26 +576,6 @@ class _LocationPageState extends State<LocationPage> {
                     const SizedBox(
                       height: 10,
                     )
-                    // Padding(
-                    //   padding: const EdgeInsets.all(0),
-                    //   child: OutlinedButton.icon(
-                    //       style: OutlinedButton.styleFrom(
-                    //           side: BorderSide.none,
-                    //           // the height is 50, the width is full
-                    //           minimumSize: const Size.fromHeight(30),
-                    //           backgroundColor: Colors.white,
-                    //           shadowColor: Colors.blue,
-                    //           elevation: 0),
-                    //       onPressed: () {
-                    //         deleteSection(currentLocation.sections[index]);
-                    //       },
-                    //       icon: const Icon(
-                    //         Icons.delete_outline,
-                    //         color: Colors.red,
-                    //       ),
-                    //       label: const Text('Delete Location',
-                    //           style: TextStyle(color: Colors.red))),
-                    // ),
                   ])))
         ]),
       ),
@@ -589,5 +618,21 @@ class _LocationPageState extends State<LocationPage> {
           builder: (context) => AddEditLocationPage(currentLocation, false,
               userFullName, currentLocation.name as String)),
     );
+  }
+
+  void gotoInvasiveDetails(ObjectId id) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InvasiveSectionPage(id, currentLocation.id,
+              userFullName, parenttype, currentLocation.name as String, false),
+        )).then((value) {
+      if (!mounted) {
+        return;
+      }
+      setState(
+        () {},
+      );
+    });
   }
 }

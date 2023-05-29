@@ -670,6 +670,9 @@ class LocalVisualSection extends _LocalVisualSection
 
   LocalVisualSection(
     ObjectId id,
+    String eee,
+    String lbc,
+    String awe,
     ObjectId parentid, {
     String? name,
     String? additionalconsiderations,
@@ -677,9 +680,6 @@ class LocalVisualSection extends _LocalVisualSection
     bool visualsignsofleak = false,
     bool furtherinvasivereviewrequired = true,
     String? conditionalassessment,
-    String eee = 'one',
-    String lbc = 'one',
-    String awe = 'one',
     String? createdby,
     String? createdat,
     DateTime? editedat,
@@ -692,9 +692,6 @@ class LocalVisualSection extends _LocalVisualSection
       _defaultsSet = RealmObjectBase.setDefaults<LocalVisualSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': true,
-        'eee': 'one',
-        'lbc': 'one',
-        'awe': 'one',
       });
     }
     RealmObjectBase.set(this, '_id', id);
@@ -886,7 +883,8 @@ class LocalInvasiveSection extends _LocalInvasiveSection
 
   LocalInvasiveSection(
     ObjectId id,
-    ObjectId parentid, {
+    ObjectId parentid,
+    String invasiveDescription, {
     bool postinvasiverepairsrequired = false,
     Iterable<String> invasiveimages = const [],
   }) {
@@ -899,6 +897,7 @@ class LocalInvasiveSection extends _LocalInvasiveSection
     RealmObjectBase.set(this, 'parentid', parentid);
     RealmObjectBase.set(
         this, 'postinvasiverepairsrequired', postinvasiverepairsrequired);
+    RealmObjectBase.set(this, 'invasiveDescription', invasiveDescription);
     RealmObjectBase.set<RealmList<String>>(
         this, 'invasiveimages', RealmList<String>(invasiveimages));
   }
@@ -922,6 +921,13 @@ class LocalInvasiveSection extends _LocalInvasiveSection
   @override
   set postinvasiverepairsrequired(bool value) =>
       RealmObjectBase.set(this, 'postinvasiverepairsrequired', value);
+
+  @override
+  String get invasiveDescription =>
+      RealmObjectBase.get<String>(this, 'invasiveDescription') as String;
+  @override
+  set invasiveDescription(String value) =>
+      RealmObjectBase.set(this, 'invasiveDescription', value);
 
   @override
   RealmList<String> get invasiveimages =>
@@ -948,6 +954,7 @@ class LocalInvasiveSection extends _LocalInvasiveSection
           mapTo: '_id', primaryKey: true),
       SchemaProperty('parentid', RealmPropertyType.objectid),
       SchemaProperty('postinvasiverepairsrequired', RealmPropertyType.bool),
+      SchemaProperty('invasiveDescription', RealmPropertyType.string),
       SchemaProperty('invasiveimages', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
     ]);
@@ -961,21 +968,18 @@ class LocalConclusiveSection extends _LocalConclusiveSection
   LocalConclusiveSection(
     ObjectId id,
     ObjectId parentid,
-    String conclusiveconsiderations, {
+    String conclusiveconsiderations,
+    String eeeconclusive,
+    String lbcconclusive,
+    String aweconclusive, {
     bool propowneragreed = false,
     bool invasiverepairsinspectedandcompleted = false,
-    String eeeconclusive = 'one',
-    String lbcconclusive = 'one',
-    String aweconclusive = 'one',
     Iterable<String> conclusiveimages = const [],
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalConclusiveSection>({
         'propowneragreed': false,
         'invasiverepairsinspectedandcompleted': false,
-        'eeeconclusive': 'one',
-        'lbcconclusive': 'one',
-        'aweconclusive': 'one',
       });
     }
     RealmObjectBase.set(this, '_id', id);

@@ -118,8 +118,9 @@ class _LocalInvasiveSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late ObjectId parentid;
+  late ObjectId parentid; //visualsectionid
   bool postinvasiverepairsrequired = false;
+  late String invasiveDescription;
   late List<String> invasiveimages;
 }
 
@@ -128,13 +129,13 @@ class _LocalConclusiveSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late ObjectId parentid;
+  late ObjectId parentid; //visualsectionid
   bool propowneragreed = false;
   bool invasiverepairsinspectedandcompleted = false;
   late String conclusiveconsiderations;
-  String eeeconclusive = 'one';
-  String lbcconclusive = 'one';
-  String aweconclusive = 'one';
+  late String eeeconclusive;
+  late String lbcconclusive;
+  late String aweconclusive;
   late List<String> conclusiveimages;
 }
 

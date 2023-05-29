@@ -1,4 +1,6 @@
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 
@@ -195,6 +197,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           const SizedBox(
             height: 4,
           ),
+          const ProjectType(),
           Container(
             height: 220,
             decoration: const BoxDecoration(
@@ -255,26 +258,29 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    InkWell(
-                        onTap: () {
-                          addEditSubProject();
-                        },
-                        child: const Chip(
-                          avatar: Icon(
-                            Icons.edit_outlined,
-                            color: Colors.blue,
-                          ),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Edit Building ',
-                            style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.white,
-                          ),
-                          shadowColor: Colors.transparent,
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          autofocus: true,
-                        )),
+                    Visibility(
+                      visible: !appSettings.isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            addEditSubProject();
+                          },
+                          child: const Chip(
+                            avatar: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.blue,
+                            ),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Edit Building ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.white,
+                            ),
+                            shadowColor: Colors.transparent,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    ),
                   ],
                 )),
           ),
@@ -296,13 +302,21 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     //   child:
     buildinglocations = List.empty(growable: true);
     apartments = List.empty(growable: true);
-
-    buildinglocations = currentBuilding.children
-        .where((element) => element.type == 'buildinglocation')
-        .toList();
-    apartments = currentBuilding.children
-        .where((element) => element.type == 'apartment')
-        .toList();
+    if (appSettings.isInvasiveMode) {
+      buildinglocations = currentBuilding.invasiveChildren
+          .where((element) => element.type == 'buildinglocation')
+          .toList();
+      apartments = currentBuilding.invasiveChildren
+          .where((element) => element.type == 'apartment')
+          .toList();
+    } else {
+      buildinglocations = currentBuilding.children
+          .where((element) => element.type == 'buildinglocation')
+          .toList();
+      apartments = currentBuilding.children
+          .where((element) => element.type == 'apartment')
+          .toList();
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -342,35 +356,41 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: InkWell(
-                  onTap: () {
-                    addNewChild(currentBuilding.name as String);
-                  },
-                  child: Chip(
-                    avatar: const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.blue,
-                    ),
-                    labelPadding: const EdgeInsets.all(2),
-                    label: Text(
-                      'Add $type',
-                      style: const TextStyle(color: Colors.blue, fontSize: 15),
-                      selectionColor: Colors.white,
-                    ),
-                    shadowColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    autofocus: true,
-                  )),
+            Visibility(
+              visible: !appSettings.isInvasiveMode,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                    onTap: () {
+                      addNewChild(currentBuilding.name as String);
+                    },
+                    child: Chip(
+                      avatar: const Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.blue,
+                      ),
+                      labelPadding: const EdgeInsets.all(2),
+                      label: Text(
+                        'Add $type',
+                        style:
+                            const TextStyle(color: Colors.blue, fontSize: 15),
+                        selectionColor: Colors.white,
+                      ),
+                      shadowColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      autofocus: true,
+                    )),
+              ),
             ),
             isLocation
-                ? Center(
+                ? Align(
+                    alignment: Alignment.center,
                     child: Text(
-                    'No $type, Add $type.',
-                    style: const TextStyle(fontSize: 16),
-                  ))
+                      'No $type, Add $type.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ))
                 : type == 'building location'
                     ? Expanded(
                         child: ListView.builder(
@@ -407,8 +427,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                   gotoDetails(buildinglocations[index]!.id, 'Common Location');
                 },
                 child: Container(
-                  height: 140,
-                  width: 192,
+                  height: 200,
+                  width: 300,
                   decoration: const BoxDecoration(
                       color: Colors.orange,
                       // image: networkImage(currentProject.url as String),
@@ -461,32 +481,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              // Padding(
-              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-              //     child: Align(
-              //         alignment: Alignment.centerLeft,
-              //         child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //             children: [
-              //               const Text(
-              //                 maxLines: 1,
-              //                 'Locations  Count:',
-              //                 style: TextStyle(
-              //                   overflow: TextOverflow.ellipsis,
-              //                   fontSize: 13,
-              //                 ),
-              //                 textAlign: TextAlign.center,
-              //               ),
-              //               Text(
-              //                 textAlign: TextAlign.left,
-              //                 buildinglocations[index]!.count.toString(),
-              //                 style: const TextStyle(
-              //                     color: Colors.blue,
-              //                     fontWeight: FontWeight.bold,
-              //                     fontSize: 14),
-              //                 selectionColor: Colors.white,
-              //               ),
-              //             ]))),
             ],
           ),
         ));
@@ -505,8 +499,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                   gotoDetails(apartments[index]!.id, 'Apartment');
                 },
                 child: Container(
-                    height: 140,
-                    width: 192,
+                    height: 200,
+                    width: 300,
                     decoration: const BoxDecoration(
                         color: Colors.orange,
                         // image: networkImage(currentProject.url as String),
@@ -558,36 +552,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              // Padding(
-              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-              //     child: Align(
-              //         alignment: Alignment.centerLeft,
-              //         child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //             children: [
-              //               const Text(
-              //                 maxLines: 1,
-              //                 'Locations  Count:',
-              //                 style: TextStyle(
-              //                   overflow: TextOverflow.ellipsis,
-              //                   fontSize: 13,
-              //                 ),
-              //                 textAlign: TextAlign.center,
-              //               ),
-              //               Text(
-              //                 textAlign: TextAlign.left,
-              //                 apartments[index]!.count.toString(),
-              //                 style: const TextStyle(
-              //                     color: Colors.blue,
-              //                     fontWeight: FontWeight.bold,
-              //                     fontSize: 14),
-              //                 selectionColor: Colors.white,
-              //               ),
-              //             ]))),
             ],
           ),
         ));
   }
-
-  void deleteProject(String? id) {}
 }

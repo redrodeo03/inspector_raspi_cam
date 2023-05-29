@@ -1,8 +1,6 @@
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import 'package:deckinspectors/src/ui/location.dart';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -54,7 +52,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ProjectDetailsPage(projectId, userFullName)));
+            builder: (context) =>
+                ProjectDetailsPage(projectId, userFullName, false)));
+  }
+
+  void gotoInvasiveProjectDetails(ObjectId projectId) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                ProjectDetailsPage(projectId, userFullName, true)));
   }
 
   @override
@@ -253,16 +260,22 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                             ),
                                             GestureDetector(
                                                 onTap: () {
-                                                  //print('clicked invasive');
+                                                  //gotoInvasiveProject(context);
+                                                  gotoInvasiveProjectDetails(
+                                                      projects[index].id);
                                                 },
                                                 child: Container(
                                                     alignment:
                                                         Alignment.bottomRight,
                                                     padding: const EdgeInsets
                                                         .fromLTRB(8, 8, 16, 8),
-                                                    child: const Text(
-                                                      'Create Invasive',
-                                                      style: TextStyle(
+                                                    child: Text(
+                                                      projects[index]
+                                                              .invasiveChildren
+                                                              .isEmpty
+                                                          ? 'Create Invasive'
+                                                          : 'View Invasive',
+                                                      style: const TextStyle(
                                                           color: Colors.blue,
                                                           fontSize: 17),
                                                     )))
@@ -288,10 +301,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   void gotoSingleLevelProject(ObjectId id, String name) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                LocationPage(id, name, 'Project Locations', userFullName)));
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) =>
+    //             LocationPage(id, name, 'Project Locations', userFullName)));
   }
+
+  void gotoInvasiveProject(BuildContext context) {}
 }

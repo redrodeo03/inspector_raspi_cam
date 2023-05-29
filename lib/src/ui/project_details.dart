@@ -1,8 +1,10 @@
 import 'dart:async' as async;
 
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 
@@ -20,9 +22,11 @@ import 'package:intl/intl.dart';
 class ProjectDetailsPage extends StatefulWidget {
   final ObjectId id;
   final String userFullName;
-
-  const ProjectDetailsPage(this.id, this.userFullName, {Key? key})
+  final bool isInvasiveMode;
+  const ProjectDetailsPage(this.id, this.userFullName, this.isInvasiveMode,
+      {Key? key})
       : super(key: key);
+
   @override
   State<ProjectDetailsPage> createState() => _ProjectDetailsPageState();
 }
@@ -38,9 +42,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late String createdAt;
   late List<LocalChild?> locations;
   late List<LocalChild?> buildings;
-
+  late bool isInvasiveMode;
   late ObjectId projectId;
-  //late Building newBuilding;
 
   LocalLocation getNewLocation() {
     var newLocation = LocalLocation(ObjectId(), projectId,
@@ -67,7 +70,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   @override
   void initState() {
     super.initState();
+
     projectId = widget.id;
+    isInvasiveMode = widget.isInvasiveMode;
+    appSettings.isInvasiveMode = isInvasiveMode;
     userFullName = widget.userFullName;
 
     _tabController = TabController(vsync: this, length: 2);
@@ -86,12 +92,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     // }
     setState(() {
       if (currentProject.isValid) {
-        locations = currentProject.children
-            .where((element) => element.type == 'projectlocation')
-            .toList();
-        buildings = currentProject.children
-            .where((element) => element.type == 'subproject')
-            .toList();
+        if (isInvasiveMode) {
+          locations = currentProject.invasiveChildren
+              .where((element) => element.type == 'projectlocation')
+              .toList();
+          buildings = currentProject.invasiveChildren
+              .where((element) => element.type == 'subproject')
+              .toList();
+        } else {
+          locations = currentProject.children
+              .where((element) => element.type == 'projectlocation')
+              .toList();
+          buildings = currentProject.children
+              .where((element) => element.type == 'subproject')
+              .toList();
+        }
       }
     });
   }
@@ -190,39 +205,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             style:
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.start  ,
-          //   children: const [
-          //     Text(
-          //       'Project',
-          //       style: TextStyle(
-          //           color: Colors.black, fontWeight: FontWeight.normal),
-          //     ),
-          // Expanded(
-          //   child: Align(
-          //     alignment: Alignment.centerRight,
-          //     child: InkWell(
-          //         onTap: () {
-          //           addEditProject();
-          //         },
-          //         child: const Chip(
-          //           avatar: Icon(
-          //             Icons.cloud_sync_outlined,
-          //             color: Colors.black,
-          //           ),
-          //           labelPadding: EdgeInsets.all(2),
-          //           label: Text(
-          //             'Cloud Sync',
-          //             style: TextStyle(color: Colors.black),
-          //             selectionColor: Colors.white,
-          //           ),
-          //           shadowColor: Colors.blue,
-          //           backgroundColor: Colors.blue,
-          //           elevation: 10,
-          //           autofocus: true,
-          //         )),
-          //   ),
-          // )
         ),
         body: StreamBuilder<RealmObjectChanges<LocalProject>>(
           //projectsBloc.projects
@@ -243,12 +225,22 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               } else {
                 currentProject = data.object;
                 if (currentProject.isValid) {
-                  locations = currentProject.children
-                      .where((element) => element.type == 'projectlocation')
-                      .toList();
-                  buildings = currentProject.children
-                      .where((element) => element.type == 'subproject')
-                      .toList();
+                  if (isInvasiveMode) {
+                    locations = currentProject.invasiveChildren
+                        .where((element) => element.type == 'projectlocation')
+                        .toList();
+                    buildings = currentProject.invasiveChildren
+                        .where((element) => element.type == 'subproject')
+                        .toList();
+                  } else {
+                    locations = currentProject.children
+                        .where((element) => element.type == 'projectlocation')
+                        .toList();
+                    buildings = currentProject.children
+                        .where((element) => element.type == 'subproject')
+                        .toList();
+                  }
+
                   var shortDate =
                       DateTime.tryParse(currentProject.createdat as String);
                   if (shortDate != null) {
@@ -262,7 +254,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     child: Column(
                   children: [
                     // StatefulBuilder(builder: (context, StateSetter setState) {
-                    projectDetails(),
+                    projectDetails(
+                        currentProject.name as String,
+                        currentProject.url as String,
+                        currentProject.id,
+                        currentProject.description as String),
                     //}),
                     projectChildrenTab(context),
                   ],
@@ -287,7 +283,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         ));
   }
 
-  Widget projectDetails() {
+  Widget projectDetails(
+      String name, String url, ObjectId id, String description) {
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -296,16 +293,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           const SizedBox(
             height: 4,
           ),
+          const ProjectType(),
           Container(
             height: 220,
-            decoration: const BoxDecoration(
-                color: Colors.orange,
+            decoration: BoxDecoration(
+                color: isInvasiveMode ? Colors.orange : Colors.blue,
                 // image: networkImage(currentProject.url as String),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(8.0)),
+                boxShadow: const [
+                  BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                ]),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: cachedNetworkImage(currentProject.url),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(8.0)),
+              child: cachedNetworkImage(url),
             ),
           ),
           //networkImage(currentProject.url as String),
@@ -317,7 +319,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   children: [
                     Expanded(
                       child: Text(
-                        currentProject.name as String,
+                        name,
                         maxLines: 2,
                         style: const TextStyle(
                           fontSize: 18,
@@ -330,7 +332,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     Expanded(
                       child: InkWell(
                           onTap: () {
-                            downloadProjectReport(currentProject.id);
+                            downloadProjectReport(id);
                           },
                           child: const Chip(
                             avatar: Icon(Icons.file_download_done_outlined,
@@ -373,7 +375,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     Expanded(
                       child: Text(
                         maxLines: 2,
-                        currentProject.description as String,
+                        description,
                         style: const TextStyle(
                           overflow: TextOverflow.ellipsis,
                           fontSize: 16,
@@ -381,23 +383,27 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    InkWell(
-                        onTap: () {
-                          addEditProject();
-                        },
-                        child: const Chip(
-                          avatar: Icon(Icons.edit_outlined, color: Colors.blue),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Edit Project ',
-                            style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.transparent,
-                          ),
-                          shadowColor: Colors.white,
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                          autofocus: true,
-                        )),
+                    Visibility(
+                      visible: !isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            addEditProject();
+                          },
+                          child: const Chip(
+                            avatar:
+                                Icon(Icons.edit_outlined, color: Colors.blue),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Edit Project ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.transparent,
+                            ),
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    )
                   ],
                 )),
           ),
@@ -491,28 +497,32 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: InkWell(
-                  onTap: () {
-                    addNewChild(currentProject.name as String);
-                  },
-                  child: Chip(
-                    avatar: const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.blue,
-                    ),
-                    labelPadding: const EdgeInsets.all(2),
-                    label: Text(
-                      'Add $type',
-                      style: const TextStyle(color: Colors.blue, fontSize: 15),
-                      selectionColor: Colors.transparent,
-                    ),
-                    shadowColor: Colors.white,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    autofocus: true,
-                  )),
+            Visibility(
+              visible: !isInvasiveMode,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                    onTap: () {
+                      addNewChild(currentProject.name as String);
+                    },
+                    child: Chip(
+                      avatar: const Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.blue,
+                      ),
+                      labelPadding: const EdgeInsets.all(2),
+                      label: Text(
+                        'Add $type',
+                        style:
+                            const TextStyle(color: Colors.blue, fontSize: 15),
+                        selectionColor: Colors.transparent,
+                      ),
+                      shadowColor: Colors.white,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      autofocus: true,
+                    )),
+              ),
             ),
             locations.isEmpty
                 ? Center(
@@ -559,11 +569,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 child: Container(
                   height: 140,
                   width: 192,
-                  decoration: const BoxDecoration(
-                      color: Colors.orange,
+                  decoration: BoxDecoration(
+                      color: isInvasiveMode ? Colors.orange : Colors.blue,
                       // image: networkImage(currentProject.url as String),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      boxShadow: [
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: const [
                         BoxShadow(blurRadius: 1.0, color: Colors.blue)
                       ]),
                   child: ClipRRect(
@@ -658,11 +669,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 child: Container(
                   height: 140,
                   width: 192,
-                  decoration: const BoxDecoration(
-                      color: Colors.orange,
+                  decoration: BoxDecoration(
+                      color: isInvasiveMode ? Colors.orange : Colors.blue,
                       // image: networkImage(currentProject.url as String),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      boxShadow: [
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: const [
                         BoxShadow(blurRadius: 1.0, color: Colors.blue)
                       ]),
                   child: ClipRRect(
@@ -757,7 +769,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         ));
   }
 
-  void downloadProjectReport(ObjectId id) {
-    projectsBloc.downloadProjectReport(id.toString(), 'pdf');
+  void downloadProjectReport(ObjectId id) async {
+    await projectsBloc.downloadProjectReport(id.toString(), 'pdf');
   }
 }

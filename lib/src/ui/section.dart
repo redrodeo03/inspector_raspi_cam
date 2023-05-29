@@ -126,6 +126,9 @@ class _SectionPageState extends State<SectionPage> {
   LocalVisualSection getNewVisualSection() {
     return LocalVisualSection(
       ObjectId(),
+      "",
+      "",
+      "",
       widget.parentId,
       visualsignsofleak: false,
       createdby: userFullName,
@@ -344,7 +347,7 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Unit photos'),
+                      Text('Unit photos(${capturedImages.length})'),
                       PopupMenuButton(
                         child: const Chip(
                           avatar: Icon(
@@ -625,7 +628,7 @@ class _SectionPageState extends State<SectionPage> {
                     endIndent: 2,
                   ),
                   const Text(
-                    'Life expectancy assciated waterproofing elements (AWE)',
+                    'Life expectancy associated waterproofing elements (AWE)',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   radioWidget('AWE', 4),
