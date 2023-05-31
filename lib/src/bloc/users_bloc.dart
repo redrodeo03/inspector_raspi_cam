@@ -7,7 +7,7 @@ class UsersBloc {
 
   //final _usersFetcher = PublishSubject<LoginResponse>();
   LoginResponse userDetails = LoginResponse();
-  String username = '';
+  late String username;
   Future<LoginResponse> login(String username, String password) async {
     username = username;
     //print('called login api');

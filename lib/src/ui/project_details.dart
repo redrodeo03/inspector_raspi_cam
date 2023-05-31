@@ -2,8 +2,11 @@ import 'dart:async' as async;
 
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:deckinspectors/src/models/error_response.dart';
+import 'package:deckinspectors/src/models/success_response.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -316,6 +319,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
@@ -332,13 +336,21 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     Expanded(
                       child: InkWell(
                           onTap: () {
-                            downloadProjectReport(id);
+                            isDownloading ? null : downloadProjectReport(id);
                           },
-                          child: const Chip(
-                            avatar: Icon(Icons.file_download_done_outlined,
-                                color: Colors.blue),
-                            labelPadding: EdgeInsets.all(2),
-                            label: Text(
+                          child: Chip(
+                            avatar: isDownloading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Icon(Icons.file_download_done_outlined,
+                                    color: Colors.blue),
+                            labelPadding: const EdgeInsets.all(2),
+                            label: const Text(
                               'Download Report ',
                               style: TextStyle(color: Colors.blue),
                               selectionColor: Colors.transparent,
@@ -622,32 +634,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              // Padding(
-              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-              //     child: Align(
-              //         alignment: Alignment.centerLeft,
-              //         child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //             children: [
-              //               const Text(
-              //                 maxLines: 1,
-              //                 'Locations  Count:',
-              //                 style: TextStyle(
-              //                   overflow: TextOverflow.ellipsis,
-              //                   fontSize: 13,
-              //                 ),
-              //                 textAlign: TextAlign.center,
-              //               ),
-              //               Text(
-              //                 textAlign: TextAlign.left,
-              //                 locations[index]!.count.toString(),
-              //                 style: const TextStyle(
-              //                     color: Colors.blue,
-              //                     fontWeight: FontWeight.bold,
-              //                     fontSize: 14),
-              //                 selectionColor: Colors.white,
-              //               ),
-              //             ]))),
             ],
           ),
         ));
@@ -722,54 +708,51 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              // Padding(
-              //     padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-              //     child: Align(
-              //         alignment: Alignment.centerLeft,
-              //         child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //             children: [
-              //               const Text(
-              //                 maxLines: 1,
-              //                 'Locations  Count:',
-              //                 style: TextStyle(
-              //                   overflow: TextOverflow.ellipsis,
-              //                   fontSize: 13,
-              //                 ),
-              //                 textAlign: TextAlign.center,
-              //               ),
-              //               Text(
-              //                 textAlign: TextAlign.left,
-              //                 buildings[index]!.count.toString(),
-              //                 style: const TextStyle(
-              //                     color: Colors.blue,
-              //                     fontWeight: FontWeight.bold,
-              //                     fontSize: 14),
-              //                 selectionColor: Colors.white,
-              //               ),
-              //             ]))),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(buildings[index]!.id);
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
             ],
           ),
         ));
   }
 
+  bool isDownloading = false;
   void downloadProjectReport(ObjectId id) async {
-    await projectsBloc.downloadProjectReport(id.toString(), 'pdf');
+    setState(() {
+      isDownloading = true;
+    });
+    var result = await projectsBloc.downloadProjectReport(
+        currentProject.name as String,
+        id.toString(),
+        'pdf',
+        50,
+        4,
+        'DeckInspectors');
+    if (!mounted) {
+      return;
+    }
+    if (result is ErrorResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Failed to download the report, please try again.${result.message}')));
+    } else if (result is SuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text(
+          'Report downloaded successfully.',
+        ),
+        action: SnackBarAction(
+            label: 'View Report',
+            onPressed: () => gotoReportView(result.message)),
+      ));
+      gotoReportView(result.message);
+    }
+    setState(() {
+      isDownloading = false;
+    });
+  }
+
+  void gotoReportView(String? message) {
+    //navigate to pdf view.
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PDFViewerPage(message as String)),
+    );
   }
 }

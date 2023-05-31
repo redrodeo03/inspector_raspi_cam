@@ -46,7 +46,7 @@ class RealmProjectServices with ChangeNotifier {
         LocalInvasiveSection.schema,
         LocalConclusiveSection.schema
       ], syncErrorHandler: (SyncError error) {
-        print("Error message" + error.message.toString());
+        debugPrint("Error message: ${error.message}");
       }));
       //showAll = (realm.subscriptions.findByName(queryAllProjects) != null);
       if (realm.subscriptions.isEmpty) {
@@ -70,7 +70,8 @@ class RealmProjectServices with ChangeNotifier {
   Future<void> updateSubscriptions() async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.clear();
-      mutableSubscriptions.add(realm.all<LocalProject>(),
+      mutableSubscriptions.add(
+          realm.query<LocalProject>('\$0 IN assignedto', [loggedInUser]),
           name: queryAssignedProjects);
 
       mutableSubscriptions.add(realm.all<LocalLocation>(),
@@ -179,7 +180,7 @@ class RealmProjectServices with ChangeNotifier {
       String description, String userName, bool isNewProject) {
     try {
       if (loggedInUser == "") {
-        loggedInUser = usersBloc.username;
+        loggedInUser = usersBloc.userDetails.username as String;
       }
       var creationtime = DateTime.now().toString();
 

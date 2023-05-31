@@ -29,7 +29,7 @@ class AddEditSubProjectPage extends StatefulWidget {
 class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   late String fullUserName;
   final TextEditingController _nameController = TextEditingController(text: '');
-
+  bool showAssetPic = true;
   final TextEditingController _descriptionController =
       TextEditingController(text: '');
   @override
@@ -42,7 +42,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     isNewBuilding = widget.isNewBuilding;
     if (!widget.isNewBuilding) {
       pageTitle = 'Edit Building';
-
+      showAssetPic = false;
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
       //currentBuilding.url ??= "/assets/images/icon.png";
@@ -215,6 +215,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                             elevation: 8,
                             child: GestureDetector(
                                 onTap: () async {
+                                  showAssetPic = false;
                                   //add logic to open camera.
                                   var xfile = await captureImage(context);
                                   if (xfile != null) {
@@ -236,7 +237,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
-                                      child: isNewBuilding
+                                      child: showAssetPic
                                           ? currentBuilding.url == ""
                                               ? Image.asset(
                                                   "assets/images/heroimage.png",

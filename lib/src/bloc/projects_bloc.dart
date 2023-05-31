@@ -47,8 +47,10 @@ class ProjectsBloc {
     return _repository.deleteProject(project, id);
   }
 
-  Future<Object> downloadProjectReport(String id, String fileType) {
-    return _repository.downloadProjectReport(id, fileType);
+  Future<Object> downloadProjectReport(String projectName, String id,
+      String fileType, int quality, int imageFactor, String companyName) {
+    return _repository.downloadProjectReport(
+        projectName, id, fileType, quality, imageFactor, companyName);
   }
 }
 

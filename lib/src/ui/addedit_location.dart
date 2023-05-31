@@ -39,6 +39,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
     super.dispose();
   }
 
+  bool showAssetPic = true;
   @override
   void initState() {
     currentLocation = widget.currentLocation;
@@ -49,6 +50,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
     if (!widget.isNewLocation) {
       pageTitle = 'Edit $pageType';
       isNewLocation = false;
+      showAssetPic = false;
       _nameController.text = currentLocation.name as String;
       _descriptionController.text = currentLocation.description as String;
       //currentLocation.url ??= "/assets/images/icon.png";
@@ -233,6 +235,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                             child: GestureDetector(
                                 onTap: () async {
                                   //add logic to open camera.
+                                  showAssetPic = false;
                                   var xfile = await captureImage(context);
                                   if (xfile != null) {
                                     setState(() {
@@ -253,7 +256,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                                 blurRadius: 1.0,
                                                 color: Colors.blue)
                                           ]),
-                                      child: isNewLocation
+                                      child: showAssetPic
                                           ? currentLocation.url == ""
                                               ? Image.asset(
                                                   "assets/images/heroimage.png",

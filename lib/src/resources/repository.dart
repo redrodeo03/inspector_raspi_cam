@@ -124,7 +124,9 @@ class Repository {
         path, containerName, uploader, id, parentType, entityName);
   }
 
-  Future<Object> downloadProjectReport(String id, String fileType) {
-    return projectsApiProvider.downloadReport(id, fileType);
+  Future<Object> downloadProjectReport(String name, String id, String fileType,
+      int quality, int imageFactor, String companyName) {
+    return projectsApiProvider.downloadReport(
+        name, id, fileType, quality, imageFactor, companyName);
   }
 }

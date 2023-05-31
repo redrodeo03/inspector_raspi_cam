@@ -47,6 +47,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       pageTitle = "Edit Project";
       prevPageName = currentProject.name as String; //'Project';
       isNewProject = false;
+      showAssetPic = false;
     } else {
       prevPageName = 'Projects';
     }
@@ -86,6 +87,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     });
   }
 
+  bool showAssetPic = true;
   late RealmProjectServices realmProjServices;
   bool isNewProject = true;
   late String userFullName;
@@ -323,6 +325,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                           elevation: 8,
                           child: GestureDetector(
                               onTap: () async {
+                                showAssetPic = false;
                                 //add logic to open camera.
                                 var xfile = await captureImage(context);
                                 if (xfile != null) {
@@ -344,7 +347,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                               blurRadius: 1.0,
                                               color: Colors.blue)
                                         ]),
-                                    child: isNewProject
+                                    child: showAssetPic
                                         ? currentProject.url == ""
                                             ? Image.asset(
                                                 "assets/images/heroimage.png",
