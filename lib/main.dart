@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,8 +22,10 @@ void main() async {
         create: (context) => null,
         update: (BuildContext context, AppServices appServices,
             RealmProjectServices? realmServices) {
-          return appServices.app.currentUser != null
-              ? RealmProjectServices(appServices.app, usersBloc.username)
+          return (appServices.app.currentUser != null &&
+                  usersBloc.userDetails.username != null)
+              ? RealmProjectServices(
+                  appServices.app, usersBloc.userDetails.username as String)
               : null;
         }),
   ], child: const App()));

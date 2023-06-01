@@ -741,7 +741,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             label: 'View Report',
             onPressed: () => gotoReportView(result.message)),
       ));
-      gotoReportView(result.message);
+      //gotoReportView(result.message);
     }
     setState(() {
       isDownloading = false;

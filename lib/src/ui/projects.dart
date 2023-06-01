@@ -1,6 +1,7 @@
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -146,8 +147,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                   onTap: () {
                                     if (projects[index].projecttype ==
                                         'singlelevel') {
-                                      gotoSingleLevelProject(projects[index].id,
-                                          projects[index].name as String);
+                                      gotoSingleLevelProject(
+                                          projects[index].id);
                                     } else {
                                       gotoProjectDetails(projects[index].id);
                                     }
@@ -232,10 +233,20 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                                 8, 0, 0),
                                                         child: GestureDetector(
                                                             onTap: () {
-                                                              gotoProjectDetails(
-                                                                  projects[
+                                                              if (projects[
                                                                           index]
-                                                                      .id);
+                                                                      .projecttype ==
+                                                                  'singlelevel') {
+                                                                gotoSingleLevelProject(
+                                                                    projects[
+                                                                            index]
+                                                                        .id);
+                                                              } else {
+                                                                gotoProjectDetails(
+                                                                    projects[
+                                                                            index]
+                                                                        .id);
+                                                              }
                                                             },
                                                             child: Container(
                                                                 alignment: Alignment
@@ -260,9 +271,15 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                             ),
                                             GestureDetector(
                                                 onTap: () {
-                                                  //gotoInvasiveProject(context);
-                                                  gotoInvasiveProjectDetails(
-                                                      projects[index].id);
+                                                  if (projects[index]
+                                                          .projecttype ==
+                                                      'singlelevel') {
+                                                    gotoInvasiveSingleProject(
+                                                        projects[index].id);
+                                                  } else {
+                                                    gotoInvasiveProjectDetails(
+                                                        projects[index].id);
+                                                  }
                                                 },
                                                 child: Container(
                                                     alignment:
@@ -300,13 +317,21 @@ class _ProjectsPageState extends State<ProjectsPage> {
             }));
   }
 
-  void gotoSingleLevelProject(ObjectId id, String name) {
-    // Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) =>
-    //             LocationPage(id, name, 'Project Locations', userFullName)));
+  void gotoSingleLevelProject(
+    ObjectId id,
+  ) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SingleProjectDetailsPage(id, userFullName, false)));
   }
 
-  void gotoInvasiveProject(BuildContext context) {}
+  void gotoInvasiveSingleProject(ObjectId id) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SingleProjectDetailsPage(id, userFullName, true)));
+  }
 }

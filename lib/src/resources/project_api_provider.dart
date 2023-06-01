@@ -138,7 +138,7 @@ class ProjectsApiProvider {
       } else if (response.statusCode == 500) {
         return ErrorResponse(message: response.body, code: response.statusCode);
       } else {
-        return ErrorResponse.fromJson(json.decode(response.body));
+        return ErrorResponse(code: 502, message: response.body);
       }
     } catch (e) {
       return ErrorResponse(message: e.toString(), code: 502);

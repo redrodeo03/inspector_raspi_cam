@@ -1,6 +1,25 @@
 import 'package:realm/realm.dart';
 part 'realm_schemas.g.dart';
 
+// @RealmModel()
+// class _LocalSingleProject {
+//   @MapTo('_id')
+//   @PrimaryKey()
+//   late ObjectId id;
+//   late String? name;
+//   late String? projecttype;
+//   late String? description;
+//   late String? address;
+//   late String? createdby;
+//   late String? createdat;
+//   late String? url;
+//   late DateTime? editedat;
+//   String? lasteditedby;
+//   late Set<String> assignedto;
+//   List<_LocalSection> children = [];
+//   List<_LocalSection> invasiveChildren = [];
+// }
+
 @RealmModel()
 class _LocalProject {
   @MapTo('_id')
@@ -19,6 +38,9 @@ class _LocalProject {
   late Set<String> assignedto;
   List<_LocalChild> children = [];
   List<_LocalChild> invasiveChildren = [];
+
+  List<_LocalSection> sections = [];
+  List<_LocalSection> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -107,6 +129,7 @@ class _LocalVisualSection {
   late ObjectId parentid;
   String? createdby;
   String? createdat;
+  String parenttype = '';
   // InvasiveSection? invasiveSection;
   // ConclusiveSection? conclusiveSection;
   DateTime? editedat;

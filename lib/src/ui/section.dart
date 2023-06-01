@@ -1,14 +1,20 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
 
 import '../models/success_response.dart';
-
+import 'package:path/path.dart' as path;
 import '../resources/realm/realm_services.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
@@ -130,6 +136,7 @@ class _SectionPageState extends State<SectionPage> {
       "",
       "",
       widget.parentId,
+      parenttype: parentType,
       visualsignsofleak: false,
       createdby: userFullName,
       furtherinvasivereviewrequired: false,
@@ -138,6 +145,7 @@ class _SectionPageState extends State<SectionPage> {
 
   @override
   void initState() {
+    parentType = widget.parentType;
     realmServices = Provider.of<RealmProjectServices>(context, listen: false);
     isNewSection = widget.isNewSection;
     if (isNewSection) {
@@ -148,7 +156,7 @@ class _SectionPageState extends State<SectionPage> {
       fetchData();
     }
     userFullName = widget.userFullName;
-    parentType = widget.parentType;
+
     prevPageName = widget.parentName;
     super.initState();
   }
@@ -194,7 +202,21 @@ class _SectionPageState extends State<SectionPage> {
     if (_formKey.currentState!.validate()) {
       //check if everything is filled.
       //TODO
-
+      if (selectedExteriorelements.isEmpty ||
+          selectedWaterproofingElements.isEmpty ||
+          _review == null ||
+          _assessment == null ||
+          _eee == null ||
+          _lbc == null ||
+          _awe == null ||
+          capturedImages.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Please add images & fill all the values, then save the location.')),
+        );
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Location...')),
       );
@@ -385,35 +407,86 @@ class _SectionPageState extends State<SectionPage> {
                             style: TextStyle(fontSize: 16),
                           )))
                       : SizedBox(
-                          height: MediaQuery.of(context).size.height / 3.5,
+                          height: MediaQuery.of(context).size.height / 3.2,
                           child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             itemCount: capturedImages.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                                    height: 180,
-                                    width: 300,
-                                    decoration: const BoxDecoration(
-                                        color: Colors.orange,
-                                        // image: DecorationImage(
-                                        //     image:
-                                        //         AssetImage('assets/images/icon.png'),
-                                        //     fit: BoxFit.cover),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 1.0,
-                                              color: Colors.blue)
-                                        ]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child:
-                                          networkImage(capturedImages[index]),
-                                    )),
+                                SizedBox(
+                                    width: 320,
+                                    height: 200,
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    gotoImageEditorPage(
+                                                        context,
+                                                        capturedImages[index],
+                                                        index),
+                                                child: Container(
+                                                    margin: const EdgeInsets
+                                                        .fromLTRB(2, 8, 8, 8),
+                                                    height: 180,
+                                                    width: 300,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                            color:
+                                                                Colors.orange,
+                                                            // image: DecorationImage(
+                                                            //     image:
+                                                            //         AssetImage('assets/images/icon.png'),
+                                                            //     fit: BoxFit.cover),
+                                                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                                            boxShadow: [
+                                                          BoxShadow(
+                                                              blurRadius: 1.0,
+                                                              color:
+                                                                  Colors.blue)
+                                                        ]),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      child: networkImage(
+                                                          capturedImages[
+                                                              index]),
+                                                    )),
+                                              ),
+                                            ),
+                                            OutlinedButton.icon(
+                                                style: OutlinedButton.styleFrom(
+                                                    side: BorderSide.none,
+                                                    // the height is 50, the width is full
+                                                    minimumSize:
+                                                        const Size.fromHeight(
+                                                            30),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    shadowColor: Colors.blue,
+                                                    elevation: 0),
+                                                onPressed: () {
+                                                  removePhoto(
+                                                      context,
+                                                      currentVisualSection,
+                                                      index);
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red,
+                                                ),
+                                                label: const Text(
+                                                    'Remove Photo',
+                                                    style: TextStyle(
+                                                        color: Colors.red))),
+                                          ],
+                                        ))),
                           )),
                   const SizedBox(
                     height: 4,
@@ -1088,6 +1161,46 @@ class _SectionPageState extends State<SectionPage> {
         MaterialPageRoute(
             builder: (context) => SectionPage(ObjectId(), widget.parentId,
                 userFullName, widget.parentType, widget.parentName, true)));
+  }
+
+  gotoImageEditorPage(
+      BuildContext context, String capturedImage, int index) async {
+    Uint8List imageData;
+    if (capturedImage.contains('http')) {
+      http.Response response = await http.get(
+        Uri.parse(capturedImage),
+      );
+      imageData = response.bodyBytes;
+    } else {
+      imageData = await File(capturedImage).readAsBytes();
+    }
+
+    var editedImage = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ImageEditor(image: imageData)));
+    //update capturedimages collection.
+    final directory = await getApplicationDocumentsDirectory();
+    var destDirectory =
+        await Directory(path.join(directory.path, 'editedimages'))
+            .create(recursive: true);
+    String imageid = ObjectId().toString();
+    final pathOfImage =
+        await File('${destDirectory.path}/$imageid.png').create();
+    if (editedImage != null) {
+      var editedFile = await pathOfImage.writeAsBytes(editedImage);
+      setState(() {
+        capturedImages.removeAt(index);
+        realmServices.removeImageUrl(currentVisualSection, capturedImage);
+        capturedImages.insert(index, editedFile.path);
+      });
+    }
+  }
+
+  void removePhoto(BuildContext context,
+      LocalVisualSection currentVisualSection, int index) {
+    setState(() {
+      capturedImages.removeAt(index);
+    });
+    realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
   }
 }
 

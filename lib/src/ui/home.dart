@@ -1,6 +1,5 @@
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-
 import 'package:deckinspectors/src/ui/projects.dart';
+import 'package:deckinspectors/src/ui/reports-screen.dart';
 import 'package:deckinspectors/src/ui/settings.dart';
 // import 'package:google_fonts/google_fonts.dart';
 //import 'package:flutter/cupertino.dart';
@@ -19,52 +18,52 @@ class _HomePageState extends State<HomePage> {
   final pages = [
     const Center(child: ProjectsPage()),
     //Center(child: OfflineModePage()),
+    const Center(child: ReportsPage()),
     const Center(child: SettingsPage()),
-    //const Center(child: LoginPage()),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: pages[_currentIndex],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          iconSize: 30,
-          selectedFontSize: 16,
-          unselectedFontSize: 14,
-          fixedColor: Colors.blue,
-          unselectedItemColor: Colors.lightBlueAccent,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-              // backgroundColor: Colors.orange
-            ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.wifi_off),
-            //   label: 'Offline',
-            //   // backgroundColor: Colors.blueAccent
-            // ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-              // backgroundColor: Colors.blue
-            ),
-          ],
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-              if (index == 1) {
-                appSettings.isAppOfflineMode = true;
-              } else {
-                appSettings.isAppOfflineMode = false;
-              }
-            });
-          }),
-    );
+        body: SafeArea(
+          child: pages[_currentIndex],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            iconSize: 30,
+            selectedFontSize: 16,
+            unselectedFontSize: 14,
+            fixedColor: Colors.blue,
+            unselectedItemColor: Colors.lightBlueAccent,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+                // backgroundColor: Colors.orange
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.document_scanner),
+                label: 'Reports',
+                // backgroundColor: Colors.blueAccent
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+                // backgroundColor: Colors.blue
+              ),
+            ],
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+
+              // if (index == 1) {
+              //   appSettings.isAppOfflineMode = true;
+              // } else {
+              //   appSettings.isAppOfflineMode = false;
+              // }
+            }));
   }
 }

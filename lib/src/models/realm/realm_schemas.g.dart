@@ -21,6 +21,8 @@ class LocalProject extends _LocalProject
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
     Iterable<LocalChild> invasiveChildren = const [],
+    Iterable<LocalSection> sections = const [],
+    Iterable<LocalSection> invasiveSections = const [],
     Set<String> assignedto = const {},
   }) {
     RealmObjectBase.set(this, '_id', id);
@@ -37,6 +39,10 @@ class LocalProject extends _LocalProject
         this, 'children', RealmList<LocalChild>(children));
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'invasiveChildren', RealmList<LocalChild>(invasiveChildren));
+    RealmObjectBase.set<RealmList<LocalSection>>(
+        this, 'sections', RealmList<LocalSection>(sections));
+    RealmObjectBase.set<RealmList<LocalSection>>(
+        this, 'invasiveSections', RealmList<LocalSection>(invasiveSections));
     RealmObjectBase.set<RealmSet<String>>(
         this, 'assignedto', RealmSet<String>(assignedto));
   }
@@ -127,6 +133,22 @@ class LocalProject extends _LocalProject
       throw RealmUnsupportedSetError();
 
   @override
+  RealmList<LocalSection> get sections =>
+      RealmObjectBase.get<LocalSection>(this, 'sections')
+          as RealmList<LocalSection>;
+  @override
+  set sections(covariant RealmList<LocalSection> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<LocalSection> get invasiveSections =>
+      RealmObjectBase.get<LocalSection>(this, 'invasiveSections')
+          as RealmList<LocalSection>;
+  @override
+  set invasiveSections(covariant RealmList<LocalSection> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<LocalProject>> get changes =>
       RealmObjectBase.getChanges<LocalProject>(this);
 
@@ -156,6 +178,10 @@ class LocalProject extends _LocalProject
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
       SchemaProperty('invasiveChildren', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
+      SchemaProperty('sections', RealmPropertyType.object,
+          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
+      SchemaProperty('invasiveSections', RealmPropertyType.object,
+          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -682,6 +708,7 @@ class LocalVisualSection extends _LocalVisualSection
     String? conditionalassessment,
     String? createdby,
     String? createdat,
+    String parenttype = '',
     DateTime? editedat,
     String? lasteditedby,
     Iterable<String> images = const [],
@@ -692,6 +719,7 @@ class LocalVisualSection extends _LocalVisualSection
       _defaultsSet = RealmObjectBase.setDefaults<LocalVisualSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': true,
+        'parenttype': '',
       });
     }
     RealmObjectBase.set(this, '_id', id);
@@ -709,6 +737,7 @@ class LocalVisualSection extends _LocalVisualSection
     RealmObjectBase.set(this, 'parentid', parentid);
     RealmObjectBase.set(this, 'createdby', createdby);
     RealmObjectBase.set(this, 'createdat', createdat);
+    RealmObjectBase.set(this, 'parenttype', parenttype);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set<RealmList<String>>(
@@ -823,6 +852,13 @@ class LocalVisualSection extends _LocalVisualSection
   set createdat(String? value) => RealmObjectBase.set(this, 'createdat', value);
 
   @override
+  String get parenttype =>
+      RealmObjectBase.get<String>(this, 'parenttype') as String;
+  @override
+  set parenttype(String value) =>
+      RealmObjectBase.set(this, 'parenttype', value);
+
+  @override
   DateTime? get editedat =>
       RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
   @override
@@ -871,6 +907,7 @@ class LocalVisualSection extends _LocalVisualSection
       SchemaProperty('parentid', RealmPropertyType.objectid),
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
+      SchemaProperty('parenttype', RealmPropertyType.string),
       SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
     ]);
