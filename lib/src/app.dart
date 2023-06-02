@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'resources/realm/realm_services.dart';
 import 'ui/login.dart';
+import 'ui/navigation_observer.dart';
 //import 'ui/movie_list.dart';
 
 class App extends StatelessWidget {
@@ -14,10 +15,11 @@ class App extends StatelessWidget {
 
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: const MaterialApp(
+        child: MaterialApp(
+          navigatorObservers: [NavigationObserver()],
           debugShowCheckedModeBanner: false,
           title: 'Deck Inspectors',
-          home: SafeArea(child: LoginPage()),
+          home: const SafeArea(child: LoginPage()),
         ));
   }
 }

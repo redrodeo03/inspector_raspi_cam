@@ -15,6 +15,7 @@ import '../models/realm/realm_schemas.dart';
 
 import 'addedit_subproject.dart';
 
+import 'breadcrumb_navigation.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
 import 'addedit_project.dart';
@@ -32,6 +33,12 @@ class ProjectDetailsPage extends StatefulWidget {
 
   @override
   State<ProjectDetailsPage> createState() => _ProjectDetailsPageState();
+
+  static MaterialPageRoute getRoute(
+          ObjectId id, String userName, bool isInvasive) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Project Details'),
+          builder: (context) => ProjectDetailsPage(id, userName, isInvasive));
 }
 
 //Add New Project
@@ -163,17 +170,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     if (selectedTabIndex == 0) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) =>
-                LocationPage(id, name, 'Project Locations', userFullName)),
+        LocationPage.getRoute(id, name, 'Project Locations', userFullName),
       ).then((value) => locations.remove(value));
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SubProjectDetailsPage(id, name, userFullName)),
-      ); //.then((value) => buildings.remove(value));
+        SubProjectDetailsPage.getRoute(id, 'Buildings', userFullName),
+      );
     }
   }
 
@@ -208,6 +211,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
             style:
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
         ),
         body: StreamBuilder<RealmObjectChanges<LocalProject>>(
           //projectsBloc.projects
@@ -255,6 +262,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
                 return SingleChildScrollView(
                     child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // StatefulBuilder(builder: (context, StateSetter setState) {
                     projectDetails(
@@ -264,6 +272,17 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         currentProject.description as String),
                     //}),
                     projectChildrenTab(context),
+                    // const Divider(
+                    //   color: Color.fromARGB(255, 222, 213, 213),
+                    //   height: 2,
+                    //   thickness: 2,
+                    //   indent: 0,
+                    //   endIndent: 0,
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                    //   child: BreadCrumbNavigator(),
+                    // )
                   ],
                 ));
 
@@ -493,7 +512,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           labelColor: Colors.black,
         ),
         SizedBox(
-            height: MediaQuery.of(context).size.height / 2,
+            height: 250,
             child: TabBarView(controller: _tabController, children: [
               locationsWidget('location'),
               locationsWidget('building'),
@@ -568,6 +587,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   Widget horizontalScrollChildren(BuildContext context, int index) {
     return SizedBox(
         width: MediaQuery.of(context).size.width / 2,
+        height: 180,
         child: Padding(
           padding: const EdgeInsets.all(2),
           child: Column(
@@ -630,9 +650,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         ),
                       ],
                     )),
-              ),
-              const SizedBox(
-                height: 8,
               ),
             ],
           ),

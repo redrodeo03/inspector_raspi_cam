@@ -51,10 +51,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   void gotoProjectDetails(ObjectId projectId) {
     //setState(() {});
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                ProjectDetailsPage(projectId, userFullName, false)));
+        context, ProjectDetailsPage.getRoute(projectId, userFullName, false));
   }
 
   void gotoInvasiveProjectDetails(ObjectId projectId) {

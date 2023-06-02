@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,12 @@ class SubProjectDetailsPage extends StatefulWidget {
       : super(key: key);
   @override
   State<SubProjectDetailsPage> createState() => _SubProjectDetailsPageState();
+  static MaterialPageRoute getRoute(
+          ObjectId id, String prevPageName, String userName) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Buildings'),
+          builder: (context) =>
+              SubProjectDetailsPage(id, prevPageName, userName));
 }
 
 //Add New Project
@@ -111,11 +118,13 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
 
   void gotoDetails(ObjectId id, String type) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => LocationPage(
-              id, currentBuilding.name as String, type, userFullName)),
-    );
+        context,
+        LocationPage.getRoute(
+            id, currentBuilding.name as String, type, userFullName)
+        // MaterialPageRoute(
+        //     builder: (context) => LocationPage(
+        //         id, currentBuilding.name as String, type, userFullName)),
+        );
   }
 
   @override
@@ -148,6 +157,10 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             style:
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
         ),
         body: StreamBuilder<RealmObjectChanges<LocalSubProject>>(
           //projectsBloc.projects

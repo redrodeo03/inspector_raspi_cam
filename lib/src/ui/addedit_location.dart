@@ -22,6 +22,13 @@ class AddEditLocationPage extends StatefulWidget {
 
   @override
   State<AddEditLocationPage> createState() => _AddEditLocationPageState();
+
+  static MaterialPageRoute getRoute(LocalLocation location, bool isNew,
+          String userName, String prevPage) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Edit Location'),
+          builder: (context) =>
+              AddEditLocationPage(location, isNew, userName, prevPage));
 }
 
 class _AddEditLocationPageState extends State<AddEditLocationPage> {

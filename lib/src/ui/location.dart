@@ -10,6 +10,7 @@ import 'package:realm/realm.dart';
 
 import '../models/realm/realm_schemas.dart';
 import '../resources/realm/realm_services.dart';
+import 'breadcrumb_navigation.dart';
 import 'cachedimage_widget.dart';
 import 'showprojecttype_widget.dart';
 
@@ -24,6 +25,12 @@ class LocationPage extends StatefulWidget {
       : super(key: key);
   @override
   State<LocationPage> createState() => _LocationPageState();
+  static MaterialPageRoute getRoute(ObjectId id, String parentType,
+          String locationType, String userName) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Locations'),
+          builder: (context) =>
+              LocationPage(id, parentType, locationType, userName));
 }
 
 class _LocationPageState extends State<LocationPage> {
@@ -72,6 +79,10 @@ class _LocationPageState extends State<LocationPage> {
             style: const TextStyle(
                 color: Colors.black, fontWeight: FontWeight.normal),
           ),
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
         ),
         body: StreamBuilder<RealmObjectChanges<LocalLocation>>(
             //projectsBloc.projects
@@ -217,7 +228,7 @@ class _LocationPageState extends State<LocationPage> {
 
   Widget locationsWidget(BuildContext context) {
     return SizedBox(
-        height: MediaQuery.of(context).size.height / 1.4,
+        height: 500,
         child: Padding(
             padding: const EdgeInsets.all(4),
             child: Column(

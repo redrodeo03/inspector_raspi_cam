@@ -26,6 +26,11 @@ class AddEditProjectPage extends StatefulWidget {
       this.newProject, this.isNewProject, this.userFullName,
       {Key? key})
       : super(key: key);
+  static MaterialPageRoute getRoute(
+          LocalProject project, bool isNew, String userName) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Edit Project'),
+          builder: (context) => AddEditProjectPage(project, isNew, userName));
   @override
   State<AddEditProjectPage> createState() => _AddEditProjectPageState();
 }

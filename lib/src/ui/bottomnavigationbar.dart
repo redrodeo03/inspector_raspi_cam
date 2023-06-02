@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'projects.dart';
-import 'reports-screen.dart';
+import 'reports_screen.dart';
 import 'settings.dart';
 
 final pages = [

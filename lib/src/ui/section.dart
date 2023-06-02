@@ -1184,7 +1184,7 @@ class _SectionPageState extends State<SectionPage> {
             .create(recursive: true);
     String imageid = ObjectId().toString();
     final pathOfImage =
-        await File('${destDirectory.path}/$imageid.png').create();
+        await File('${destDirectory.path}/$imageid.jpg').create();
     if (editedImage != null) {
       var editedFile = await pathOfImage.writeAsBytes(editedImage);
       setState(() {
@@ -1197,10 +1197,10 @@ class _SectionPageState extends State<SectionPage> {
 
   void removePhoto(BuildContext context,
       LocalVisualSection currentVisualSection, int index) {
+    realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
     setState(() {
       capturedImages.removeAt(index);
     });
-    realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
   }
 }
 
