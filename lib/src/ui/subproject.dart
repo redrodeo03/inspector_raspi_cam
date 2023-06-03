@@ -88,30 +88,26 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   void addEditSubProject() {
     setState(() {});
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => AddEditSubProjectPage(currentBuilding, false,
-              userFullName, currentBuilding.name as String)),
-    ).then((value) => setState(
-          () {},
-        ));
+            context,
+            AddEditSubProjectPage.getRoute(currentBuilding, false, userFullName,
+                currentBuilding.name as String))
+        .then((value) => setState(
+              () {},
+            ));
   }
 
   void addNewChild(String name) {
     setState(() {});
     if (selectedTabIndex == 0) {
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => AddEditLocationPage(
-                getLocation('buildinglocation'), true, userFullName, name)),
-      );
+          context,
+          AddEditLocationPage.getRoute(
+              getLocation('buildinglocation'), true, userFullName, name));
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => AddEditLocationPage(
-                getLocation('apartment'), true, userFullName, name)),
+        AddEditLocationPage.getRoute(
+            getLocation('apartment'), true, userFullName, name),
       );
     }
   }

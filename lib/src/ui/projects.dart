@@ -41,11 +41,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   void addEditProject() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AddEditProjectPage(getLocalProject(), true, userFullName)));
+    Navigator.push(context,
+        AddEditProjectPage.getRoute(getLocalProject(), true, userFullName));
   }
 
   void gotoProjectDetails(ObjectId projectId) {
@@ -56,16 +53,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   void gotoInvasiveProjectDetails(ObjectId projectId) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                ProjectDetailsPage(projectId, userFullName, true)));
+        context, ProjectDetailsPage.getRoute(projectId, userFullName, true));
   }
 
   @override
   Widget build(BuildContext context) {
     //projectsBloc.fetchAllProjects();
-    final realmServices = Provider.of<RealmProjectServices>(context);
+    final realmServices = Provider.of<RealmProjectServices?>(context);
     return Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -104,7 +98,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             )),
         body: StreamBuilder<RealmResultsChanges<LocalProject>>(
             //projectsBloc.projects
-            stream: realmServices.realm
+            stream: realmServices?.realm
                 .query<LocalProject>("TRUEPREDICATE SORT(_id DESC)")
                 .changes,
             builder: (context, snapshot) {

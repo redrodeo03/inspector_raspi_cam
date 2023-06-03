@@ -24,11 +24,15 @@ class AppServices with ChangeNotifier {
     return loggedInUser;
   }
 
-  Future<User> registerUserEmailPassword(String email, String password) async {
+  Future<User?> registerUserEmailPassword(String email, String password) async {
     EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
-    await authProvider.registerUser(email, password);
-    User loggedInUser =
-        await app.logIn(Credentials.emailPassword(email, password));
+    User? loggedInUser;
+    try {
+      loggedInUser =
+          await app.logIn(Credentials.emailPassword(email, password));
+    } catch (e) {
+      await authProvider.registerUser(email, password);
+    }
     currentUser = loggedInUser;
     notifyListeners();
     return loggedInUser;
@@ -49,5 +53,10 @@ class AppServices with ChangeNotifier {
   Future<void> logOut() async {
     await currentUser?.logOut();
     currentUser = null;
+  }
+
+  void registerUser(String email, String password) async {
+    EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+    await authProvider.registerUser(email, password);
   }
 }

@@ -28,7 +28,7 @@ class LocationPage extends StatefulWidget {
   static MaterialPageRoute getRoute(ObjectId id, String parentType,
           String locationType, String userName) =>
       MaterialPageRoute(
-          settings: const RouteSettings(name: 'Locations'),
+          settings: RouteSettings(name: locationType),
           builder: (context) =>
               LocationPage(id, parentType, locationType, userName));
 }
@@ -624,11 +624,9 @@ class _LocationPageState extends State<LocationPage> {
 
   void addEditLocation(LocalLocation currentLocation) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => AddEditLocationPage(currentLocation, false,
-              userFullName, currentLocation.name as String)),
-    );
+        context,
+        AddEditLocationPage.getRoute(currentLocation, false, userFullName,
+            currentLocation.name as String));
   }
 
   void gotoInvasiveDetails(ObjectId id) {

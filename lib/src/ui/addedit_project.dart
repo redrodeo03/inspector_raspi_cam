@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
@@ -256,6 +257,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                   )),
             ],
           )),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        child: BreadCrumbNavigator(),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
         child: Form(

@@ -7,6 +7,7 @@ import '../bloc/images_bloc.dart';
 import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import '../resources/realm/realm_services.dart';
+import 'breadcrumb_navigation.dart';
 import 'capture_image.dart';
 
 class AddEditLocationPage extends StatefulWidget {
@@ -26,7 +27,8 @@ class AddEditLocationPage extends StatefulWidget {
   static MaterialPageRoute getRoute(LocalLocation location, bool isNew,
           String userName, String prevPage) =>
       MaterialPageRoute(
-          settings: const RouteSettings(name: 'Edit Location'),
+          settings:
+              RouteSettings(name: isNew ? 'Add Location' : 'Edit Location'),
           builder: (context) =>
               AddEditLocationPage(location, isNew, userName, prevPage));
 }
@@ -204,6 +206,10 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                     )),
               ],
             )),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
+        ),
         body: SingleChildScrollView(
           child: Form(
               key: _formKey,

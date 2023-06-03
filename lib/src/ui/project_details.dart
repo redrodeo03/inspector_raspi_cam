@@ -139,30 +139,22 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   void addEditProject() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              AddEditProjectPage(currentProject, false, userFullName)),
-    );
+    Navigator.push(context,
+        AddEditProjectPage.getRoute(currentProject, false, userFullName));
   }
 
   void addNewChild(String name) {
     //setState(() {});
     if (selectedTabIndex == 0) {
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => AddEditLocationPage(
-                getNewLocation(), true, userFullName, name)),
-      ); //.then(refreshProjectDetails);
+          context,
+          AddEditLocationPage.getRoute(getNewLocation(), true, userFullName,
+              name)); //.then(refreshProjectDetails);
     } else {
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => AddEditSubProjectPage(
-                getNewBuilding(), true, userFullName, name)),
-      ); //.then(refreshProjectDetails);
+          context,
+          AddEditSubProjectPage.getRoute(getNewBuilding(), true, userFullName,
+              name)); //.then(refreshProjectDetails);
     }
   }
 

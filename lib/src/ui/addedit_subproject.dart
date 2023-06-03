@@ -9,8 +9,8 @@ import '../bloc/images_bloc.dart';
 import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import '../resources/realm/realm_services.dart';
+import 'breadcrumb_navigation.dart';
 import 'capture_image.dart';
-import 'image_widget.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
   final LocalSubProject currentBuilding;
@@ -21,7 +21,13 @@ class AddEditSubProjectPage extends StatefulWidget {
       this.fullUserName, this.prevPageName,
       {Key? key})
       : super(key: key);
-
+  static MaterialPageRoute getRoute(LocalSubProject subProject, bool isNew,
+          String userName, String prevPageName) =>
+      MaterialPageRoute(
+          settings:
+              RouteSettings(name: isNew ? 'Add Building' : 'Edit Building'),
+          builder: (context) =>
+              AddEditSubProjectPage(subProject, isNew, userName, prevPageName));
   @override
   State<AddEditSubProjectPage> createState() => _AddEditSubProjectPageState();
 }
@@ -181,6 +187,10 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                     )),
               ],
             )),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
+        ),
         body: SingleChildScrollView(
           child: Form(
               key: _formKey,
