@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +37,7 @@ class _ReportsPage extends State<ReportsPage> {
     super.initState();
   }
 
+  String sizeInKB = '0';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,10 +58,18 @@ class _ReportsPage extends State<ReportsPage> {
                 //if file/folder list is grabbed, then show here
                 itemCount: _folders.length,
                 itemBuilder: (context, index) {
+                  if (_folders[index] is File) {
+                    File(_folders[index].path).length().then((value) {
+                      setState(() {
+                        sizeInKB = (value / 1000000).toStringAsPrecision(6);
+                      });
+                    });
+                  }
                   return Card(
                       child: ListTile(
                     title: Text(_folders[index].path.split('/').last),
                     leading: const Icon(Icons.picture_as_pdf),
+                    subtitle: Text('$sizeInKB MB'),
                     trailing: const Icon(
                       Icons.arrow_forward,
                       color: Colors.redAccent,
