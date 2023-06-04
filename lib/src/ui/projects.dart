@@ -277,13 +277,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                         Alignment.bottomRight,
                                                     padding: const EdgeInsets
                                                         .fromLTRB(8, 8, 16, 8),
-                                                    child: Text(
-                                                      projects[index]
-                                                              .invasiveChildren
-                                                              .isEmpty
-                                                          ? 'Create Invasive'
-                                                          : 'View Invasive',
-                                                      style: const TextStyle(
+                                                    child: const Text(
+                                                      'View Invasive',
+                                                      style: TextStyle(
                                                           color: Colors.blue,
                                                           fontSize: 17),
                                                     )))
