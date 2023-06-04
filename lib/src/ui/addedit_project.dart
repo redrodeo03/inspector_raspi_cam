@@ -137,9 +137,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
         if (isNewProject) {
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                  builder: (context) => ProjectDetailsPage(
-                      currentProject.id, userFullName, false)));
+              ProjectDetailsPage.getRoute(
+                  currentProject.id, userFullName, false));
         } else {
           Navigator.pop(context);
         }

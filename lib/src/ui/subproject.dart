@@ -48,7 +48,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   late String prevPageName;
 
   LocalLocation getLocation(String type) {
-    return LocalLocation(ObjectId(), buildingId,
+    return LocalLocation(ObjectId(), buildingId, false,
         name: "",
         description: "",
         createdby: userFullName,
@@ -312,11 +312,12 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     buildinglocations = List.empty(growable: true);
     apartments = List.empty(growable: true);
     if (appSettings.isInvasiveMode) {
-      buildinglocations = currentBuilding.invasiveChildren
-          .where((element) => element.type == 'buildinglocation')
+      buildinglocations = currentBuilding.children
+          .where((element) =>
+              element.type == 'buildinglocation' && element.isInvasive)
           .toList();
-      apartments = currentBuilding.invasiveChildren
-          .where((element) => element.type == 'apartment')
+      apartments = currentBuilding.children
+          .where((element) => element.type == 'apartment' && element.isInvasive)
           .toList();
     } else {
       buildinglocations = currentBuilding.children

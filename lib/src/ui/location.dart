@@ -48,6 +48,7 @@ class _LocationPageState extends State<LocationPage> {
   String userFullName = "";
   late ObjectId locationId;
   late LocalLocation currentLocation;
+  late List<LocalSection> sections;
   @override
   Widget build(BuildContext context) {
     final realmServices =
@@ -227,6 +228,11 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   Widget locationsWidget(BuildContext context) {
+    sections = appSettings.isInvasiveMode
+        ? currentLocation.sections
+            .where((element) => element.isInvasive)
+            .toList()
+        : currentLocation.sections.toList();
     return SizedBox(
         height: 500,
         child: Padding(
@@ -273,47 +279,27 @@ class _LocationPageState extends State<LocationPage> {
                     ),
                   ],
                 ),
-                appSettings.isInvasiveMode
-                    ? currentLocation.invasiveSections.isEmpty
-                        ? const Center(
-                            child: Text(
-                            'No invasive locations to show.',
-                            style: TextStyle(fontSize: 16),
-                          ))
-                        : Expanded(
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount:
-                                    currentLocation.invasiveSections.length,
-                                itemBuilder: (BuildContext context,
-                                        int index) =>
-                                    horizontalScrollChildren(context, index)),
-                          )
-                    : currentLocation.sections.isEmpty
-                        ? const Center(
-                            child: Text(
-                            'No locations, Add locations.',
-                            style: TextStyle(fontSize: 16),
-                          ))
-                        : Expanded(
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: currentLocation.sections.length,
-                                itemBuilder: (BuildContext context,
-                                        int index) =>
-                                    horizontalScrollChildren(context, index)),
-                          )
+                sections.isEmpty
+                    ? const Center(
+                        child: Text(
+                        'No invasive locations to show.',
+                        style: TextStyle(fontSize: 16),
+                      ))
+                    : Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: sections.length,
+                            itemBuilder: (BuildContext context, int index) =>
+                                horizontalScrollChildren(context, index)),
+                      )
               ],
             )));
   }
 
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
-    String visualReview = appSettings.isInvasiveMode
-        ? (currentLocation.invasiveSections[index].visualreview as String)
-        : (currentLocation.sections[index].visualreview as String);
+    String visualReview = (sections[index].visualreview as String);
     switch (visualReview) {
       case 'good':
         vreview = 'Good';
@@ -327,13 +313,8 @@ class _LocationPageState extends State<LocationPage> {
       default:
     }
     String assessment = '';
-    String? coverUrl = appSettings.isInvasiveMode
-        ? currentLocation.invasiveSections[index].coverUrl
-        : currentLocation.sections[index].coverUrl;
-    String assessmentActual = appSettings.isInvasiveMode
-        ? (currentLocation.invasiveSections[index].conditionalassessment
-            as String)
-        : (currentLocation.sections[index].conditionalassessment as String);
+    String? coverUrl = sections[index].coverUrl;
+    String assessmentActual = (sections[index].conditionalassessment as String);
     switch (assessmentActual) {
       case 'pass':
         assessment = 'Pass';
@@ -346,13 +327,9 @@ class _LocationPageState extends State<LocationPage> {
         break;
       default:
     }
-    bool furtherInvasive = appSettings.isInvasiveMode
-        ? currentLocation.invasiveSections[index].furtherinvasivereviewrequired
-        : currentLocation.sections[index].furtherinvasivereviewrequired;
+    bool furtherInvasive = sections[index].furtherinvasivereviewrequired;
 
-    bool visualLeaks = appSettings.isInvasiveMode
-        ? currentLocation.invasiveSections[index].visualsignsofleak
-        : currentLocation.sections[index].visualsignsofleak;
+    bool visualLeaks = sections[index].visualsignsofleak;
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       child: Padding(
@@ -375,10 +352,9 @@ class _LocationPageState extends State<LocationPage> {
           InkWell(
               onTap: () {
                 if (appSettings.isInvasiveMode) {
-                  gotoInvasiveDetails(
-                      currentLocation.invasiveSections[index].id);
+                  gotoInvasiveDetails(sections[index].id);
                 } else {
-                  gotoDetails(currentLocation.sections[index].id);
+                  gotoDetails(sections[index].id);
                 }
               },
               child: Card(
@@ -391,11 +367,7 @@ class _LocationPageState extends State<LocationPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Text(
-                              appSettings.isInvasiveMode
-                                  ? currentLocation.invasiveSections[index].name
-                                      as String
-                                  : currentLocation.sections[index].name
-                                      as String,
+                              sections[index].name as String,
                               maxLines: 2,
                               style: const TextStyle(
                                 fontSize: 15,
@@ -569,12 +541,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    appSettings.isInvasiveMode
-                                        ? currentLocation
-                                            .invasiveSections[index].count
-                                            .toString()
-                                        : currentLocation.sections[index].count
-                                            .toString(),
+                                    sections[index].count.toString(),
                                     style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 14,

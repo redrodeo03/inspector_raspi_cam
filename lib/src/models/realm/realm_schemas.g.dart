@@ -191,7 +191,8 @@ class LocalChild extends _LocalChild
   static var _defaultsSet = false;
 
   LocalChild(
-    ObjectId id, {
+    ObjectId id,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
@@ -208,6 +209,7 @@ class LocalChild extends _LocalChild
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'url', url);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set(this, 'count', count);
   }
 
@@ -241,6 +243,11 @@ class LocalChild extends _LocalChild
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
   int get count => RealmObjectBase.get<int>(this, 'count') as int;
   @override
   set count(int value) => RealmObjectBase.set(this, 'count', value);
@@ -263,6 +270,7 @@ class LocalChild extends _LocalChild
       SchemaProperty('type', RealmPropertyType.string, optional: true),
       SchemaProperty('description', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('count', RealmPropertyType.int),
     ]);
   }
@@ -272,7 +280,8 @@ class LocalSubProject extends _LocalSubProject
     with RealmEntity, RealmObjectBase, RealmObject {
   LocalSubProject(
     ObjectId id,
-    ObjectId parentid, {
+    ObjectId parentid,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
@@ -297,6 +306,7 @@ class LocalSubProject extends _LocalSubProject
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
     RealmObjectBase.set<RealmList<LocalChild>>(
@@ -380,6 +390,11 @@ class LocalSubProject extends _LocalSubProject
       RealmObjectBase.set(this, 'lasteditedby', value);
 
   @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
   RealmList<LocalChild> get children =>
       RealmObjectBase.get<LocalChild>(this, 'children')
           as RealmList<LocalChild>;
@@ -423,6 +438,7 @@ class LocalSubProject extends _LocalSubProject
           collectionType: RealmCollectionType.set),
       SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
       SchemaProperty('invasiveChildren', RealmPropertyType.object,
@@ -435,7 +451,8 @@ class LocalLocation extends _LocalLocation
     with RealmEntity, RealmObjectBase, RealmObject {
   LocalLocation(
     ObjectId id,
-    ObjectId parentid, {
+    ObjectId parentid,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
@@ -459,6 +476,7 @@ class LocalLocation extends _LocalLocation
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalSection>>(
         this, 'sections', RealmList<LocalSection>(sections));
     RealmObjectBase.set<RealmList<LocalSection>>(
@@ -533,6 +551,11 @@ class LocalLocation extends _LocalLocation
       RealmObjectBase.set(this, 'lasteditedby', value);
 
   @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
   RealmList<LocalSection> get sections =>
       RealmObjectBase.get<LocalSection>(this, 'sections')
           as RealmList<LocalSection>;
@@ -573,6 +596,7 @@ class LocalLocation extends _LocalLocation
       SchemaProperty('url', RealmPropertyType.string, optional: true),
       SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
           linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
       SchemaProperty('invasiveSections', RealmPropertyType.object,
@@ -586,7 +610,8 @@ class LocalSection extends _LocalSection
   static var _defaultsSet = false;
 
   LocalSection(
-    ObjectId id, {
+    ObjectId id,
+    bool isInvasive, {
     String? name,
     bool visualsignsofleak = false,
     bool furtherinvasivereviewrequired = false,
@@ -604,6 +629,7 @@ class LocalSection extends _LocalSection
     }
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set(this, 'visualsignsofleak', visualsignsofleak);
     RealmObjectBase.set(
         this, 'furtherinvasivereviewrequired', furtherinvasivereviewrequired);
@@ -624,6 +650,11 @@ class LocalSection extends _LocalSection
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
   @override
   set name(String? value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
   bool get visualsignsofleak =>
@@ -679,6 +710,7 @@ class LocalSection extends _LocalSection
         ObjectType.embeddedObject, LocalSection, 'LocalSection', [
       SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('visualsignsofleak', RealmPropertyType.bool),
       SchemaProperty('furtherinvasivereviewrequired', RealmPropertyType.bool),
       SchemaProperty('conditionalassessment', RealmPropertyType.string,

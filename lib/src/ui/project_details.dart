@@ -56,7 +56,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late ObjectId projectId;
 
   LocalLocation getNewLocation() {
-    var newLocation = LocalLocation(ObjectId(), projectId,
+    var newLocation = LocalLocation(ObjectId(), projectId, false,
         name: "",
         description: "",
         url: "",
@@ -67,7 +67,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   LocalSubProject getNewBuilding() {
-    var newBuilding = LocalSubProject(ObjectId(), projectId,
+    var newBuilding = LocalSubProject(ObjectId(), projectId, false,
         name: "",
         description: "",
         url: "",
@@ -103,11 +103,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     setState(() {
       if (currentProject.isValid) {
         if (isInvasiveMode) {
-          locations = currentProject.invasiveChildren
-              .where((element) => element.type == 'projectlocation')
+          locations = currentProject.children
+              .where((element) =>
+                  element.type == 'projectlocation' && element.isInvasive)
               .toList();
-          buildings = currentProject.invasiveChildren
-              .where((element) => element.type == 'subproject')
+          buildings = currentProject.children
+              .where((element) =>
+                  element.type == 'subproject' && element.isInvasive)
               .toList();
         } else {
           locations = currentProject.children
@@ -228,11 +230,14 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 currentProject = data.object;
                 if (currentProject.isValid) {
                   if (isInvasiveMode) {
-                    locations = currentProject.invasiveChildren
-                        .where((element) => element.type == 'projectlocation')
+                    locations = currentProject.children
+                        .where((element) =>
+                            element.type == 'projectlocation' &&
+                            element.isInvasive)
                         .toList();
-                    buildings = currentProject.invasiveChildren
-                        .where((element) => element.type == 'subproject')
+                    buildings = currentProject.children
+                        .where((element) =>
+                            element.type == 'subproject' && element.isInvasive)
                         .toList();
                   } else {
                     locations = currentProject.children

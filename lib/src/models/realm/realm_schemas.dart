@@ -37,6 +37,7 @@ class _LocalProject {
   String? lasteditedby;
   late Set<String> assignedto;
   List<_LocalChild> children = [];
+
   List<_LocalChild> invasiveChildren = [];
 
   List<_LocalSection> sections = [];
@@ -51,6 +52,7 @@ class _LocalChild {
   late String? type;
   late String? description;
   late String? url;
+  late bool isInvasive;
   int count = 0;
 }
 
@@ -70,7 +72,7 @@ class _LocalSubProject {
   late Set<String> assignedto;
   DateTime? editedat;
   String? lasteditedby;
-
+  late bool isInvasive;
   List<_LocalChild> children = [];
   List<_LocalChild> invasiveChildren = [];
 }
@@ -91,6 +93,7 @@ class _LocalLocation {
   String? url;
   DateTime? editedat;
   String? lasteditedby;
+  late bool isInvasive;
   List<_LocalSection> sections = [];
   List<_LocalSection> invasiveSections = [];
 }
@@ -100,7 +103,7 @@ class _LocalSection {
   @MapTo('_id')
   late ObjectId id;
   late String? name;
-
+  late bool isInvasive;
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = false;
   String? conditionalassessment;

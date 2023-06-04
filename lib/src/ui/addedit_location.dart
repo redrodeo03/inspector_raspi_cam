@@ -109,12 +109,11 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
           if (isNewLocation) {
             Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => LocationPage(
-                        currentLocation.id,
-                        currentLocation.parenttype as String,
-                        pageType,
-                        fullUserName)));
+                LocationPage.getRoute(
+                    currentLocation.id,
+                    currentLocation.parenttype as String,
+                    pageType,
+                    fullUserName));
           } else {
             Navigator.pop(context);
           }

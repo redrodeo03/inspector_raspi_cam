@@ -209,20 +209,21 @@ class RealmProjectServices with ChangeNotifier {
   }
 
 //Update Project Children data
-  void updateProjectChildren(ObjectId childId, ObjectId parentId, String name,
-      String type, String description) {
+  void updateProjectChildren(ObjectId childId, ObjectId parentId,
+      bool isInvasive, String name, String type, String description) {
     var parentProject = realm.find<LocalProject>(parentId);
 
     if (parentProject != null) {
       var found =
           parentProject.children.where((element) => element.id == childId);
       if (found.isEmpty) {
-        parentProject.children.add(LocalChild(childId,
+        parentProject.children.add(LocalChild(childId, isInvasive,
             name: name, type: type, description: description, url: ""));
       } else {
         var foundChild = found.first;
         foundChild.name = name;
         foundChild.description = description;
+        foundChild.isInvasive = isInvasive;
       }
     }
   }
@@ -246,12 +247,13 @@ class RealmProjectServices with ChangeNotifier {
         var foundChild = found.first;
 
         foundChild.url = url;
-        found = parentProject.invasiveChildren
-            .where((element) => element.id == childId);
 
-        foundChild = found.first;
+        // found = parentProject.invasiveChildren
+        //     .where((element) => element.id == childId);
 
-        foundChild.url = url;
+        // foundChild = found.first;
+
+        // foundChild.url = url;
       }
     } catch (e) {}
   }
@@ -260,6 +262,7 @@ class RealmProjectServices with ChangeNotifier {
   void updateSubProjectChildren(
     ObjectId childId,
     ObjectId parentId,
+    bool isInvasive,
     String name,
     String type,
     String description,
@@ -270,7 +273,7 @@ class RealmProjectServices with ChangeNotifier {
       var found =
           parentProject.children.where((element) => element.id == childId);
       if (found.isEmpty) {
-        parentProject.children.add(LocalChild(childId,
+        parentProject.children.add(LocalChild(childId, isInvasive,
             name: name, type: type, description: description, url: ""));
       } else {
         var foundChild = found.first;
@@ -298,12 +301,13 @@ class RealmProjectServices with ChangeNotifier {
       var foundChild = found.first;
 
       foundChild.url = url;
-      found = parentProject.invasiveChildren
-          .where((element) => element.id == childId);
 
-      foundChild = found.first;
+      // found = parentProject.invasiveChildren
+      //     .where((element) => element.id == childId);
 
-      foundChild.url = url;
+      // foundChild = found.first;
+
+      // foundChild.url = url;
     }
   }
 
@@ -378,6 +382,7 @@ class RealmProjectServices with ChangeNotifier {
         subProject.description = description;
         if (isNewBuilding) {
           subProject.createdby = fullUserName;
+          subProject.assignedto.add(loggedInUser);
         } else {
           subProject.lasteditedby = fullUserName;
         }
@@ -388,6 +393,7 @@ class RealmProjectServices with ChangeNotifier {
         updateProjectChildren(
             subProject.id,
             subProject.parentid,
+            subProject.isInvasive,
             subProject.name as String,
             subProject.type as String,
             subProject.description as String);
@@ -486,28 +492,30 @@ class RealmProjectServices with ChangeNotifier {
           updateProjectChildren(
               location.id,
               location.parentid,
+              location.isInvasive,
               location.name as String,
               location.type as String,
               location.description as String);
-          updateProjectInvasiveChildren(
-              location.id,
-              location.parentid,
-              location.name as String,
-              location.type as String,
-              location.description as String);
+          // updateProjectInvasiveChildren(
+          //     location.id,
+          //     location.parentid,
+          //     location.name as String,
+          //     location.type as String,
+          //     location.description as String);
         } else {
           updateSubProjectChildren(
               location.id,
               location.parentid,
+              location.isInvasive,
               location.name as String,
               location.type as String,
               location.description as String);
-          updateSubProjectInvasiveChildren(
-              location.id,
-              location.parentid,
-              location.name as String,
-              location.type as String,
-              location.description as String);
+          // updateSubProjectInvasiveChildren(
+          //     location.id,
+          //     location.parentid,
+          //     location.name as String,
+          //     location.type as String,
+          //     location.description as String);
         }
         realm.add<LocalLocation>(location, update: true);
       });
@@ -606,23 +614,23 @@ class RealmProjectServices with ChangeNotifier {
             visualSection.conditionalassessment,
             visualSection.images.length);
         //check if invasive required.
-        if (visualSection.furtherinvasivereviewrequired) {
-          updateLocationInvasiveSection(
-              visualSection.parenttype,
-              visualSection.id,
-              visualSection.parentid,
-              visualSection.name,
-              visualSection.visualreview,
-              visualSection.visualsignsofleak,
-              visualSection.furtherinvasivereviewrequired,
-              visualSection.conditionalassessment,
-              visualSection.images.length);
-        } else {
-          if (!isNewSection) {
-            deleteLocationSection(visualSection.parenttype, visualSection.id,
-                visualSection.parentid, true);
-          }
-        }
+        // if (visualSection.furtherinvasivereviewrequired) {
+        //   updateLocationInvasiveSection(
+        //       visualSection.parenttype,
+        //       visualSection.id,
+        //       visualSection.parentid,
+        //       visualSection.name,
+        //       visualSection.visualreview,
+        //       visualSection.visualsignsofleak,
+        //       visualSection.furtherinvasivereviewrequired,
+        //       visualSection.conditionalassessment,
+        //       visualSection.images.length);
+        // } else {
+        //   if (!isNewSection) {
+        //     deleteLocationSection(visualSection.parenttype, visualSection.id,
+        //         visualSection.parentid, true);
+        //   }
+        // }
 
         realm.add(visualSection, update: true);
       });
@@ -853,13 +861,15 @@ class RealmProjectServices with ChangeNotifier {
     String? conditionalassessment,
     int length,
   ) {
+    //for singlelevel project
     if (parentType == 'project') {
       var parentProject = realm.find<LocalProject>(parentid);
 
       if (parentProject != null) {
         var found = parentProject.sections.where((element) => element.id == id);
         if (found.isEmpty) {
-          parentProject.sections.add(LocalSection(id,
+          parentProject.sections.add(LocalSection(
+              id, furtherinvasivereviewrequired,
               name: name,
               visualreview: visualreview,
               visualsignsofleak: visualsignsofleak,
@@ -875,89 +885,24 @@ class RealmProjectServices with ChangeNotifier {
           foundChild.furtherinvasivereviewrequired =
               furtherinvasivereviewrequired;
           foundChild.count = length;
-        }
-      }
-    } else {
-      var parentProject = realm.find<LocalLocation>(parentid);
-
-      if (parentProject != null) {
-        var found = parentProject.sections.where((element) => element.id == id);
-        if (found.isEmpty) {
-          parentProject.sections.add(LocalSection(id,
-              name: name,
-              visualreview: visualreview,
-              visualsignsofleak: visualsignsofleak,
-              furtherinvasivereviewrequired: furtherinvasivereviewrequired,
-              conditionalassessment: conditionalassessment,
-              count: length));
-        } else {
-          var foundChild = found.first;
-          foundChild.name = name;
-          foundChild.visualreview = visualreview;
-          foundChild.visualsignsofleak = visualsignsofleak;
-          foundChild.conditionalassessment = conditionalassessment;
-          foundChild.furtherinvasivereviewrequired =
-              furtherinvasivereviewrequired;
-          foundChild.count = length;
-        }
-      }
-    }
-  }
-
-  void updateLocationInvasiveSection(
-    String projectType,
-    ObjectId id,
-    ObjectId parentid,
-    String? name,
-    String? visualreview,
-    bool visualsignsofleak,
-    bool furtherinvasivereviewrequired,
-    String? conditionalassessment,
-    int length,
-  ) {
-    if (projectType == 'project') {
-      var parentProject = realm.find<LocalProject>(parentid);
-
-      if (parentProject != null) {
-        Iterable<LocalSection> found =
-            parentProject.invasiveSections.where((element) => element.id == id);
-        if (found.isEmpty) {
-          parentProject.invasiveSections.add(LocalSection(id,
-              name: name,
-              visualreview: visualreview,
-              visualsignsofleak: visualsignsofleak,
-              furtherinvasivereviewrequired: furtherinvasivereviewrequired,
-              conditionalassessment: conditionalassessment,
-              count: length));
-          //update the parent of Location
-          addInvasiveChildren(parentid);
-        } else {
-          var foundChild = found.first;
-          foundChild.name = name;
-          foundChild.visualreview = visualreview;
-          foundChild.visualsignsofleak = visualsignsofleak;
-          foundChild.conditionalassessment = conditionalassessment;
-          foundChild.furtherinvasivereviewrequired =
-              furtherinvasivereviewrequired;
-          foundChild.count = length;
+          foundChild.isInvasive = furtherinvasivereviewrequired;
         }
       }
     } else {
       var parentLocation = realm.find<LocalLocation>(parentid);
 
       if (parentLocation != null) {
-        Iterable<LocalSection> found = parentLocation.invasiveSections
-            .where((element) => element.id == id);
+        var found =
+            parentLocation.sections.where((element) => element.id == id);
         if (found.isEmpty) {
-          parentLocation.invasiveSections.add(LocalSection(id,
+          parentLocation.sections.add(LocalSection(
+              id, furtherinvasivereviewrequired,
               name: name,
               visualreview: visualreview,
               visualsignsofleak: visualsignsofleak,
               furtherinvasivereviewrequired: furtherinvasivereviewrequired,
               conditionalassessment: conditionalassessment,
               count: length));
-          //update the parent of Location
-          addInvasiveChildren(parentid);
         } else {
           var foundChild = found.first;
           foundChild.name = name;
@@ -967,10 +912,111 @@ class RealmProjectServices with ChangeNotifier {
           foundChild.furtherinvasivereviewrequired =
               furtherinvasivereviewrequired;
           foundChild.count = length;
+          foundChild.isInvasive = furtherinvasivereviewrequired;
+        }
+        //set invasive property of location.
+        parentLocation.isInvasive = parentLocation.sections
+            .any((element) => element.furtherinvasivereviewrequired == true);
+        //update parents
+        if (parentLocation.parenttype == 'project') {
+          var parentProject = realm.find<LocalProject>(parentLocation.parentid);
+          if (parentProject != null) {
+            var childLocation = parentProject.children
+                .where((element) => element.id == parentLocation.id);
+            childLocation.first.isInvasive = furtherinvasivereviewrequired;
+          }
+        }
+        if (parentLocation.parenttype == 'subproject') {
+          var parentSubProject =
+              realm.find<LocalSubProject>(parentLocation.parentid);
+          if (parentSubProject != null) {
+            var childLocation = parentSubProject.children
+                .where((element) => element.id == parentLocation.id);
+            childLocation.first.isInvasive = furtherinvasivereviewrequired;
+            parentSubProject.isInvasive = parentSubProject.children
+                .any((element) => element.isInvasive == true);
+
+            var parentProject =
+                realm.find<LocalProject>(parentSubProject.parentid);
+            if (parentProject != null) {
+              var childLocation = parentProject.children
+                  .where((element) => element.id == parentSubProject.id);
+              childLocation.first.isInvasive = furtherinvasivereviewrequired;
+            }
+          }
         }
       }
     }
   }
+
+  // void updateLocationInvasiveSection(
+  //   String projectType,
+  //   ObjectId id,
+  //   ObjectId parentid,
+  //   String? name,
+  //   String? visualreview,
+  //   bool visualsignsofleak,
+  //   bool furtherinvasivereviewrequired,
+  //   String? conditionalassessment,
+  //   int length,
+  // ) {
+  //   if (projectType == 'project') {
+  //     var parentProject = realm.find<LocalProject>(parentid);
+
+  //     if (parentProject != null) {
+  //       Iterable<LocalSection> found =
+  //           parentProject.invasiveSections.where((element) => element.id == id);
+  //       if (found.isEmpty) {
+  //         parentProject.invasiveSections.add(LocalSection(
+  //             id, furtherinvasivereviewrequired,
+  //             name: name,
+  //             visualreview: visualreview,
+  //             visualsignsofleak: visualsignsofleak,
+  //             furtherinvasivereviewrequired: furtherinvasivereviewrequired,
+  //             conditionalassessment: conditionalassessment,
+  //             count: length));
+  //         //update the parent of Location
+  //         addInvasiveChildren(parentid);
+  //       } else {
+  //         var foundChild = found.first;
+  //         foundChild.name = name;
+  //         foundChild.visualreview = visualreview;
+  //         foundChild.visualsignsofleak = visualsignsofleak;
+  //         foundChild.conditionalassessment = conditionalassessment;
+  //         foundChild.furtherinvasivereviewrequired =
+  //             furtherinvasivereviewrequired;
+  //         foundChild.count = length;
+  //       }
+  //     }
+  //   } else {
+  //     var parentLocation = realm.find<LocalLocation>(parentid);
+
+  //     if (parentLocation != null) {
+  //       Iterable<LocalSection> found = parentLocation.invasiveSections
+  //           .where((element) => element.id == id);
+  //       if (found.isEmpty) {
+  //         parentLocation.invasiveSections.add(LocalSection(id,
+  //             name: name,
+  //             visualreview: visualreview,
+  //             visualsignsofleak: visualsignsofleak,
+  //             furtherinvasivereviewrequired: furtherinvasivereviewrequired,
+  //             conditionalassessment: conditionalassessment,
+  //             count: length));
+  //         //update the parent of Location
+  //         addInvasiveChildren(parentid);
+  //       } else {
+  //         var foundChild = found.first;
+  //         foundChild.name = name;
+  //         foundChild.visualreview = visualreview;
+  //         foundChild.visualsignsofleak = visualsignsofleak;
+  //         foundChild.conditionalassessment = conditionalassessment;
+  //         foundChild.furtherinvasivereviewrequired =
+  //             furtherinvasivereviewrequired;
+  //         foundChild.count = length;
+  //       }
+  //     }
+  //   }
+  // }
 
   void updateImageCount(String parentType, ObjectId id, ObjectId parentid,
       int length, String url) {
@@ -988,13 +1034,13 @@ class RealmProjectServices with ChangeNotifier {
           }
 
           //for inavasive sections
-          found = parentProject.invasiveSections
-              .where((element) => element.id == id);
-          foundChild = found.first;
-          foundChild.count = length;
-          if (url != '') {
-            foundChild.coverUrl = url;
-          }
+          // found = parentProject.invasiveSections
+          //     .where((element) => element.id == id);
+          // foundChild = found.first;
+          // foundChild.count = length;
+          // if (url != '') {
+          //   foundChild.coverUrl = url;
+          // }
         }
       } else {
         var parentLocation = realm.find<LocalLocation>(parentid);
@@ -1009,86 +1055,65 @@ class RealmProjectServices with ChangeNotifier {
           }
 
           //for inavasive sections
-          found = parentLocation.invasiveSections
-              .where((element) => element.id == id);
-          foundChild = found.first;
-          foundChild.count = length;
-          if (url != '') {
-            foundChild.coverUrl = url;
-          }
+          // found = parentLocation.invasiveSections
+          //     .where((element) => element.id == id);
+          // foundChild = found.first;
+          // foundChild.count = length;
+          // if (url != '') {
+          //   foundChild.coverUrl = url;
+          // }
         }
       }
     } catch (e) {}
   }
 
-  void addInvasiveChildren(ObjectId parentid) {
-    LocalLocation? location = realm.find<LocalLocation>(parentid);
-    if (location != null) {
-      if (location.parenttype == 'project') {
-        updateProjectInvasiveChildren(
-            location.id,
-            location.parentid,
-            location.name as String,
-            location.type as String,
-            location.description as String);
-      } else {
-        updateSubProjectInvasiveChildren(
-            location.id,
-            location.parentid,
-            location.name as String,
-            location.type as String,
-            location.description as String);
-      }
-    }
-  }
+  // void updateSubProjectInvasiveChildren(
+  //   ObjectId childId,
+  //   ObjectId parentId,
+  //   String name,
+  //   String type,
+  //   String description,
+  // ) {
+  //   var parentSubProject = realm.find<LocalSubProject>(parentId);
 
-  void updateSubProjectInvasiveChildren(
-    ObjectId childId,
-    ObjectId parentId,
-    String name,
-    String type,
-    String description,
-  ) {
-    var parentSubProject = realm.find<LocalSubProject>(parentId);
+  //   if (parentSubProject != null) {
+  //     var found = parentSubProject.invasiveChildren
+  //         .where((element) => element.id == childId);
+  //     if (found.isEmpty) {
+  //       parentSubProject.invasiveChildren.add(LocalChild(childId,
+  //           name: name, type: type, description: description, url: ""));
+  //     } else {
+  //       var foundChild = found.first;
+  //       foundChild.name = name;
+  //       foundChild.description = description;
+  //     }
+  //     //update project
+  //     updateProjectInvasiveChildren(
+  //         parentSubProject.id,
+  //         parentSubProject.parentid,
+  //         parentSubProject.name as String,
+  //         parentSubProject.type as String,
+  //         parentSubProject.description as String);
+  //   }
+  // }
 
-    if (parentSubProject != null) {
-      var found = parentSubProject.invasiveChildren
-          .where((element) => element.id == childId);
-      if (found.isEmpty) {
-        parentSubProject.invasiveChildren.add(LocalChild(childId,
-            name: name, type: type, description: description, url: ""));
-      } else {
-        var foundChild = found.first;
-        foundChild.name = name;
-        foundChild.description = description;
-      }
-      //update project
-      updateProjectInvasiveChildren(
-          parentSubProject.id,
-          parentSubProject.parentid,
-          parentSubProject.name as String,
-          parentSubProject.type as String,
-          parentSubProject.description as String);
-    }
-  }
+  // void updateProjectInvasiveChildren(ObjectId childId, ObjectId parentId,
+  //     String name, String type, String description) {
+  //   var parentProject = realm.find<LocalProject>(parentId);
 
-  void updateProjectInvasiveChildren(ObjectId childId, ObjectId parentId,
-      String name, String type, String description) {
-    var parentProject = realm.find<LocalProject>(parentId);
-
-    if (parentProject != null) {
-      var found = parentProject.invasiveChildren
-          .where((element) => element.id == childId);
-      if (found.isEmpty) {
-        parentProject.invasiveChildren.add(LocalChild(childId,
-            name: name, type: type, description: description, url: ""));
-      } else {
-        var foundChild = found.first;
-        foundChild.name = name;
-        foundChild.description = description;
-      }
-    }
-  }
+  //   if (parentProject != null) {
+  //     var found = parentProject.invasiveChildren
+  //         .where((element) => element.id == childId);
+  //     if (found.isEmpty) {
+  //       parentProject.invasiveChildren.add(LocalChild(childId,
+  //           name: name, type: type, description: description, url: ""));
+  //     } else {
+  //       var foundChild = found.first;
+  //       foundChild.name = name;
+  //       foundChild.description = description;
+  //     }
+  //   }
+  // }
 
   LocalInvasiveSection getNewInvasiveSection(ObjectId sectionId) {
     return LocalInvasiveSection(
