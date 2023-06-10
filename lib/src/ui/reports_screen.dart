@@ -3,6 +3,7 @@ import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({Key? key}) : super(key: key);
@@ -74,6 +75,12 @@ class _ReportsPage extends State<ReportsPage> {
                       Icons.arrow_forward,
                       color: Colors.redAccent,
                     ),
+                    onLongPress: () {
+                      _onShareData(
+                          context,
+                          _folders[index].path.split('/').last,
+                          _folders[index].path.toString());
+                    },
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
@@ -84,5 +91,29 @@ class _ReportsPage extends State<ReportsPage> {
                   ));
                 },
               ));
+  }
+
+  _onShareData(
+      BuildContext context, String fileName, String pdfFilePath) async {
+    //final box = context.findRenderObject() as RenderBox?;
+    final files = <XFile>[];
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    files.add(XFile(pdfFilePath, name: fileName));
+    var shareResult = await Share.shareXFiles(files, subject: 'Project Report');
+    scaffoldMessenger.showSnackBar(getResultSnackBar(shareResult));
+  }
+
+  SnackBar getResultSnackBar(ShareResult result) {
+    return SnackBar(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Share result: ${result.status}"),
+          if (result.status == ShareResultStatus.success)
+            Text("Shared to: ${result.raw}")
+        ],
+      ),
+    );
   }
 }

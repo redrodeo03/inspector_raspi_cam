@@ -55,6 +55,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^21.2.3
   image_editor_plus: ^0.2.0
   assorted_layout_widgets: ^8.0.4
+  share_plus: ^7.0.2
 
 dev_dependencies:
   flutter_test:
