@@ -139,7 +139,8 @@ class ProjectsApiProvider {
             await Directory(path.join(directory.path, companyName))
                 .create(recursive: true);
         final now = DateTime.now();
-        var reportFile = path.join(destDirectory.path, '$projectName-$now.pdf');
+        var reportFile =
+            path.join(destDirectory.path, '$projectName-$reportType-$now.pdf');
         final file = File(reportFile);
 
         var writtenFile = await file.writeAsBytes(response.bodyBytes);

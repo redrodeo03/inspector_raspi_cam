@@ -352,13 +352,20 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     Expanded(
                       child: isInvasiveMode
                           ? PopupMenuButton(
-                              child: const Chip(
-                                avatar: Icon(
-                                  Icons.file_download_done_outlined,
-                                  color: Colors.blue,
-                                ),
-                                labelPadding: EdgeInsets.all(2),
-                                label: Text(
+                              child: Chip(
+                                avatar: isDownloading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.file_download_done_outlined,
+                                        color: Colors.blue),
+                                labelPadding: const EdgeInsets.all(2),
+                                label: const Text(
                                   'Download Report',
                                   style: TextStyle(
                                       color: Colors.blue, fontSize: 15),
@@ -382,7 +389,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                               onTap: () {
                                 isDownloading
                                     ? null
-                                    : downloadProjectReport(id, 'visualReport');
+                                    : downloadProjectReport(id, 'Visual');
                               },
                               child: Chip(
                                 avatar: isDownloading
@@ -539,9 +546,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
   _onMenuItemSelected(int value) async {
     if (value == 1) {
-      downloadProjectReport(currentProject.id, 'invasiveVisual');
+      downloadProjectReport(currentProject.id, 'Invasive');
     } else {
-      downloadProjectReport(currentProject.id, 'invasiveOnly');
+      downloadProjectReport(currentProject.id, 'InvasiveOnly');
     }
   }
 
