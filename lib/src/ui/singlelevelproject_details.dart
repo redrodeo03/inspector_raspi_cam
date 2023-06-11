@@ -258,7 +258,9 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
                     Expanded(
                       child: InkWell(
                           onTap: () {
-                            isDownloading ? null : downloadProjectReport(id);
+                            isDownloading
+                                ? null
+                                : downloadProjectReport(id, 'visual');
                           },
                           child: Chip(
                             avatar: isDownloading
@@ -722,7 +724,7 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
   }
 
   bool isDownloading = false;
-  void downloadProjectReport(ObjectId id) async {
+  void downloadProjectReport(ObjectId id, String projectType) async {
     setState(() {
       isDownloading = true;
     });
@@ -732,6 +734,7 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
         'pdf',
         50,
         4,
+        projectType,
         'DeckInspectors');
     if (!mounted) {
       return;

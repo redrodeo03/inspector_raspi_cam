@@ -125,9 +125,9 @@ class Repository {
   }
 
   Future<Object> downloadProjectReport(String name, String id, String fileType,
-      int quality, int imageFactor, String companyName) {
+      int quality, int imageFactor, String reportType, String companyName) {
     return projectsApiProvider.downloadReport(
-        name, id, fileType, quality, imageFactor, companyName);
+        name, id, fileType, quality, imageFactor, reportType, companyName);
   }
 }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'dart:io';
 import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
@@ -105,14 +106,21 @@ class ProjectsApiProvider {
     }
   }
 
-  Future<Object> downloadReport(String projectName, String id, String fileType,
-      int quality, int imageFactor, String companyName) async {
+  Future<Object> downloadReport(
+      String projectName,
+      String id,
+      String fileType,
+      int quality,
+      int imageFactor,
+      String reportType,
+      String companyName) async {
     try {
       var endPoint = '${URLS.manageProjectsUrl}/generatereport';
       final baseUrl = Uri.parse(endPoint);
       final reportBody = jsonEncode({
         'id': id,
         'companyName': companyName,
+        'reportType': reportType,
         'sectionImageProperties': {
           'compressionQuality': quality,
           'imageFactor': imageFactor,
@@ -130,7 +138,8 @@ class ProjectsApiProvider {
         var destDirectory =
             await Directory(path.join(directory.path, companyName))
                 .create(recursive: true);
-        var reportFile = path.join(destDirectory.path, '$projectName-$id.pdf');
+        final now = DateTime.now();
+        var reportFile = path.join(destDirectory.path, '$projectName-$now.pdf');
         final file = File(reportFile);
 
         var writtenFile = await file.writeAsBytes(response.bodyBytes);
