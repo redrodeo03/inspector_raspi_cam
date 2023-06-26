@@ -178,6 +178,16 @@ class _LoginPageState extends State<LoginPage> {
 
                     //keep signed in and forget password section
                     rememberMe(),
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                        child: InkWell(
+                            onTap: () => registerUser(),
+                            child: const Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'Don\'t have account,Register',
+                                  style: TextStyle(color: Colors.blue),
+                                ))))
                   ],
                 ),
               ),
@@ -413,4 +423,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  registerUser() {}
 }

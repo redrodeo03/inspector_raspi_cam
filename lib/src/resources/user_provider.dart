@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:deckinspectors/src/resources/urls.dart';
 import 'package:http/http.dart' show Client;
 
-import 'package:realm/realm.dart';
-
 import '../models/login_response.dart';
 
 class UsersApiProvider {

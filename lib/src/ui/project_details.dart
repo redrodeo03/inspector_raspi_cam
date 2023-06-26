@@ -35,9 +35,9 @@ class ProjectDetailsPage extends StatefulWidget {
   State<ProjectDetailsPage> createState() => _ProjectDetailsPageState();
 
   static MaterialPageRoute getRoute(
-          ObjectId id, String userName, bool isInvasive) =>
+          ObjectId id, String userName, bool isInvasive, String pageName) =>
       MaterialPageRoute(
-          settings: const RouteSettings(name: 'Project Details'),
+          settings: RouteSettings(name: pageName),
           builder: (context) => ProjectDetailsPage(id, userName, isInvasive));
 }
 
@@ -147,7 +147,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
   void addNewChild(String name) {
     //setState(() {});
-    if (selectedTabIndex == 0) {
+    if (selectedTabIndex == 1) {
       Navigator.push(
           context,
           AddEditLocationPage.getRoute(getNewLocation(), true, userFullName,
@@ -160,16 +160,17 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     }
   }
 
-  void gotoDetails(ObjectId id, String name) {
-    if (selectedTabIndex == 0) {
+  void gotoDetails(ObjectId id, String name, String pageName) {
+    if (selectedTabIndex == 1) {
       Navigator.push(
         context,
-        LocationPage.getRoute(id, name, 'Project Locations', userFullName),
+        LocationPage.getRoute(
+            id, name, 'Project Locations', userFullName, pageName),
       ).then((value) => locations.remove(value));
     } else {
       Navigator.push(
         context,
-        SubProjectDetailsPage.getRoute(id, 'Buildings', userFullName),
+        SubProjectDetailsPage.getRoute(id, name, userFullName, pageName),
       );
     }
   }
@@ -563,11 +564,11 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           controller: _tabController,
           tabs: [
             Tab(
-              text: "Project Locations (${locations.length})",
+              text: "Buildings (${buildings.length})",
               height: 32,
             ),
             Tab(
-              text: "Buildings (${buildings.length})",
+              text: "Project Locations (${locations.length})",
               height: 32,
             ),
           ],
@@ -576,8 +577,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         SizedBox(
             height: 250,
             child: TabBarView(controller: _tabController, children: [
-              locationsWidget('location'),
               locationsWidget('building'),
+              locationsWidget('location'),
             ])),
       ],
       // ),
@@ -658,7 +659,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               GestureDetector(
                 onTap: () {
                   gotoDetails(
-                      locations[index]!.id, currentProject.name as String);
+                      locations[index]!.id,
+                      currentProject.name as String,
+                      locations[index]!.name as String);
                 },
                 child: Container(
                   height: 140,
@@ -729,7 +732,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
               GestureDetector(
                 onTap: () {
                   gotoDetails(
-                      buildings[index]!.id, currentProject.name as String);
+                      buildings[index]!.id,
+                      currentProject.name as String,
+                      buildings[index]!.name as String);
                 },
                 child: Container(
                   height: 140,

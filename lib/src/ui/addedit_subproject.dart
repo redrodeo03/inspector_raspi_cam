@@ -93,8 +93,8 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
           if (isNewBuilding) {
             Navigator.pushReplacement(
                 context,
-                SubProjectDetailsPage.getRoute(
-                    currentBuilding.id, prevPagename, fullUserName));
+                SubProjectDetailsPage.getRoute(currentBuilding.id, prevPagename,
+                    fullUserName, currentBuilding.name as String));
           } else {
             Navigator.pop(context);
           }

@@ -5,10 +5,12 @@ import 'navigation_observer.dart';
 
 class BreadCrumbNavigator extends StatelessWidget {
   final List<Route> currentRouteStack;
-  BreadCrumbNavigator({super.key}) : currentRouteStack = routeStack.toList();
+  BreadCrumbNavigator({super.key})
+      : currentRouteStack = routeStack
+            .where((element) => element.settings.name != "section")
+            .toList();
 
-  @override
-  Widget build(BuildContext context) {
+  Widget build1(BuildContext context) {
     return RowSuper(
       alignment: Alignment.centerLeft,
       mainAxisSize: MainAxisSize.max,
@@ -31,6 +33,27 @@ class BreadCrumbNavigator extends StatelessWidget {
           )
           .values),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        height: 35,
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: currentRouteStack.length,
+            itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                  onTap: () {
+                    Navigator.popUntil(
+                        context, (route) => route == currentRouteStack[index]);
+                  },
+                  child: _BreadButton(
+                      index == 0
+                          ? 'Home'
+                          : currentRouteStack[index].settings.name as String,
+                      index == 0));
+            }));
   }
 }
 

@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+
 import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import 'package:path/path.dart' as path;
 import '../resources/realm/realm_services.dart';
+import 'breadcrumb_navigation.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +34,18 @@ class SectionPage extends StatefulWidget {
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
+  static MaterialPageRoute getRoute(
+          ObjectId id,
+          ObjectId parentId,
+          String userName,
+          String parentType,
+          String parentName,
+          bool isNewSection,
+          String pageName) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: pageName),
+          builder: (context) => SectionPage(
+              id, parentId, userName, parentType, parentName, isNewSection));
   @override
   State<SectionPage> createState() => _SectionPageState();
 }
@@ -40,6 +54,7 @@ class _SectionPageState extends State<SectionPage> {
   late RealmProjectServices realmServices;
   @override
   Widget build(BuildContext context) {
+    BreadCrumbNavigator();
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           tooltip: 'Save and Create New',
@@ -48,7 +63,7 @@ class _SectionPageState extends State<SectionPage> {
             saveAndNext(context, realmServices);
           },
           backgroundColor: Colors.blue,
-          child: const Icon(Icons.save)),
+          child: const Icon(Icons.save_sharp)),
       appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 120,
@@ -80,7 +95,7 @@ class _SectionPageState extends State<SectionPage> {
               ),
               InkWell(
                   onTap: () {
-                    save(context, realmServices);
+                    save(context, realmServices, false);
                   },
                   child: const Chip(
                     avatar: Icon(
@@ -198,14 +213,14 @@ class _SectionPageState extends State<SectionPage> {
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
-  save(BuildContext context, RealmProjectServices realmServices) async {
+  Future<bool> save(BuildContext context, RealmProjectServices realmServices,
+      bool createNew) async {
     if (_formKey.currentState!.validate()) {
       //check if everything is filled.
-      //TODO
+
       if (selectedExteriorelements.isEmpty ||
           selectedWaterproofingElements.isEmpty ||
           _review == null ||
-          _assessment == null ||
           _eee == null ||
           _lbc == null ||
           _awe == null ||
@@ -215,7 +230,7 @@ class _SectionPageState extends State<SectionPage> {
               content: Text(
                   'Please add images & fill all the values, then save the location.')),
         );
-        return;
+        return false;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Location...')),
@@ -237,45 +252,46 @@ class _SectionPageState extends State<SectionPage> {
           isNewSection,
           userFullName);
 
-      if (!mounted) {
-        return;
-      }
       if (saveResult) {
+        if (!createNew) {
+          Navigator.of(context).pop();
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
-        Navigator.pop(context);
+        if (capturedImages.isNotEmpty) {
+          var imagesToUpload =
+              capturedImages.where((e) => !e.startsWith('http')).toList();
+          if (imagesToUpload.isNotEmpty) {
+            imagesBloc
+                .uploadMultipleImages(
+                    imagesToUpload,
+                    currentVisualSection.name as String,
+                    userFullName,
+                    currentVisualSection.id.toString(),
+                    parentType,
+                    'section')
+                .then((value) {
+              List<String> urls = [];
+              for (var element in value) {
+                if (element is ImageResponse) {
+                  urls.add(element.url as String);
+                }
+              }
+              realmServices.addImagesUrl(currentVisualSection, urls);
+            });
+          }
+        }
+        return true;
+        // Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the location.')),
         );
-      }
-      if (saveResult) {
-        if (capturedImages.isNotEmpty) {
-          var imagesToUpload =
-              capturedImages.where((e) => !e.startsWith('http')).toList();
-          if (imagesToUpload.isEmpty) {
-            return;
-          }
-          imagesBloc
-              .uploadMultipleImages(
-                  imagesToUpload,
-                  currentVisualSection.name as String,
-                  userFullName,
-                  currentVisualSection.id.toString(),
-                  parentType,
-                  'section')
-              .then((value) {
-            List<String> urls = [];
-            for (var element in value) {
-              if (element is ImageResponse) {
-                urls.add(element.url as String);
-              }
-            }
-            realmServices.addImagesUrl(currentVisualSection, urls);
-          });
-        }
+        return false;
       }
     }
+    return false;
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -437,8 +453,7 @@ class _SectionPageState extends State<SectionPage> {
                                                     width: 300,
                                                     decoration:
                                                         const BoxDecoration(
-                                                            color:
-                                                                Colors.orange,
+                                                            color: Colors.blue,
                                                             // image: DecorationImage(
                                                             //     image:
                                                             //         AssetImage('assets/images/icon.png'),
@@ -501,34 +516,44 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Exterior Elements',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                        child: Text(
+                          'Exterior Elements',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
                       ),
                       InkWell(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${selectedExteriorelements.length} Selected',
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 14,
-                              color: Colors.blue,
-                            ),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${selectedExteriorelements.length} Selected',
+                                style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                size: 14,
+                                color: Colors.blue,
+                              ),
+                            ],
+                          ),
                         ),
                         onTap: () {
                           showMaterialCheckboxPicker<ElementModel>(
                             context: context,
                             title: 'Exterior Elements',
+                            selectAllConfig: SelectAllConfig(
+                              const Text('Select All'),
+                              const Text('Deselect All'),
+                            ),
                             items: exteriorElements,
                             selectedItems: selectedExteriorelements,
                             onChanged: (value) => setState(
@@ -548,41 +573,50 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Waterproofing Elements',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          showMaterialCheckboxPicker<ElementModel>(
-                            context: context,
-                            title: 'Waterproofing Elements',
-                            items: waterproofingElements,
-                            selectedItems: selectedWaterproofingElements,
-                            onChanged: (value) => setState(
-                                () => selectedWaterproofingElements = value),
-                          );
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${selectedWaterproofingElements.length} Selected',
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 14,
-                              color: Colors.blue,
-                            ),
-                          ],
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
+                        child: Text(
+                          'Waterproofing Elements',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ),
+                      InkWell(
+                          onTap: () {
+                            showMaterialCheckboxPicker<ElementModel>(
+                              context: context,
+                              selectAllConfig: SelectAllConfig(
+                                const Text('Select All'),
+                                const Text('Deselect All'),
+                              ),
+                              title: 'Waterproofing Elements',
+                              items: waterproofingElements,
+                              selectedItems: selectedWaterproofingElements,
+                              onChanged: (value) => setState(
+                                  () => selectedWaterproofingElements = value),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${selectedWaterproofingElements.length} Selected',
+                                  style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                const Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  size: 14,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          )),
                     ],
                   ),
                   const Divider(
@@ -1154,13 +1188,26 @@ class _SectionPageState extends State<SectionPage> {
     }
   }
 
-  void saveAndNext(BuildContext context, RealmProjectServices realmServices) {
-    save(context, realmServices);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SectionPage(ObjectId(), widget.parentId,
-                userFullName, widget.parentType, widget.parentName, true)));
+  void saveAndNext(
+      BuildContext context, RealmProjectServices realmServices) async {
+    Navigator.of(context).pop();
+//if (!context.mounted) return;
+    var result = await save(context, realmServices, true);
+
+    if (result) {
+      if (!context.mounted) return;
+      //Navigator.of(context).pop();
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) => SectionPage(ObjectId(), widget.parentId,
+      //             userFullName, widget.parentType, widget.parentName, true)));
+
+      Navigator.push(
+          context,
+          SectionPage.getRoute(ObjectId(), widget.parentId, userFullName,
+              widget.parentType, widget.parentName, true, "section"));
+    }
   }
 
   gotoImageEditorPage(

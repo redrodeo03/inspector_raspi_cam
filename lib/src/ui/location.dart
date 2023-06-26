@@ -26,9 +26,9 @@ class LocationPage extends StatefulWidget {
   @override
   State<LocationPage> createState() => _LocationPageState();
   static MaterialPageRoute getRoute(ObjectId id, String parentType,
-          String locationType, String userName) =>
+          String locationType, String userName, String pageName) =>
       MaterialPageRoute(
-          settings: RouteSettings(name: locationType),
+          settings: RouteSettings(name: pageName),
           builder: (context) =>
               LocationPage(id, parentType, locationType, userName));
 }
@@ -333,31 +333,34 @@ class _LocationPageState extends State<LocationPage> {
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 2, 8, 4),
-        child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: appSettings.isInvasiveMode ? Colors.orange : Colors.blue,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10),
-                bottom: Radius.circular(00),
+          padding: const EdgeInsets.fromLTRB(4, 2, 8, 4),
+          child: InkWell(
+            onTap: () {
+              if (appSettings.isInvasiveMode) {
+                gotoInvasiveDetails(
+                    sections[index].id, sections[index].name as String);
+              } else {
+                gotoDetails(sections[index].id, sections[index].name as String);
+              }
+            },
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+              Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color:
+                      appSettings.isInvasiveMode ? Colors.orange : Colors.blue,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(10),
+                    bottom: Radius.circular(00),
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: cachedNetworkImage(coverUrl),
+                ),
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: cachedNetworkImage(coverUrl),
-            ),
-          ),
-          InkWell(
-              onTap: () {
-                if (appSettings.isInvasiveMode) {
-                  gotoInvasiveDetails(sections[index].id);
-                } else {
-                  gotoDetails(sections[index].id);
-                }
-              },
-              child: Card(
+              Card(
                   shadowColor: Colors.blue,
                   elevation: 8,
                   child: Column(children: [
@@ -554,9 +557,9 @@ class _LocationPageState extends State<LocationPage> {
                     const SizedBox(
                       height: 10,
                     )
-                  ])))
-        ]),
-      ),
+                  ]))
+            ]),
+          )),
     );
   }
 
@@ -573,13 +576,12 @@ class _LocationPageState extends State<LocationPage> {
                 true))).then((value) => setState(() {}));
   }
 
-  void gotoDetails(ObjectId sectionId) {
+  void gotoDetails(ObjectId sectionId, String sectionName) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SectionPage(sectionId, currentLocation.id,
-              userFullName, parenttype, currentLocation.name as String, false),
-        )).then((value) {
+      context,
+      SectionPage.getRoute(sectionId, currentLocation.id, userFullName,
+          parenttype, currentLocation.name as String, false, "section"),
+    ).then((value) {
       if (!mounted) {
         return;
       }
@@ -596,7 +598,7 @@ class _LocationPageState extends State<LocationPage> {
             currentLocation.name as String));
   }
 
-  void gotoInvasiveDetails(ObjectId id) {
+  void gotoInvasiveDetails(ObjectId id, String sectionName) {
     Navigator.push(
         context,
         MaterialPageRoute(

@@ -45,15 +45,15 @@ class _ProjectsPageState extends State<ProjectsPage> {
         AddEditProjectPage.getRoute(getLocalProject(), true, userFullName));
   }
 
-  void gotoProjectDetails(ObjectId projectId) {
+  void gotoProjectDetails(ObjectId projectId, String projName) {
     //setState(() {});
-    Navigator.push(
-        context, ProjectDetailsPage.getRoute(projectId, userFullName, false));
+    Navigator.push(context,
+        ProjectDetailsPage.getRoute(projectId, userFullName, false, projName));
   }
 
-  void gotoInvasiveProjectDetails(ObjectId projectId) {
-    Navigator.push(
-        context, ProjectDetailsPage.getRoute(projectId, userFullName, true));
+  void gotoInvasiveProjectDetails(ObjectId projectId, String projName) {
+    Navigator.push(context,
+        ProjectDetailsPage.getRoute(projectId, userFullName, true, projName));
   }
 
   @override
@@ -141,7 +141,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                       gotoSingleLevelProject(
                                           projects[index].id);
                                     } else {
-                                      gotoProjectDetails(projects[index].id);
+                                      gotoProjectDetails(projects[index].id,
+                                          projects[index].name as String);
                                     }
                                   },
                                   child: Container(
@@ -234,9 +235,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                                         .id);
                                                               } else {
                                                                 gotoProjectDetails(
-                                                                    projects[
-                                                                            index]
-                                                                        .id);
+                                                                    projects[index]
+                                                                        .id,
+                                                                    projects[index]
+                                                                            .name
+                                                                        as String);
                                                               }
                                                             },
                                                             child: Container(
@@ -269,7 +272,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                         projects[index].id);
                                                   } else {
                                                     gotoInvasiveProjectDetails(
-                                                        projects[index].id);
+                                                        projects[index].id,
+                                                        projects[index].name
+                                                            as String);
                                                   }
                                                 },
                                                 child: Container(

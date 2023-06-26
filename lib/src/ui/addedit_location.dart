@@ -113,7 +113,8 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                     currentLocation.id,
                     currentLocation.parenttype as String,
                     pageType,
-                    fullUserName));
+                    fullUserName,
+                    currentLocation.name as String));
           } else {
             Navigator.pop(context);
           }
