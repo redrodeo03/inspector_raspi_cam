@@ -114,13 +114,14 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
 
   void gotoDetails(ObjectId id, String type, String pageName) {
     Navigator.push(
-        context,
-        LocationPage.getRoute(
-            id, currentBuilding.name as String, type, userFullName, pageName)
-        // MaterialPageRoute(
-        //     builder: (context) => LocationPage(
-        //         id, currentBuilding.name as String, type, userFullName)),
-        );
+            context,
+            LocationPage.getRoute(id, currentBuilding.name as String, type,
+                userFullName, pageName)
+            // MaterialPageRoute(
+            //     builder: (context) => LocationPage(
+            //         id, currentBuilding.name as String, type, userFullName)),
+            )
+        .then((value) => setState(() => {}));
   }
 
   @override

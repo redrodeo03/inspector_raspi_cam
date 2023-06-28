@@ -133,6 +133,7 @@ class _LocalVisualSection {
   String? createdby;
   String? createdat;
   String parenttype = '';
+  late bool unitUnavailable;
   // InvasiveSection? invasiveSection;
   // ConclusiveSection? conclusiveSection;
   DateTime? editedat;

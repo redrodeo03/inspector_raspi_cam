@@ -7,7 +7,7 @@ class BreadCrumbNavigator extends StatelessWidget {
   final List<Route> currentRouteStack;
   BreadCrumbNavigator({super.key})
       : currentRouteStack = routeStack
-            .where((element) => element.settings.name != "section")
+            //.where((element) => element.settings.name != "section")
             .toList();
 
   Widget build1(BuildContext context) {
@@ -45,8 +45,10 @@ class BreadCrumbNavigator extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               return InkWell(
                   onTap: () {
-                    Navigator.popUntil(
-                        context, (route) => route == currentRouteStack[index]);
+                    try {
+                      Navigator.popUntil(context,
+                          (route) => route == currentRouteStack[index]);
+                    } catch (e) {}
                   },
                   child: _BreadButton(
                       index == 0

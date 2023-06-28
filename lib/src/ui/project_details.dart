@@ -166,12 +166,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         context,
         LocationPage.getRoute(
             id, name, 'Project Locations', userFullName, pageName),
-      ).then((value) => locations.remove(value));
+      ).then((value) {
+        locations.remove(value);
+        setState(() => {});
+      });
     } else {
       Navigator.push(
         context,
         SubProjectDetailsPage.getRoute(id, name, userFullName, pageName),
-      );
+      ).then((value) => setState(() => {}));
     }
   }
 

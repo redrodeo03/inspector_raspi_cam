@@ -565,25 +565,25 @@ class _LocationPageState extends State<LocationPage> {
 
   void addNewChild() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SectionPage(
-                ObjectId(),
-                currentLocation.id,
-                userFullName,
-                parenttype,
-                currentLocation.name as String,
-                true))).then((value) => setState(() {}));
+            context,
+            SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
+                parenttype, currentLocation.name as String, true, "New"))
+        .then((value) => setState(() {}));
   }
 
   void gotoDetails(ObjectId sectionId, String sectionName) {
     Navigator.push(
       context,
       SectionPage.getRoute(sectionId, currentLocation.id, userFullName,
-          parenttype, currentLocation.name as String, false, "section"),
+          parenttype, currentLocation.name as String, false, sectionName),
     ).then((value) {
       if (!mounted) {
         return;
+      }
+      if (value is bool) {
+        if (value == true) {
+          addNewChild();
+        }
       }
       setState(
         () {},
@@ -600,11 +600,10 @@ class _LocationPageState extends State<LocationPage> {
 
   void gotoInvasiveDetails(ObjectId id, String sectionName) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => InvasiveSectionPage(id, currentLocation.id,
-              userFullName, parenttype, currentLocation.name as String, false),
-        )).then((value) {
+            context,
+            InvasiveSectionPage.getRoute(id, currentLocation.id, userFullName,
+                parenttype, currentLocation.name as String, false, sectionName))
+        .then((value) {
       if (!mounted) {
         return;
       }

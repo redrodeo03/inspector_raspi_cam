@@ -731,7 +731,8 @@ class LocalVisualSection extends _LocalVisualSection
     String eee,
     String lbc,
     String awe,
-    ObjectId parentid, {
+    ObjectId parentid,
+    bool unitUnavailable, {
     String? name,
     String? additionalconsiderations,
     String? visualreview,
@@ -770,6 +771,7 @@ class LocalVisualSection extends _LocalVisualSection
     RealmObjectBase.set(this, 'createdby', createdby);
     RealmObjectBase.set(this, 'createdat', createdat);
     RealmObjectBase.set(this, 'parenttype', parenttype);
+    RealmObjectBase.set(this, 'unitUnavailable', unitUnavailable);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set<RealmList<String>>(
@@ -891,6 +893,13 @@ class LocalVisualSection extends _LocalVisualSection
       RealmObjectBase.set(this, 'parenttype', value);
 
   @override
+  bool get unitUnavailable =>
+      RealmObjectBase.get<bool>(this, 'unitUnavailable') as bool;
+  @override
+  set unitUnavailable(bool value) =>
+      RealmObjectBase.set(this, 'unitUnavailable', value);
+
+  @override
   DateTime? get editedat =>
       RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
   @override
@@ -940,6 +949,7 @@ class LocalVisualSection extends _LocalVisualSection
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('parenttype', RealmPropertyType.string),
+      SchemaProperty('unitUnavailable', RealmPropertyType.bool),
       SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
     ]);

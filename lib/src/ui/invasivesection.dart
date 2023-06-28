@@ -1,14 +1,19 @@
+import 'dart:io';
+
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
-
+import 'package:http/http.dart' as http;
 import '../models/success_response.dart';
-
+import 'package:path/path.dart' as path;
 import '../resources/realm/realm_services.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
@@ -28,6 +33,18 @@ class InvasiveSectionPage extends StatefulWidget {
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
+  static MaterialPageRoute getRoute(
+          ObjectId id,
+          ObjectId parentId,
+          String userName,
+          String parentType,
+          String parentName,
+          bool isNewSection,
+          String pageName) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: pageName),
+          builder: (context) => InvasiveSectionPage(
+              id, parentId, userName, parentType, parentName, isNewSection));
   @override
   State<InvasiveSectionPage> createState() => _InvasiveSectionPageState();
 }
@@ -759,6 +776,62 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
     );
   }
 
+  void removePhoto(BuildContext context, int index, bool isConclusive) {
+    if (isConclusive) {
+      realmServices.removeConclusiveImageUrl(
+          currentConclusiveSection, capturedConclusiveImages[index]);
+    } else {
+      realmServices.removeInvasiveImageUrl(
+          currentInvasiveSection, capturedInvasiveImages[index]);
+    }
+
+    setState(() {
+      isConclusive
+          ? capturedConclusiveImages.removeAt(index)
+          : capturedInvasiveImages.removeAt(index);
+    });
+  }
+
+  gotoImageEditorPage(BuildContext context, String capturedImage, int index,
+      bool isConclusive) async {
+    Uint8List imageData;
+    if (capturedImage.contains('http')) {
+      http.Response response = await http.get(
+        Uri.parse(capturedImage),
+      );
+      imageData = response.bodyBytes;
+    } else {
+      imageData = await File(capturedImage).readAsBytes();
+    }
+
+    var editedImage = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ImageEditor(image: imageData)));
+    //update capturedimages collection.
+    final directory = await getApplicationDocumentsDirectory();
+    var destDirectory =
+        await Directory(path.join(directory.path, 'editedimages'))
+            .create(recursive: true);
+    String imageid = ObjectId().toString();
+    final pathOfImage =
+        await File('${destDirectory.path}/$imageid.jpg').create();
+    if (editedImage != null) {
+      var editedFile = await pathOfImage.writeAsBytes(editedImage);
+      setState(() {
+        if (isConclusive) {
+          capturedConclusiveImages.removeAt(index);
+          realmServices.removeConclusiveImageUrl(
+              currentConclusiveSection, capturedImage);
+          capturedConclusiveImages.insert(index, editedFile.path);
+        } else {
+          capturedInvasiveImages.removeAt(index);
+          realmServices.removeInvasiveImageUrl(
+              currentInvasiveSection, capturedImage);
+          capturedInvasiveImages.insert(index, editedFile.path);
+        }
+      });
+    }
+  }
+
   void toggleSwitch(bool value) {
     if (postInvasiveRepairsRequired == false) {
       setState(() {
@@ -1409,27 +1482,76 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                         scrollDirection: Axis.horizontal,
                         itemCount: capturedInvasiveImages.length,
                         itemBuilder: (BuildContext context, int index) =>
-                            Container(
-                                margin: const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                                height: 180,
-                                width: 300,
-                                decoration: const BoxDecoration(
-                                    color: Colors.orange,
-                                    // image: DecorationImage(
-                                    //     image:
-                                    //         AssetImage('assets/images/icon.png'),
-                                    //     fit: BoxFit.cover),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8.0)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 1.0, color: Colors.blue)
-                                    ]),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: networkImage(
-                                      capturedInvasiveImages[index]),
-                                )),
+                            SizedBox(
+                                width: 320,
+                                height: 200,
+                                child: Padding(
+                                    padding: const EdgeInsets.all(2),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => gotoImageEditorPage(
+                                                context,
+                                                capturedInvasiveImages[index],
+                                                index,
+                                                false),
+                                            child: Container(
+                                                margin:
+                                                    const EdgeInsets.fromLTRB(
+                                                        2, 8, 8, 8),
+                                                height: 180,
+                                                width: 300,
+                                                decoration: const BoxDecoration(
+                                                    color: Colors.orange,
+                                                    // image: DecorationImage(
+                                                    //     image:
+                                                    //         AssetImage('assets/images/icon.png'),
+                                                    //     fit: BoxFit.cover),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                8.0)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          blurRadius: 1.0,
+                                                          color: Colors.orange)
+                                                    ]),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                  child: networkImage(
+                                                      capturedInvasiveImages[
+                                                          index]),
+                                                )),
+                                          ),
+                                        ),
+                                        OutlinedButton.icon(
+                                            style: OutlinedButton.styleFrom(
+                                                side: BorderSide.none,
+                                                // the height is 50, the width is full
+                                                minimumSize:
+                                                    const Size.fromHeight(30),
+                                                backgroundColor: Colors.white,
+                                                shadowColor: Colors.orange,
+                                                elevation: 0),
+                                            onPressed: () {
+                                              removePhoto(
+                                                  context, index, false);
+                                            },
+                                            icon: const Icon(
+                                              Icons.delete_outline,
+                                              color: Colors.red,
+                                            ),
+                                            label: const Text('Remove Photo',
+                                                style: TextStyle(
+                                                    color: Colors.red))),
+                                      ],
+                                    ))),
                       )),
             ]));
   }
@@ -1584,26 +1706,80 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                               scrollDirection: Axis.horizontal,
                               itemCount: capturedConclusiveImages.length,
                               itemBuilder: (BuildContext context, int index) =>
-                                  Container(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                                      height: 180,
-                                      width: 300,
-                                      decoration: const BoxDecoration(
-                                          color: Colors.orange,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 1.0,
-                                                color: Colors.blue)
-                                          ]),
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: networkImage(
-                                            capturedConclusiveImages[index]),
-                                      )),
+                                  SizedBox(
+                                      width: 320,
+                                      height: 200,
+                                      child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () => gotoImageEditorPage(
+                                                      context,
+                                                      capturedConclusiveImages[
+                                                          index],
+                                                      index,
+                                                      true),
+                                                  child: Container(
+                                                      margin: const EdgeInsets
+                                                          .fromLTRB(2, 8, 8, 8),
+                                                      height: 180,
+                                                      width: 300,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                              color:
+                                                                  Colors.blue,
+                                                              // image: DecorationImage(
+                                                              //     image:
+                                                              //         AssetImage('assets/images/icon.png'),
+                                                              //     fit: BoxFit.cover),
+                                                              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                                              boxShadow: [
+                                                            BoxShadow(
+                                                                blurRadius: 1.0,
+                                                                color:
+                                                                    Colors.blue)
+                                                          ]),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.0),
+                                                        child: networkImage(
+                                                            capturedConclusiveImages[
+                                                                index]),
+                                                      )),
+                                                ),
+                                              ),
+                                              OutlinedButton.icon(
+                                                  style:
+                                                      OutlinedButton.styleFrom(
+                                                          side: BorderSide.none,
+                                                          // the height is 50, the width is full
+                                                          minimumSize: const Size
+                                                              .fromHeight(30),
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          shadowColor:
+                                                              Colors.blue,
+                                                          elevation: 0),
+                                                  onPressed: () {
+                                                    removePhoto(
+                                                        context, index, true);
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.delete_outline,
+                                                    color: Colors.red,
+                                                  ),
+                                                  label: const Text(
+                                                      'Remove Photo',
+                                                      style: TextStyle(
+                                                          color: Colors.red))),
+                                            ],
+                                          ))),
                             )),
                   ],
                 ))

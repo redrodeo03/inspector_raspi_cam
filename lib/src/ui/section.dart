@@ -56,14 +56,22 @@ class _SectionPageState extends State<SectionPage> {
   Widget build(BuildContext context) {
     BreadCrumbNavigator();
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          tooltip: 'Save and Create New',
-          elevation: 8,
-          onPressed: () {
-            saveAndNext(context, realmServices);
-          },
-          backgroundColor: Colors.blue,
-          child: const Icon(Icons.save_sharp)),
+      floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: Stack(
+            alignment: Alignment.topRight,
+            children: [
+              BreadCrumbNavigator(),
+              FloatingActionButton(
+                  tooltip: 'Save and Create New',
+                  elevation: 8,
+                  onPressed: () {
+                    saveAndNext(context, realmServices);
+                  },
+                  backgroundColor: Colors.blue,
+                  child: const Icon(Icons.save_sharp)),
+            ],
+          )),
       appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 120,
@@ -151,6 +159,7 @@ class _SectionPageState extends State<SectionPage> {
       "",
       "",
       widget.parentId,
+      false,
       parenttype: parentType,
       visualsignsofleak: false,
       createdby: userFullName,
@@ -179,62 +188,69 @@ class _SectionPageState extends State<SectionPage> {
   void setInitialValues() {
     //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
-    _concernsController.text =
-        currentVisualSection.additionalconsiderations as String;
-    selectedExteriorelements = exteriorElements
-        .where(
-            (item) => currentVisualSection.exteriorelements.contains(item.name))
-        .toList();
+    unitUnavailable = currentVisualSection.unitUnavailable;
+    if (!currentVisualSection.unitUnavailable) {
+      _concernsController.text =
+          currentVisualSection.additionalconsiderations as String;
+      selectedExteriorelements = exteriorElements
+          .where((item) =>
+              currentVisualSection.exteriorelements.contains(item.name))
+          .toList();
 
-    selectedWaterproofingElements = waterproofingElements
-        .where((item) =>
-            currentVisualSection.waterproofingelements.contains(item.name))
-        .toList();
+      selectedWaterproofingElements = waterproofingElements
+          .where((item) =>
+              currentVisualSection.waterproofingelements.contains(item.name))
+          .toList();
 
-    _review = VisualReview.values
-        .firstWhere((e) => e.name == currentVisualSection.visualreview);
-    _assessment = ConditionalAssessment.values.firstWhere(
-        (e) => e.name == currentVisualSection.conditionalassessment);
+      _review = VisualReview.values
+          .firstWhere((e) => e.name == currentVisualSection.visualreview);
+      _assessment = ConditionalAssessment.values.firstWhere(
+          (e) => e.name == currentVisualSection.conditionalassessment);
 
-    _eee = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.eee);
-    _lbc = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.lbc);
-    _awe = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.awe);
+      _eee = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.eee);
+      _lbc = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.lbc);
+      _awe = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.awe);
 
-    invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
-    hasSignsOfLeak = currentVisualSection.visualsignsofleak;
-    if (currentVisualSection.images.isNotEmpty) {
-      capturedImages.addAll(currentVisualSection.images);
+      invasiveReviewRequired =
+          currentVisualSection.furtherinvasivereviewrequired;
+      hasSignsOfLeak = currentVisualSection.visualsignsofleak;
+      if (currentVisualSection.images.isNotEmpty) {
+        capturedImages.addAll(currentVisualSection.images);
+      }
     }
   }
 
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
+
   Future<bool> save(BuildContext context, RealmProjectServices realmServices,
       bool createNew) async {
     if (_formKey.currentState!.validate()) {
       //check if everything is filled.
-
-      if (selectedExteriorelements.isEmpty ||
-          selectedWaterproofingElements.isEmpty ||
-          _review == null ||
-          _eee == null ||
-          _lbc == null ||
-          _awe == null ||
-          capturedImages.isEmpty) {
+      if (unitUnavailable) {
+      } else {
+        if (selectedExteriorelements.isEmpty ||
+            selectedWaterproofingElements.isEmpty ||
+            _review == null ||
+            _eee == null ||
+            _lbc == null ||
+            _awe == null ||
+            capturedImages.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Please add images & fill all the values, then save the location.')),
+          );
+          return false;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Please add images & fill all the values, then save the location.')),
+          const SnackBar(content: Text('Saving Location...')),
         );
-        return false;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saving Location...')),
-      );
 
       var saveResult = realmServices.addupdateVisualSection(
           currentVisualSection,
@@ -250,12 +266,11 @@ class _SectionPageState extends State<SectionPage> {
           invasiveReviewRequired,
           hasSignsOfLeak,
           isNewSection,
-          userFullName);
+          userFullName,
+          unitUnavailable);
 
       if (saveResult) {
-        if (!createNew) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pop(createNew);
 
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
@@ -299,7 +314,7 @@ class _SectionPageState extends State<SectionPage> {
   List<String> capturedImages = [];
   bool hasSignsOfLeak = false;
   bool invasiveReviewRequired = false;
-
+  bool unitUnavailable = false;
   PopupMenuItem _buildPopupMenuItem(
       String title, IconData iconData, int position) {
     return PopupMenuItem(
@@ -381,6 +396,28 @@ class _SectionPageState extends State<SectionPage> {
                       'Please enter location name', 1, _nameController),
                   const SizedBox(
                     height: 4,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Is Unit Unavailable',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Switch(
+                        onChanged: (value) {
+                          toggleUnitSwitch(value);
+                        },
+                        value: unitUnavailable,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 0,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -698,7 +735,7 @@ class _SectionPageState extends State<SectionPage> {
                   const SizedBox(
                     height: 8,
                   ),
-                  inputWidgetwithValidation('Additonal Considerations',
+                  inputWidgetwithNoValidation('Additonal Considerations',
                       'Please enter details', 5, _concernsController),
                   const SizedBox(
                     height: 4,
@@ -778,6 +815,18 @@ class _SectionPageState extends State<SectionPage> {
     }
   }
 
+  void toggleUnitSwitch(bool value) {
+    if (unitUnavailable == false) {
+      setState(() {
+        unitUnavailable = true;
+      });
+    } else {
+      setState(() {
+        unitUnavailable = false;
+      });
+    }
+  }
+
   void toggleSwitchInvasive(bool value) {
     if (invasiveReviewRequired == false) {
       setState(() {
@@ -801,6 +850,25 @@ class _SectionPageState extends State<SectionPage> {
           }
           return null;
         },
+        maxLines: lines,
+        decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.only(left: 5, top: 2.0, bottom: 2.0),
+            hintText: hint,
+            hintStyle: const TextStyle(
+              fontSize: 13.0,
+              color: Color(0xFFABB3BB),
+              height: 1.0,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            )));
+  }
+
+  Widget inputWidgetwithNoValidation(String hint, String message, int lines,
+      TextEditingController controller) {
+    return TextFormField(
+        controller: controller,
         maxLines: lines,
         decoration: InputDecoration(
             contentPadding:
@@ -1190,24 +1258,24 @@ class _SectionPageState extends State<SectionPage> {
 
   void saveAndNext(
       BuildContext context, RealmProjectServices realmServices) async {
-    Navigator.of(context).pop();
+    //Navigator.of(context).pop();
 //if (!context.mounted) return;
     var result = await save(context, realmServices, true);
 
-    if (result) {
-      if (!context.mounted) return;
-      //Navigator.of(context).pop();
-      // Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //         builder: (context) => SectionPage(ObjectId(), widget.parentId,
-      //             userFullName, widget.parentType, widget.parentName, true)));
+    // if (result) {
+    //   if (!context.mounted) return;
+    //   //Navigator.of(context).pop();
+    //   // Navigator.push(
+    //   //     context,
+    //   //     MaterialPageRoute(
+    //   //         builder: (context) => SectionPage(ObjectId(), widget.parentId,
+    //   //             userFullName, widget.parentType, widget.parentName, true)));
 
-      Navigator.push(
-          context,
-          SectionPage.getRoute(ObjectId(), widget.parentId, userFullName,
-              widget.parentType, widget.parentName, true, "section"));
-    }
+    //   Navigator.push(
+    //       context,
+    //       SectionPage.getRoute(ObjectId(), widget.parentId, userFullName,
+    //           widget.parentType, widget.parentName, true, "new"));
+    //}
   }
 
   gotoImageEditorPage(
