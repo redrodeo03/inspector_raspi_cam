@@ -589,7 +589,7 @@ class RealmProjectServices with ChangeNotifier {
 
         visualSection.visualreview = review == null ? "" : review.name;
         visualSection.conditionalassessment =
-            review == assessment ? "" : assessment!.name;
+            assessment == null ? "" : assessment.name;
         visualSection.eee = eee == null ? "" : eee.name;
         visualSection.lbc = lbc == null ? "" : lbc.name;
         visualSection.awe = awe == null ? "" : awe.name;

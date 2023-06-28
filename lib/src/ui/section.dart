@@ -59,11 +59,19 @@ class _SectionPageState extends State<SectionPage> {
       floatingActionButton: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Stack(
+            clipBehavior: Clip.none,
             alignment: Alignment.topRight,
             children: [
-              BreadCrumbNavigator(),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                // wrap the background in a column
+                children: [
+                  const SizedBox(height: 100),
+                  BreadCrumbNavigator(), // add the SizedBox with height = 100.0
+                ],
+              ),
               Positioned(
-                top: -20,
+                bottom: 30,
                 child: FloatingActionButton(
                     tooltip: 'Save and Create New',
                     elevation: 8,
@@ -388,7 +396,7 @@ class _SectionPageState extends State<SectionPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Location name'),
@@ -488,7 +496,7 @@ class _SectionPageState extends State<SectionPage> {
                                                         index),
                                                 child: Container(
                                                     margin: const EdgeInsets
-                                                        .fromLTRB(2, 8, 8, 8),
+                                                        .fromLTRB(2, 8, 8, 0),
                                                     height: 180,
                                                     width: 300,
                                                     decoration:
@@ -522,8 +530,6 @@ class _SectionPageState extends State<SectionPage> {
                                                     minimumSize:
                                                         const Size.fromHeight(
                                                             30),
-                                                    backgroundColor:
-                                                        Colors.white,
                                                     shadowColor: Colors.blue,
                                                     elevation: 0),
                                                 onPressed: () {
@@ -800,7 +806,10 @@ class _SectionPageState extends State<SectionPage> {
                               ),
                               label: const Text('Delete Location',
                                   style: TextStyle(color: Colors.red))),
-                        )
+                        ),
+                  const SizedBox(
+                    height: 100,
+                  ),
                 ],
               ),
             )));
