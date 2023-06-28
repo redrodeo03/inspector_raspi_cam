@@ -62,14 +62,17 @@ class _SectionPageState extends State<SectionPage> {
             alignment: Alignment.topRight,
             children: [
               BreadCrumbNavigator(),
-              FloatingActionButton(
-                  tooltip: 'Save and Create New',
-                  elevation: 8,
-                  onPressed: () {
-                    saveAndNext(context, realmServices);
-                  },
-                  backgroundColor: Colors.blue,
-                  child: const Icon(Icons.save_sharp)),
+              Positioned(
+                top: -20,
+                child: FloatingActionButton(
+                    tooltip: 'Save and Create New',
+                    elevation: 8,
+                    onPressed: () {
+                      saveAndNext(context, realmServices);
+                    },
+                    backgroundColor: Colors.blue,
+                    child: const Icon(Icons.save_sharp)),
+              )
             ],
           )),
       appBar: AppBar(
@@ -1260,7 +1263,7 @@ class _SectionPageState extends State<SectionPage> {
       BuildContext context, RealmProjectServices realmServices) async {
     //Navigator.of(context).pop();
 //if (!context.mounted) return;
-    var result = await save(context, realmServices, true);
+    await save(context, realmServices, true);
 
     // if (result) {
     //   if (!context.mounted) return;
