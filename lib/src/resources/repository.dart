@@ -129,6 +129,10 @@ class Repository {
     return projectsApiProvider.downloadReport(
         name, id, fileType, quality, imageFactor, reportType, companyName);
   }
+
+  Future<RegisterResponse> register(Object registerObject) {
+    return usersApiProvider.register(registerObject);
+  }
 }
 
 

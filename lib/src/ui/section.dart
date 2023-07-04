@@ -152,6 +152,7 @@ class _SectionPageState extends State<SectionPage> {
   String userFullName = "";
   String parentType = "";
   late LocalVisualSection currentVisualSection;
+  late LocalLocation currentLocation;
   late Future sectionResponse;
   late bool isNewSection;
   late String prevPageName;
@@ -159,6 +160,7 @@ class _SectionPageState extends State<SectionPage> {
     isRunning = true;
     currentVisualSection =
         realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+
     setInitialValues();
     isRunning = false;
   }
@@ -193,6 +195,10 @@ class _SectionPageState extends State<SectionPage> {
     userFullName = widget.userFullName;
 
     prevPageName = widget.parentName;
+    if (parentType != 'project') {
+      currentLocation =
+          realmServices.getLocation(widget.parentId) as LocalLocation;
+    }
     super.initState();
   }
 
@@ -241,6 +247,8 @@ class _SectionPageState extends State<SectionPage> {
   Future<bool> save(BuildContext context, RealmProjectServices realmServices,
       bool createNew) async {
     if (_formKey.currentState!.validate()) {
+      realmServices.updateImageUploadStatus(
+          currentLocation, currentVisualSection.id, true);
       //check if everything is filled.
       if (unitUnavailable) {
       } else {
@@ -304,6 +312,8 @@ class _SectionPageState extends State<SectionPage> {
                   urls.add(element.url as String);
                 }
               }
+              realmServices.updateImageUploadStatus(
+                  currentLocation, currentVisualSection.id, false);
               realmServices.addImagesUrl(currentVisualSection, urls);
             });
           }

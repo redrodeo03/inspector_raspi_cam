@@ -4,6 +4,7 @@ import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
+import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -135,10 +136,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
         if (isNewProject) {
-          Navigator.pushReplacement(
-              context,
-              ProjectDetailsPage.getRoute(currentProject.id, userFullName,
-                  false, currentProject.name as String));
+          if (currentProject.projecttype == 'singlelevel') {
+            Navigator.pushReplacement(
+                    context,
+                    SingleProjectDetailsPage.getRoute(currentProject.id,
+                        userFullName, false, currentProject.name as String))
+                .then((value) => setState(() {}));
+          } else {
+            Navigator.pushReplacement(
+                    context,
+                    ProjectDetailsPage.getRoute(currentProject.id, userFullName,
+                        false, currentProject.name as String))
+                .then((value) => setState(() {}));
+          }
         } else {
           Navigator.pop(context);
         }
@@ -286,19 +296,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             value: isProjectSingleLevel,
                           ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: FloatingActionButton(
-                              onPressed:
-                                  // If not yet listening for speech start, otherwise stop
-                                  _speechToText.isNotListening
-                                      ? _startListening
-                                      : _stopListening,
-                              tooltip: 'Listen',
-                              child: Icon(_speechToText.isNotListening
-                                  ? Icons.mic_off
-                                  : Icons.mic),
-                            )),
+                        // Align(
+                        //     alignment: Alignment.centerRight,
+                        //     child: FloatingActionButton(
+                        //       onPressed:
+                        //           // If not yet listening for speech start, otherwise stop
+                        //           _speechToText.isNotListening
+                        //               ? _startListening
+                        //               : _stopListening,
+                        //       tooltip: 'Listen',
+                        //       child: Icon(_speechToText.isNotListening
+                        //           ? Icons.mic_off
+                        //           : Icons.mic),
+                        //     )),
                       ],
                     ),
                     const Text('Project name'),
@@ -372,9 +382,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                               )
                                         : cachedNetworkImage(imageURL),
                                   ),
-                                  Column(
+                                  const Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
-                                    children: const [
+                                    children: [
                                       Icon(Icons.camera_outlined,
                                           size: 40, color: Colors.blue),
                                       Padding(
@@ -478,6 +488,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Project deleted successfully.')));
+      Navigator.pop(context);
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(

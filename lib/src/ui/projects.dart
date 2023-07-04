@@ -14,6 +14,10 @@ class ProjectsPage extends StatefulWidget {
   const ProjectsPage({Key? key}) : super(key: key);
   @override
   State<ProjectsPage> createState() => _ProjectsPageState();
+
+  static MaterialPageRoute getRoute() => MaterialPageRoute(
+      settings: const RouteSettings(name: 'Home'),
+      builder: (context) => const ProjectsPage());
 }
 
 //Add New Project
@@ -42,18 +46,25 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   void addEditProject() {
     Navigator.push(context,
-        AddEditProjectPage.getRoute(getLocalProject(), true, userFullName));
+            AddEditProjectPage.getRoute(getLocalProject(), true, userFullName))
+        .then((value) => setState(() => {}));
   }
 
   void gotoProjectDetails(ObjectId projectId, String projName) {
     //setState(() {});
-    Navigator.push(context,
-        ProjectDetailsPage.getRoute(projectId, userFullName, false, projName));
+    Navigator.push(
+            context,
+            ProjectDetailsPage.getRoute(
+                projectId, userFullName, false, projName))
+        .then((value) => setState(() => {}));
   }
 
   void gotoInvasiveProjectDetails(ObjectId projectId, String projName) {
-    Navigator.push(context,
-        ProjectDetailsPage.getRoute(projectId, userFullName, true, projName));
+    Navigator.push(
+            context,
+            ProjectDetailsPage.getRoute(
+                projectId, userFullName, true, projName))
+        .then((value) => setState(() => {}));
   }
 
   @override
@@ -138,8 +149,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                   onTap: () {
                                     if (projects[index].projecttype ==
                                         'singlelevel') {
-                                      gotoSingleLevelProject(
-                                          projects[index].id);
+                                      gotoSingleLevelProject(projects[index].id,
+                                          projects[index].name as String);
                                     } else {
                                       gotoProjectDetails(projects[index].id,
                                           projects[index].name as String);
@@ -230,9 +241,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                                       .projecttype ==
                                                                   'singlelevel') {
                                                                 gotoSingleLevelProject(
-                                                                    projects[
-                                                                            index]
-                                                                        .id);
+                                                                    projects[index]
+                                                                        .id,
+                                                                    projects[index]
+                                                                            .name
+                                                                        as String);
                                                               } else {
                                                                 gotoProjectDetails(
                                                                     projects[index]
@@ -309,14 +322,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
             }));
   }
 
-  void gotoSingleLevelProject(
-    ObjectId id,
-  ) {
+  void gotoSingleLevelProject(ObjectId id, String projName) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SingleProjectDetailsPage(id, userFullName, false)));
+            context,
+            SingleProjectDetailsPage.getRoute(
+                id, userFullName, false, projName))
+        .then((value) => setState(() => {}));
   }
 
   void gotoInvasiveSingleProject(ObjectId id) {

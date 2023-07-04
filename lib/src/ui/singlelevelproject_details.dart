@@ -5,6 +5,7 @@ import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
+import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
@@ -29,6 +30,13 @@ class SingleProjectDetailsPage extends StatefulWidget {
   @override
   State<SingleProjectDetailsPage> createState() =>
       _SingleProjectDetailsPageState();
+
+  static MaterialPageRoute getRoute(
+          ObjectId id, String userName, bool isInvasive, String pageName) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: pageName),
+          builder: (context) =>
+              SingleProjectDetailsPage(id, userName, isInvasive));
 }
 
 //Add New Project
@@ -74,32 +82,24 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
   void addEditProject() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) =>
-              AddEditProjectPage(currentProject, false, userFullName)),
-    );
+      AddEditProjectPage.getRoute(currentProject, false, userFullName),
+    ).then((value) => setState(() {}));
   }
 
   void addNewChild() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => SectionPage(
-                ObjectId(),
-                currentProject.id,
-                userFullName,
-                'project',
-                currentProject.name as String,
-                true))).then((value) => setState(() {}));
+            context,
+            SectionPage.getRoute(ObjectId(), currentProject.id, userFullName,
+                'project', currentProject.name as String, true, 'New'))
+        .then((value) => setState(() {}));
   }
 
-  void gotoDetails(ObjectId sectionId) {
+  void gotoDetails(ObjectId sectionId, String pageName) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SectionPage(sectionId, currentProject.id,
-              userFullName, 'project', currentProject.name as String, false),
-        )).then((value) {
+      context,
+      SectionPage.getRoute(sectionId, currentProject.id, userFullName,
+          'project', currentProject.name as String, false, pageName),
+    ).then((value) {
       if (!mounted) {
         return;
       }
@@ -114,6 +114,10 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
     final realmServices =
         Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: BreadCrumbNavigator(),
+        ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 140,
@@ -517,7 +521,8 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
                 if (appSettings.isInvasiveMode) {
                   gotoInvasiveDetails(sections[index]!.id);
                 } else {
-                  gotoDetails(sections[index]!.id);
+                  gotoDetails(
+                      sections[index]!.id, sections[index]!.name as String);
                 }
               },
               child: Card(

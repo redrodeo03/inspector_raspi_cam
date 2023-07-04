@@ -619,12 +619,14 @@ class LocalSection extends _LocalSection
     String? visualreview,
     int count = 0,
     String? coverUrl,
+    bool isUploading = false,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': false,
         'count': 0,
+        'isUploading': false,
       });
     }
     RealmObjectBase.set(this, '_id', id);
@@ -637,6 +639,7 @@ class LocalSection extends _LocalSection
     RealmObjectBase.set(this, 'visualreview', visualreview);
     RealmObjectBase.set(this, 'count', count);
     RealmObjectBase.set(this, 'coverUrl', coverUrl);
+    RealmObjectBase.set(this, 'isUploading', isUploading);
   }
 
   LocalSection._();
@@ -696,6 +699,13 @@ class LocalSection extends _LocalSection
   set coverUrl(String? value) => RealmObjectBase.set(this, 'coverUrl', value);
 
   @override
+  bool get isUploading =>
+      RealmObjectBase.get<bool>(this, 'isUploading') as bool;
+  @override
+  set isUploading(bool value) =>
+      RealmObjectBase.set(this, 'isUploading', value);
+
+  @override
   Stream<RealmObjectChanges<LocalSection>> get changes =>
       RealmObjectBase.getChanges<LocalSection>(this);
 
@@ -718,6 +728,7 @@ class LocalSection extends _LocalSection
       SchemaProperty('visualreview', RealmPropertyType.string, optional: true),
       SchemaProperty('count', RealmPropertyType.int),
       SchemaProperty('coverUrl', RealmPropertyType.string, optional: true),
+      SchemaProperty('isUploading', RealmPropertyType.bool),
     ]);
   }
 }

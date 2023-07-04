@@ -559,6 +559,16 @@ class RealmProjectServices with ChangeNotifier {
     return realm.find<LocalVisualSection>(id);
   }
 
+  void updateImageUploadStatus(
+      LocalLocation parentLocation, ObjectId sectionId, bool status) {
+    var found =
+        parentLocation.sections.where((element) => element.id == sectionId);
+    if (found.isNotEmpty) {
+      realm.write(() => found.first.isUploading = status);
+    }
+    notifyListeners();
+  }
+
   bool addupdateVisualSection(
       LocalVisualSection visualSection,
       String name,

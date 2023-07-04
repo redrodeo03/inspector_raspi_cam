@@ -1,83 +1,73 @@
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
-import 'package:deckinspectors/src/ui/home.dart';
-import 'package:deckinspectors/src/ui/register.dart';
+import 'package:deckinspectors/src/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../resources/realm/app_services.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   //final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
   bool isLoading = false;
-  bool? _isChecked = false;
+
   late AppServices appServices;
-  Future<void> _loadUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _usernameController.text = prefs.getString('username') ?? '';
-      _passwordController.text = prefs.getString('password') ?? '';
-      _isChecked = prefs.getBool('isChecked') ?? false;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    _loadUserDetails();
   }
 
   // Sign In Function
-  Future<void> login() async {
+  Future<void> registerUser() async {
     appServices = Provider.of<AppServices>(context, listen: false);
     if (_usernameController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty) {
+        _passwordController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _firstNameController.text.isNotEmpty &&
+        _lastNameController.text.isNotEmpty) {
       setState(() {
         isLoading = true;
       });
-      var loginResult = await usersBloc.login(
-          _usernameController.text, _passwordController.text);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (_isChecked == true) {
-        await prefs.setString('username', _usernameController.text);
-        await prefs.setString('password', _passwordController.text);
-        await prefs.setBool('isChecked', _isChecked as bool);
-      }
+      var registerResult = await usersBloc.register(
+          _usernameController.text,
+          _passwordController.text,
+          _firstNameController.text,
+          _lastNameController.text,
+          _emailController.text);
 
       setState(() {
         isLoading = false;
       });
-      if (loginResult.username == null) {
+      if (registerResult.insertedId == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Login failed,please check your credentials.')));
+            content: Text('User registration failed,please retry.')));
         return;
       }
-      if (loginResult.username!.isNotEmpty &&
-          loginResult.accesstype != "desktop") {
-        if (!mounted) return;
-        appServices.registerUserEmailPassword(
-            loginResult.email as String, _passwordController.text);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Login failed,please check your access.')));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('User registered successfully,please login now.')));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill all the details.')));
+      return;
     }
   }
 
@@ -134,23 +124,55 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          'Username',
-                          style: GoogleFonts.inter(
-                            fontSize: 14.0,
-                            color: Colors.black,
-                            height: 1.0,
-                          ),
+                        // Text(
+                        //   'First Name',
+                        //   style: GoogleFonts.inter(
+                        //     fontSize: 14.0,
+                        //     color: Colors.black,
+                        //     height: 1.0,
+                        //   ),
+                        // ),
+                        const SizedBox(
+                          height: 4,
                         ),
+                        textField('Enter first name', _firstNameController),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        // Text(
+                        //   'Last Name',
+                        //   style: GoogleFonts.inter(
+                        //     fontSize: 14.0,
+                        //     color: Colors.black,
+                        //     height: 1.0,
+                        //   ),
+                        // ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        textField('Enter last name', _lastNameController),
+                        // Text(
+                        //   'Username',
+                        //   style: GoogleFonts.inter(
+                        //     fontSize: 14.0,
+                        //     color: Colors.black,
+                        //     height: 1.0,
+                        //   ),
+                        // ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        textField('Enter email id', _emailController),
+
                         const SizedBox(
                           height: 16,
                         ),
-                        emailTextField(size)
+                        textField('Enter username', _usernameController)
                       ],
                     ),
 
                     const SizedBox(
-                      height: 16,
+                      height: 8,
                     ),
 
                     //password textField
@@ -158,14 +180,14 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          'Password',
-                          style: GoogleFonts.inter(
-                            fontSize: 14.0,
-                            color: Colors.black,
-                            height: 1.0,
-                          ),
-                        ),
+                        // Text(
+                        //   'Password',
+                        //   style: GoogleFonts.inter(
+                        //     fontSize: 14.0,
+                        //     color: Colors.black,
+                        //     height: 1.0,
+                        //   ),
+                        // ),
                         const SizedBox(
                           height: 8,
                         ),
@@ -174,21 +196,19 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     const SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
 
-                    //keep signed in and forget password section
-                    rememberMe(),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                        child: InkWell(
-                            onTap: () => registerUser(),
-                            child: const Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  'Don\'t have account,Register',
-                                  style: TextStyle(color: Colors.blue),
-                                ))))
+                    // Padding(
+                    //     padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                    //     child: InkWell(
+                    //         onTap: () => registerUser(),
+                    //         child: const Align(
+                    //             alignment: Alignment.centerRight,
+                    //             child: Text(
+                    //               'Login',
+                    //               style: TextStyle(color: Colors.blue),
+                    //             ))))
                   ],
                 ),
               ),
@@ -196,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: 400,
                 child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : login,
+                  onPressed: isLoading ? null : registerUser,
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(8.0)),
                   icon: isLoading
@@ -210,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         )
                       : const Icon(Icons.login),
-                  label: const Text('Login'),
+                  label: const Text('Register Me'),
                 ),
               ),
               //sign up text here
@@ -240,13 +260,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
         children: const [
           TextSpan(
-            text: 'LOGIN',
+            text: 'REGI',
             style: TextStyle(
               fontWeight: FontWeight.w800,
             ),
           ),
           TextSpan(
-            text: 'PAGE',
+            text: 'STER',
             style: TextStyle(
               color: Color(0xFFFE9879),
               fontWeight: FontWeight.w800,
@@ -257,11 +277,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget emailTextField(Size size) {
+  Widget textField(String hintText, TextEditingController controller) {
     return SizedBox(
-      height: size.height / 15,
+      height: 50,
       child: TextField(
-        controller: _usernameController,
+        controller: controller,
         style: GoogleFonts.inter(
           fontSize: 18.0,
           color: const Color(0xFF151624),
@@ -270,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
         keyboardType: TextInputType.emailAddress,
         cursorColor: const Color(0xFF151624),
         decoration: InputDecoration(
-          hintText: 'Enter your username',
+          hintText: hintText,
           hintStyle: GoogleFonts.inter(
             fontSize: 14.0,
             color: const Color(0xFFABB3BB),
@@ -286,7 +306,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget passwordTextField(Size size) {
     return SizedBox(
-      height: size.height / 15,
+      height: 50,
       child: Stack(alignment: Alignment.centerRight, children: [
         TextField(
             obscureText: !showPassword,
@@ -323,26 +343,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget rememberMe() {
-    return Transform.scale(
-        scale: 1.1,
-        child: CheckboxListTile(
-          title: const Text('Remember me',
-              style: TextStyle(color: Color(0xFF21899C))),
-          value: _isChecked,
-          visualDensity: VisualDensity.compact,
-          checkColor: const Color(0xFFFFFFFF),
-          controlAffinity: ListTileControlAffinity.leading,
-          checkboxShape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5.0))),
-          onChanged: (value) {
-            setState(() {
-              _isChecked = value;
-            });
-          },
-        ));
-  }
-
   Widget keepSignedForgetSection() {
     return InkWell(
         onTap: () {},
@@ -375,7 +375,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget signInButton(Size size) {
     return InkWell(
         onTap: () {
-          login();
+          registerUser();
         },
         child: Container(
           alignment: Alignment.center,
@@ -385,7 +385,7 @@ class _LoginPageState extends State<LoginPage> {
             color: const Color(0xFF21899C),
           ),
           child: Text(
-            'Sign In',
+            'Register Me',
             style: GoogleFonts.inter(
               fontSize: 14.0,
               color: Colors.white,
@@ -394,41 +394,5 @@ class _LoginPageState extends State<LoginPage> {
             textAlign: TextAlign.center,
           ),
         ));
-  }
-
-  Widget buildFooter(Size size) {
-    return Center(
-      child: Text.rich(
-        TextSpan(
-          style: GoogleFonts.inter(
-            fontSize: 12.0,
-            color: Colors.black,
-          ),
-          children: const [
-            TextSpan(
-              text: 'Don’t have an account? ',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            TextSpan(
-              text: 'Sign Up here',
-              style: TextStyle(
-                color: Color(0xFFFF7248),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  registerUser() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterPage()),
-    );
   }
 }

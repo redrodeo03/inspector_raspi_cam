@@ -285,9 +285,9 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                                 )
                                           : cachedNetworkImage(imageURL),
                                     ),
-                                    Column(
+                                    const Column(
                                       mainAxisAlignment: MainAxisAlignment.end,
-                                      children: const [
+                                      children: [
                                         Icon(Icons.camera_outlined,
                                             size: 40, color: Colors.black),
                                         Padding(

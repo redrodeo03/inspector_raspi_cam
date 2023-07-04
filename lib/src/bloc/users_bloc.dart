@@ -19,6 +19,20 @@ class UsersBloc {
     return response;
   }
 
+  register(String username, String password, String firstName, String lastName,
+      String emailId) async {
+    final loginObject = jsonEncode({
+      'username': username,
+      'password': password,
+      'email': emailId,
+      'first_name': firstName,
+      'last_name': lastName,
+      'access_type': 'mobile'
+    });
+    RegisterResponse response = await _repository.register(loginObject);
+    return response;
+  }
+
   // dispose() {
   //   _usersFetcher.close();
   // }

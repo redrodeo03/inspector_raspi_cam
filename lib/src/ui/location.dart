@@ -1,5 +1,4 @@
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-
 import 'package:deckinspectors/src/ui/addedit_location.dart';
 import 'package:deckinspectors/src/ui/invasivesection.dart';
 import 'package:deckinspectors/src/ui/section.dart';
@@ -52,7 +51,7 @@ class _LocationPageState extends State<LocationPage> {
   @override
   Widget build(BuildContext context) {
     final realmServices =
-        Provider.of<RealmProjectServices>(context, listen: false);
+        Provider.of<RealmProjectServices>(context, listen: true);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -328,7 +327,7 @@ class _LocationPageState extends State<LocationPage> {
       default:
     }
     bool furtherInvasive = sections[index].furtherinvasivereviewrequired;
-
+    //print("${sections[index].name}:${sections[index].isUploading}");
     bool visualLeaks = sections[index].visualsignsofleak;
     return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
@@ -378,10 +377,15 @@ class _LocationPageState extends State<LocationPage> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const Icon(
-                              Icons.navigate_next_sharp,
-                              color: Colors.blue,
-                            )
+                            Visibility(
+                                visible: sections[index].isUploading,
+                                child: const SizedBox(
+                                  width: 80,
+                                  child: LinearProgressIndicator(
+                                    backgroundColor: Colors.orange,
+                                    color: Colors.blue,
+                                  ),
+                                ))
                           ]),
                     ),
                     const Divider(

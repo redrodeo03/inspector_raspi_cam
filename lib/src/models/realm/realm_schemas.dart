@@ -110,6 +110,8 @@ class _LocalSection {
   String? visualreview;
   int count = 0;
   String? coverUrl;
+  //@Ignored()
+  bool isUploading = false;
 }
 
 @RealmModel()

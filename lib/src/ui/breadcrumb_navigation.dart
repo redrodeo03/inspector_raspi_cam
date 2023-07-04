@@ -7,7 +7,7 @@ class BreadCrumbNavigator extends StatelessWidget {
   final List<Route> currentRouteStack;
   BreadCrumbNavigator({super.key})
       : currentRouteStack = routeStack
-            //.where((element) => element.settings.name != "section")
+            //.where((element) => element.settings.name != null)
             .toList();
 
   Widget build1(BuildContext context) {
@@ -37,6 +37,12 @@ class BreadCrumbNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    for (var i = 1; i < currentRouteStack.length; i++) {
+      if (currentRouteStack[i].settings.name == null) {
+        currentRouteStack.remove(currentRouteStack[i]);
+      }
+    }
+
     return SizedBox(
         height: 35,
         child: ListView.builder(

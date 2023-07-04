@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
-import 'resources/realm/realm_services.dart';
+// import 'resources/realm/realm_services.dart';
 import 'ui/login.dart';
 import 'ui/navigation_observer.dart';
 //import 'ui/movie_list.dart';
@@ -10,8 +10,8 @@ class App extends StatelessWidget {
   const App({super.key});
   @override
   Widget build(BuildContext context) {
-    final currentUser =
-        Provider.of<RealmProjectServices?>(context, listen: false)?.currentUser;
+    // final currentUser =
+    //     Provider.of<RealmProjectServices?>(context, listen: false)?.currentUser;
 
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
