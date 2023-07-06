@@ -115,7 +115,7 @@ class ProjectsApiProvider {
       String reportType,
       String companyName) async {
     try {
-      var endPoint = '${URLS.manageProjectsUrl}/generatereport';
+      var endPoint = '${URLS.manageProjectsUrl}/generatereporthtml';
       final baseUrl = Uri.parse(endPoint);
       final reportBody = jsonEncode({
         'id': id,
@@ -127,8 +127,9 @@ class ProjectsApiProvider {
         },
       });
 
-      final response = await client.post(baseUrl,
-          body: reportBody, headers: {'Content-Type': 'application/json'});
+      final response = await client.post(baseUrl, body: reportBody, headers: {
+        'Content-Type': 'application/json'
+      }).timeout(const Duration(seconds: 600));
       //print(response.body.toString());
 
       if (response.statusCode == 200) {
@@ -140,10 +141,12 @@ class ProjectsApiProvider {
                 .create(recursive: true);
         final now = DateTime.now();
         var reportFile =
-            path.join(destDirectory.path, '$projectName-$reportType-$now.pdf');
+            path.join(destDirectory.path, '$projectName-$reportType-$now.html');
         final file = File(reportFile);
 
-        var writtenFile = await file.writeAsBytes(response.bodyBytes);
+        //print("HTML_RESULT ${response.body}");
+        var writtenFile =
+            await file.writeAsString(response.body, encoding: utf8);
         return SuccessResponse(code: 200, message: writtenFile.path);
       } else if (response.statusCode == 500) {
         return ErrorResponse(message: response.body, code: response.statusCode);

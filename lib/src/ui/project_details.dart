@@ -809,7 +809,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         currentProject.name as String,
         id.toString(),
         'pdf',
-        50,
+        100,
         4,
         reportType,
         'DeckInspectors');

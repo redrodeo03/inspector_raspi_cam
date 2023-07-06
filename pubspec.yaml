@@ -56,6 +56,11 @@ dependencies:
   assorted_layout_widgets: ^8.0.4
   share_plus: ^7.0.2
   syncfusion_flutter_pdfviewer: ^20.4.54
+  webview_flutter: ^4.2.2
+  webview_flutter_android: ^3.8.1
+  webview_flutter_wkwebview: ^3.6.1
+  printing: ^5.11.0
+  pdf: ^3.10.4
   
 
 dev_dependencies:

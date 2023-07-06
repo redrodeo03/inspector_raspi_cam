@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
+  printing
   realm
   share_plus
   syncfusion_pdfviewer_windows

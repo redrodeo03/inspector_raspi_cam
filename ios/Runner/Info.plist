@@ -59,5 +59,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>io.flutter.embedded_views_preview</key>
+<string>YES</string>
+<key>com.apple.security.print</key>
+<true/>
 </dict>
 </plist>

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:deckinspectors/src/ui/htmlviewer.dart';
 import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:flutter/material.dart';
-
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -24,7 +26,9 @@ class _ReportsPage extends State<ReportsPage> {
         in directory.list(recursive: true, followLinks: false)) {
       FileSystemEntityType type = await FileSystemEntity.type(entity.path);
       if (type == FileSystemEntityType.file &&
-          (entity.path.endsWith('.pdf') || entity.path.endsWith('.docx'))) {
+          (entity.path.endsWith('.pdf') ||
+              entity.path.endsWith('.html') ||
+              entity.path.endsWith('.docx'))) {
         setState(() {
           _folders.add(entity);
         });
@@ -38,6 +42,7 @@ class _ReportsPage extends State<ReportsPage> {
     super.initState();
   }
 
+  String htmlText = '';
   String sizeInKB = '0';
   @override
   Widget build(BuildContext context) {
@@ -81,12 +86,25 @@ class _ReportsPage extends State<ReportsPage> {
                           _folders[index].path.split('/').last,
                           _folders[index].path.toString());
                     },
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return PDFViewerPage(_folders[index].path.toString());
-                        //open viewPDF page on click
-                      }));
+                    onTap: () async {
+                      var extension = path.extension(_folders[index].path);
+
+                      var filePath = _folders[index].path.toString();
+                      if (extension == '.pdf' || extension == '.PDF') {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return PDFViewerPage(_folders[index].path.toString());
+                        }));
+                      } else {
+                        await readHTML(filePath);
+                        if (!mounted) {
+                          return;
+                        }
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return HTMLViewerPage(htmlText, '', filePath);
+                        }));
+                      }
                     },
                   ));
                 },
@@ -101,6 +119,13 @@ class _ReportsPage extends State<ReportsPage> {
     files.add(XFile(pdfFilePath, name: fileName));
     var shareResult = await Share.shareXFiles(files, subject: 'Project Report');
     scaffoldMessenger.showSnackBar(getResultSnackBar(shareResult));
+  }
+
+  Future readHTML(String filePath) async {
+    try {
+      final file = File(filePath);
+      htmlText = await file.readAsString(encoding: utf8);
+    } catch (e) {}
   }
 
   SnackBar getResultSnackBar(ShareResult result) {
