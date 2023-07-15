@@ -22,6 +22,14 @@ class _SettingsPageState extends State<SettingsPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       var quality = prefs.getString('imagequality') ?? 'medium';
+      var repQuality = prefs.getInt('reportimagequality') ?? 100;
+      reportImageQuality =
+          reportQulityList.firstWhere((element) => element == repQuality);
+      var count = prefs.getInt('imageCount') ?? 4;
+      imageCount = imageCountList.firstWhere((element) => element == count);
+
+      var compName = prefs.getString('companyName') ?? 'DeckInspectors';
+      companyName = list.firstWhere((element) => element == compName);
       var appSync = prefs.getString('appSync') ?? 'true';
       isSyncOn = appSync == 'true';
       appSettings.currentQuality = ImageQuality.values.byName(quality);
@@ -44,9 +52,19 @@ class _SettingsPageState extends State<SettingsPage> {
 
         default:
       }
-
-      ///var dayInString = describeEnum(Day.monday);
     });
+
+    ///var dayInString = describeEnum(Day.monday);
+  }
+
+  Future<void> savereportSettings() async {
+    appSettings.companyName = companyName;
+    appSettings.imageinRowCount = imageCount;
+    appSettings.reportImageQuality = reportImageQuality;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('reportimagequality', reportImageQuality);
+    await prefs.setString('companyName', companyName);
+    await prefs.setInt('imageCount', imageCount);
   }
 
   Future<void> _applyImageSettings(String quality) async {
@@ -80,12 +98,19 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setString('imagequality', quality);
   }
 
+  int reportImageQuality = 100;
+  int imageCount = 4;
+  String companyName = 'DeckInspectors';
   late RealmProjectServices realmServices;
   @override
   void initState() {
     super.initState();
-    _loadImageSettings();
     realmServices = Provider.of<RealmProjectServices>(context, listen: false);
+    imageCount = imageCountList.first;
+    companyName = list.first;
+    reportImageQuality = reportQulityList.first;
+
+    _loadImageSettings();
   }
 
   void setImageQuality(String quality) {
@@ -208,9 +233,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 30,
-            ),
             OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                     side: BorderSide.none,
@@ -230,9 +252,140 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Force Sync',
                   style: TextStyle(color: Colors.blue),
                 )),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Report Settings',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const Divider(
+              color: Color.fromARGB(255, 222, 213, 213),
+              height: 0,
+              thickness: 1,
+              indent: 2,
+              endIndent: 2,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Company Name',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  DropdownButton<String>(
+                    value: companyName,
+                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.blue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.blue,
+                    ),
+                    onChanged: (String? value) {
+                      // This is called when the user selects an item.
+                      setState(() {
+                        companyName = value!;
+                        savereportSettings();
+                      });
+                    },
+                    items: list.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Image Quality(%)',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  DropdownButton<int>(
+                    value: reportImageQuality,
+                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.blue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.blue,
+                    ),
+                    onChanged: (int? value) {
+                      // This is called when the user selects an item.
+                      setState(() {
+                        reportImageQuality = value!;
+                        savereportSettings();
+                      });
+                    },
+                    items: reportQulityList
+                        .map<DropdownMenuItem<int>>((int value) {
+                      return DropdownMenuItem<int>(
+                        value: value,
+                        child: Text(value.toString()),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Images in a row',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  DropdownButton<int>(
+                    value: imageCount,
+                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.blue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.blue,
+                    ),
+                    onChanged: (int? value) {
+                      // This is called when the user selects an item.
+                      setState(() {
+                        imageCount = value!;
+                        savereportSettings();
+                      });
+                    },
+                    items:
+                        imageCountList.map<DropdownMenuItem<int>>((int value) {
+                      return DropdownMenuItem<int>(
+                        value: value,
+                        child: Text(value.toString()),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
           ],
         )));
   }
+
+  List<String> list = <String>['DeckInspectors', 'Wicr'];
+  List<int> reportQulityList = <int>[100, 50, 25];
+  List<int> imageCountList = <int>[4, 3, 5];
 
   bool isSyncOn = true;
   void toggleSwitch(bool value) async {

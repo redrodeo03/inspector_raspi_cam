@@ -129,12 +129,11 @@ Page resource error:
           ],
         ),
         body: isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(
                 backgroundColor: Colors.blue,
                 color: Colors.green,
                 //valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                value: downloadPerc.toDouble(),
               ))
             : WebViewWidget(controller: _webViewController));
   }
@@ -151,8 +150,8 @@ Page resource error:
         return;
       }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('DOCX in progress')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('DOCX under development.')));
     }
   }
 

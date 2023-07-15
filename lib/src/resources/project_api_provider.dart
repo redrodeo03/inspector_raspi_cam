@@ -122,7 +122,8 @@ class ProjectsApiProvider {
         'companyName': companyName,
         'reportType': reportType,
         'sectionImageProperties': {
-          'compressionQuality': quality,
+          'compressionQuality':
+              100, //quality, for timebeing till the optimization is done.
           'imageFactor': imageFactor,
         },
       });

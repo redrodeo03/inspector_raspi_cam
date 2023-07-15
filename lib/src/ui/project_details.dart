@@ -1,4 +1,6 @@
 import 'dart:async' as async;
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:deckinspectors/src/bloc/projects_bloc.dart';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
@@ -6,7 +8,7 @@ import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import 'package:deckinspectors/src/ui/pdfviewer.dart';
+//import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -16,6 +18,7 @@ import '../models/realm/realm_schemas.dart';
 import 'addedit_subproject.dart';
 
 import 'breadcrumb_navigation.dart';
+import 'htmlviewer.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
 import 'addedit_project.dart';
@@ -805,14 +808,15 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     setState(() {
       isDownloading = true;
     });
+
     var result = await projectsBloc.downloadProjectReport(
         currentProject.name as String,
         id.toString(),
         'pdf',
-        100,
-        4,
+        appSettings.reportImageQuality,
+        appSettings.imageinRowCount,
         reportType,
-        'DeckInspectors');
+        appSettings.companyName);
     if (!mounted) {
       return;
     }
@@ -836,11 +840,22 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     });
   }
 
-  void gotoReportView(String? message) {
+  String htmlText = '';
+  Future readHTML(String filePath) async {
+    try {
+      final file = File(filePath);
+      htmlText = await file.readAsString(encoding: utf8);
+    } catch (e) {}
+  }
+
+  void gotoReportView(String? filePath) async {
     //navigate to pdf view.
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PDFViewerPage(message as String)),
-    );
+    await readHTML(filePath as String);
+    if (!mounted) {
+      return;
+    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return HTMLViewerPage(htmlText, '', filePath);
+    }));
   }
 }

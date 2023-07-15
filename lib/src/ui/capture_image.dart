@@ -49,6 +49,7 @@ Future<XFile?> captureImage(BuildContext context) async {
               //todo
               imageFile = await picker.pickImage(
                   source: ImageSource.gallery, imageQuality: imageQuality);
+
               Navigator.pop(context, imageFile);
             },
           )

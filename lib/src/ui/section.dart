@@ -11,6 +11,8 @@ import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
 
@@ -200,6 +202,45 @@ class _SectionPageState extends State<SectionPage> {
           realmServices.getLocation(widget.parentId) as LocalLocation;
     }
     super.initState();
+  }
+
+//speech code.
+  late TextEditingController _activeController;
+  final SpeechToText _speechToText = SpeechToText();
+  //bool _speechEnabled = false;
+  String _lastWords = '';
+  void _initSpeech() async {
+    //_speechEnabled =
+    await _speechToText.initialize();
+    setState(() {});
+  }
+
+  /// Each time to start a speech recognition session
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {});
+  }
+
+  /// This is the callback that the SpeechToText plugin calls when
+  /// the platform returns recognized words.
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      if (result.finalResult) {
+        _lastWords = result.recognizedWords;
+        _activeController.text = "${_activeController.text} $_lastWords";
+      }
+
+      //print(_lastWords);
+    });
+  }
+
+  void setActiveTextController(TextEditingController controller) {
+    _activeController = controller;
   }
 
   void setInitialValues() {
@@ -750,7 +791,25 @@ class _SectionPageState extends State<SectionPage> {
                     indent: 2,
                     endIndent: 2,
                   ),
-                  const Text('Additional considerations or concerns'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Additional considerations or concerns'),
+                      Align(
+                          alignment: Alignment.centerRight,
+                          child: FloatingActionButton(
+                            onPressed:
+                                // If not yet listening for speech start, otherwise stop
+                                _speechToText.isNotListening
+                                    ? _startListening
+                                    : _stopListening,
+                            tooltip: 'Listen',
+                            child: Icon(_speechToText.isNotListening
+                                ? Icons.mic_off
+                                : Icons.mic),
+                          )),
+                    ],
+                  ),
                   const SizedBox(
                     height: 8,
                   ),
@@ -890,6 +949,9 @@ class _SectionPageState extends State<SectionPage> {
   Widget inputWidgetwithNoValidation(String hint, String message, int lines,
       TextEditingController controller) {
     return TextFormField(
+        onTap: () {
+          setActiveTextController(controller);
+        },
         controller: controller,
         maxLines: lines,
         decoration: InputDecoration(
