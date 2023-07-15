@@ -90,7 +90,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
-      _lastWords = result.recognizedWords;
+      if (result.finalResult) {
+        _lastWords = result.recognizedWords;
+        _activeController.text = "${_activeController.text} $_lastWords";
+      }
+
+      //print(_lastWords);
     });
   }
 
@@ -181,7 +186,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   }
 
   String imageURL = 'assets/images/icon.png';
+
   final TextEditingController _nameController = TextEditingController(text: '');
+  late TextEditingController _activeController;
+
   final TextEditingController _addressController =
       TextEditingController(text: '');
   final TextEditingController _descriptionController =
@@ -296,19 +304,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             value: isProjectSingleLevel,
                           ),
-                        // Align(
-                        //     alignment: Alignment.centerRight,
-                        //     child: FloatingActionButton(
-                        //       onPressed:
-                        //           // If not yet listening for speech start, otherwise stop
-                        //           _speechToText.isNotListening
-                        //               ? _startListening
-                        //               : _stopListening,
-                        //       tooltip: 'Listen',
-                        //       child: Icon(_speechToText.isNotListening
-                        //           ? Icons.mic_off
-                        //           : Icons.mic),
-                        //     )),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: FloatingActionButton(
+                              onPressed:
+                                  // If not yet listening for speech start, otherwise stop
+                                  _speechToText.isNotListening
+                                      ? _startListening
+                                      : _stopListening,
+                              tooltip: 'Listen',
+                              child: Icon(_speechToText.isNotListening
+                                  ? Icons.mic_off
+                                  : Icons.mic),
+                            )),
                       ],
                     ),
                     const Text('Project name'),
@@ -439,6 +447,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   Widget inputWidgetwithValidation(
       String hint, String message, TextEditingController controller) {
     return TextFormField(
+        onTap: () {
+          setActiveTextController(controller);
+        },
         controller: controller,
         // The validator receives the text that the user has entered.
         validator: (value) {
@@ -464,6 +475,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       String hint, int? lines, TextEditingController controller) {
     return TextField(
         controller: controller,
+        onTap: () {
+          setActiveTextController(controller);
+        },
         // The validator receives the text that the user has entered.
         maxLines: lines,
         decoration: InputDecoration(
@@ -499,5 +513,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to deleted project.')));
     }
+  }
+
+  void setActiveTextController(TextEditingController controller) {
+    _activeController = controller;
   }
 }
