@@ -197,56 +197,54 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
     final realmServices = Provider.of<RealmProjectServices>(context);
     return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 120,
-            leading: ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.blue,
-              ),
-              label: Text(
-                prevPagename,
-                style: const TextStyle(color: Colors.blue),
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-              ),
+          automaticallyImplyLeading: false,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
             ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  pageTitle,
-                  style: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
-                InkWell(
-                    onTap: () {
-                      save(context, realmServices);
-                    },
-                    child: Chip(
-                      avatar: const Icon(
-                        Icons.save_outlined,
-                        color: Colors.black,
-                      ),
-                      labelPadding: const EdgeInsets.all(2),
-                      label: Text(
-                        'Save $pageType',
-                        style: const TextStyle(color: Colors.black),
-                        selectionColor: Colors.white,
-                      ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
-                      autofocus: true,
-                    )),
-              ],
-            )),
+            label: Text(
+              prevPagename,
+              style: const TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          actions: [
+            InkWell(
+                onTap: () {
+                  save(context, realmServices);
+                },
+                child: const Chip(
+                  avatar: Icon(
+                    Icons.save_outlined,
+                    color: Colors.black,
+                  ),
+                  labelPadding: EdgeInsets.all(2),
+                  label: Text(
+                    'Save',
+                    style: TextStyle(color: Colors.black),
+                    selectionColor: Colors.white,
+                  ),
+                  shadowColor: Colors.blue,
+                  backgroundColor: Colors.blue,
+                  elevation: 10,
+                  autofocus: true,
+                )),
+          ],
+          title: Text(
+            pageTitle,
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.normal),
+          ),
+        ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: BreadCrumbNavigator(),
@@ -300,64 +298,67 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                             borderOnForeground: false,
                             elevation: 4,
                             child: GestureDetector(
-                                onTap: () async {
-                                  //add logic to open camera.
-                                  showAssetPic = false;
-                                  var xfile = await captureImage(context);
-                                  if (xfile != null) {
-                                    setState(() {
-                                      imageURL = xfile.path;
-                                    });
-                                  }
-                                },
-                                child: Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.orange,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 1.0,
-                                                color: Colors.blue)
-                                          ]),
-                                      child: showAssetPic
-                                          ? currentLocation.url == ""
-                                              ? Image.asset(
-                                                  "assets/images/heroimage.png",
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                )
-                                              : Image.file(
-                                                  File(imageURL),
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                )
-                                          : cachedNetworkImage(imageURL),
-                                    ),
-                                    const Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Icon(Icons.camera_outlined,
-                                            size: 40, color: Colors.black),
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Add Image',
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                )),
+                              onTap: () async {
+                                //add logic to open camera.
+                                showAssetPic = false;
+                                var xfile = await captureImage(context);
+                                if (xfile != null) {
+                                  setState(() {
+                                    imageURL = xfile.path;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 1.0, color: Colors.blue)
+                                    ]),
+                                child: showAssetPic
+                                    ? currentLocation.url == ""
+                                        ? Image.asset(
+                                            "assets/images/heroimage.png",
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: 250,
+                                          )
+                                        : Image.file(
+                                            File(imageURL),
+                                            fit: BoxFit.fill,
+                                            width: double.infinity,
+                                            height: 250,
+                                          )
+                                    : cachedNetworkImage(imageURL),
+                              ),
+                            ),
+                          )),
+                      OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                              side: BorderSide.none,
+                              // the height is 50, the width is full
+                              minimumSize: const Size.fromHeight(40),
+                              backgroundColor: Colors.white,
+                              shadowColor: Colors.blue,
+                              elevation: 0),
+                          onPressed: () async {
+                            showAssetPic = false;
+                            var xfile = await captureImage(context);
+                            if (xfile != null) {
+                              setState(() {
+                                imageURL = xfile.path;
+                              });
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.camera_outlined,
+                            color: Colors.blueAccent,
+                          ),
+                          label: const Text(
+                            'Add image',
+                            style: TextStyle(color: Colors.blueAccent),
                           )),
                       if (!isNewLocation)
                         OutlinedButton.icon(

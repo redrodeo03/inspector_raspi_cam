@@ -223,57 +223,56 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leadingWidth: 150,
-          leading: ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.blue,
-            ),
-            label: Text(
-              prevPageName,
-              style: const TextStyle(
-                  color: Colors.blue, overflow: TextOverflow.clip),
-            ),
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-            ),
+        automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.blue,
           ),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                pageTitle,
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.normal),
-              ),
-              InkWell(
-                  onTap: () {
-                    save(context);
-                  },
-                  child: const Chip(
-                    avatar: Icon(
-                      Icons.save_outlined,
-                      color: Color(0xFF3F3F3F),
-                    ),
-                    labelPadding: EdgeInsets.all(2),
-                    label: Text(
-                      'Save Project',
-                      style: TextStyle(color: Color(0xFF3F3F3F)),
-                      selectionColor: Colors.white,
-                    ),
-                    shadowColor: Colors.blue,
-                    backgroundColor: Colors.blue,
-                    elevation: 10,
-                    autofocus: true,
-                  )),
-            ],
-          )),
+          label: Text(
+            prevPageName,
+            style: const TextStyle(
+                color: Colors.blue, overflow: TextOverflow.clip),
+          ),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
+        elevation: 0,
+        actions: [
+          InkWell(
+              onTap: () {
+                save(context);
+              },
+              child: const Chip(
+                avatar: Icon(
+                  Icons.save_outlined,
+                  color: Color(0xFF3F3F3F),
+                ),
+                labelPadding: EdgeInsets.all(2),
+                label: Text(
+                  'Save',
+                  style: TextStyle(color: Color(0xFF3F3F3F)),
+                  selectionColor: Colors.white,
+                ),
+                shadowColor: Colors.blue,
+                backgroundColor: Colors.blue,
+                elevation: 10,
+                autofocus: true,
+              )),
+        ],
+        title: Text(
+          pageTitle,
+          maxLines: 2,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.normal),
+        ),
+      ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
         child: BreadCrumbNavigator(),
@@ -285,7 +284,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 1,
+                height: MediaQuery.of(context).size.height * 1.3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -351,68 +350,69 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                           borderOnForeground: false,
                           elevation: 8,
                           child: GestureDetector(
-                              onTap: () async {
-                                showAssetPic = false;
-                                //add logic to open camera.
-                                var xfile = await captureImage(context);
-                                if (xfile != null) {
-                                  setState(() {
-                                    imageURL = xfile.path;
-                                  });
-                                }
-                              },
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.orange,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 1.0,
-                                              color: Colors.blue)
-                                        ]),
-                                    child: showAssetPic
-                                        ? currentProject.url == ""
-                                            ? Image.asset(
-                                                "assets/images/heroimage.png",
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: 250,
-                                              )
-                                            : Image.file(
-                                                File(imageURL),
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: 250,
-                                              )
-                                        : cachedNetworkImage(imageURL),
-                                  ),
-                                  const Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Icon(Icons.camera_outlined,
-                                          size: 40, color: Colors.blue),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Text(
-                                          'Add Image',
-                                          style: TextStyle(
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              )),
+                            onTap: () async {
+                              showAssetPic = false;
+                              //add logic to open camera.
+                              var xfile = await captureImage(context);
+                              if (xfile != null) {
+                                setState(() {
+                                  imageURL = xfile.path;
+                                });
+                              }
+                            },
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        blurRadius: 1.0, color: Colors.blue)
+                                  ]),
+                              child: showAssetPic
+                                  ? currentProject.url == ""
+                                      ? Image.asset(
+                                          "assets/images/heroimage.png",
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                      : Image.file(
+                                          File(imageURL),
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                  : cachedNetworkImage(imageURL),
+                            ),
+                          ),
                         )),
-                    const SizedBox(
-                      height: 30,
-                    ),
+                    OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                            side: BorderSide.none,
+                            // the height is 50, the width is full
+                            minimumSize: const Size.fromHeight(40),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 1),
+                        onPressed: () async {
+                          showAssetPic = false;
+                          //add logic to open camera.
+                          var xfile = await captureImage(context);
+                          if (xfile != null) {
+                            setState(() {
+                              imageURL = xfile.path;
+                            });
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.camera_outlined,
+                          color: Colors.blueAccent,
+                        ),
+                        label: const Text(
+                          'Add Image',
+                          style: TextStyle(color: Colors.blueAccent),
+                        )),
                     if (!isNewProject)
                       OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(

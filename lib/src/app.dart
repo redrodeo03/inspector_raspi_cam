@@ -19,6 +19,12 @@ class App extends StatelessWidget {
           navigatorObservers: [NavigationObserver()],
           debugShowCheckedModeBanner: false,
           title: 'Deck Inspectors',
+          // builder: (context, child) {
+          //   return MediaQuery(
+          //     data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          //     child: child!,
+          //   );
+          // },
           home: const SafeArea(child: LoginPage()),
         ));
   }

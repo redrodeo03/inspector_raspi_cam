@@ -135,7 +135,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
                               : "Multi-Level";
 
                       return SizedBox(
-                        height: 140,
+                        height: 160,
+                        width: MediaQuery.of(context).size.width - 5,
                         child: Card(
                           borderOnForeground: false,
 //                color: Colors.blue,
@@ -267,7 +268,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                                         8),
                                                                 child:
                                                                     const Text(
-                                                                  'View Visual',
+                                                                  'Visual',
                                                                   style: TextStyle(
                                                                       color: Colors
                                                                           .blue,
@@ -296,7 +297,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                     padding: const EdgeInsets
                                                         .fromLTRB(8, 8, 16, 8),
                                                     child: const Text(
-                                                      'View Invasive',
+                                                      'Invasive',
                                                       style: TextStyle(
                                                           color: Colors.blue,
                                                           fontSize: 17),
