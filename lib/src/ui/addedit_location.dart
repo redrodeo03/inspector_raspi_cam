@@ -100,17 +100,16 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
   /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
-      if (result.finalResult) {
-        _lastWords = result.recognizedWords;
-        _activeController.text = "${_activeController.text} $_lastWords";
-      }
+      _lastWords = result.recognizedWords;
 
-      //print(_lastWords);
+      _activeController.text = "$initialValue $_lastWords";
     });
   }
 
+  String initialValue = "";
   void setActiveTextController(TextEditingController controller) {
     _activeController = controller;
+    initialValue = _activeController.text;
   }
 
   late LocalLocation currentLocation;

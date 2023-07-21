@@ -125,7 +125,7 @@ class _SectionPageState extends State<SectionPage> {
                     ),
                     labelPadding: EdgeInsets.all(2),
                     label: Text(
-                      'Save Location',
+                      'Save',
                       style: TextStyle(color: Colors.black),
                       selectionColor: Colors.white,
                     ),
@@ -998,6 +998,7 @@ class _SectionPageState extends State<SectionPage> {
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Good'),
             leading: Radio<VisualReview>(
@@ -1014,6 +1015,7 @@ class _SectionPageState extends State<SectionPage> {
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fair'),
             leading: Radio<VisualReview>(
@@ -1029,6 +1031,7 @@ class _SectionPageState extends State<SectionPage> {
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Bad'),
             leading: Radio<VisualReview>(
@@ -1228,6 +1231,7 @@ class _SectionPageState extends State<SectionPage> {
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Pass'),
             leading: Radio<ConditionalAssessment>(
@@ -1244,6 +1248,7 @@ class _SectionPageState extends State<SectionPage> {
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fail'),
             leading: Radio<ConditionalAssessment>(
@@ -1258,6 +1263,7 @@ class _SectionPageState extends State<SectionPage> {
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Future Inspection'),
             leading: Radio<ConditionalAssessment>(
@@ -1273,6 +1279,7 @@ class _SectionPageState extends State<SectionPage> {
       }
     }
     return ListTile(
+      horizontalTitleGap: 2,
       contentPadding: const EdgeInsets.all(0),
       title: const Text('Fair'),
       leading: Radio<VisualReview>(

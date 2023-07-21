@@ -77,25 +77,28 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
 
   /// Each time to start a speech recognition session
   void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
+    await _speechToText.listen(
+      onResult: _onSpeechResult,
+      listenMode: ListenMode.dictation,
+    );
     setState(() {});
   }
 
   void _stopListening() async {
     await _speechToText.stop();
+
     setState(() {});
   }
+
+  String initialValue = "";
 
   /// This is the callback that the SpeechToText plugin calls when
   /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
-      if (result.finalResult) {
-        _lastWords = result.recognizedWords;
-        _activeController.text = "${_activeController.text} $_lastWords";
-      }
+      _lastWords = result.recognizedWords;
 
-      //print(_lastWords);
+      _activeController.text = "$initialValue $_lastWords";
     });
   }
 
@@ -517,5 +520,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
 
   void setActiveTextController(TextEditingController controller) {
     _activeController = controller;
+    initialValue = _activeController.text;
   }
 }

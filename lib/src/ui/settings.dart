@@ -120,19 +120,20 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leadingWidth: 20,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text(
-            'App Settings',
-            style: TextStyle(color: Colors.black),
-          ),
+      appBar: AppBar(
+        leadingWidth: 20,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'App Settings',
+          style: TextStyle(color: Colors.black),
         ),
-        body: Center(
-            child: Column(
+      ),
+      body: Center(
+          child: ListView(children: [
+        Column(
           children: [
             const SizedBox(
               height: 4,
@@ -380,7 +381,9 @@ class _SettingsPageState extends State<SettingsPage> {
               height: 30,
             ),
           ],
-        )));
+        )
+      ])),
+    );
   }
 
   List<String> list = <String>['DeckInspectors', 'Wicr'];
