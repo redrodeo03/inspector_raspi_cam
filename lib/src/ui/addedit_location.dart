@@ -3,13 +3,11 @@ import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/location.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../bloc/images_bloc.dart';
 import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import '../resources/realm/realm_services.dart';
-import 'breadcrumb_navigation.dart';
+//import 'breadcrumb_navigation.dart';
 import 'capture_image.dart';
 
 class AddEditLocationPage extends StatefulWidget {
@@ -72,44 +70,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
       imageURL = currentLocation.url as String;
     }
     prevPagename = widget.prevPageName;
-    _initSpeech();
-  }
-
-  late TextEditingController _activeController;
-  final SpeechToText _speechToText = SpeechToText();
-  //bool _speechEnabled = false;
-  String _lastWords = '';
-  void _initSpeech() async {
-    //_speechEnabled =
-    await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-
-      _activeController.text = "$initialValue $_lastWords";
-    });
-  }
-
-  String initialValue = "";
-  void setActiveTextController(TextEditingController controller) {
-    _activeController = controller;
-    initialValue = _activeController.text;
+    //initSpeech();
   }
 
   late LocalLocation currentLocation;
@@ -205,6 +166,8 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
               color: Colors.blue,
             ),
             label: Text(
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
               prevPagename,
               style: const TextStyle(color: Colors.blue),
             ),
@@ -244,10 +207,10 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                 color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: BreadCrumbNavigator(),
-        ),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
         body: SingleChildScrollView(
           child: Form(
               key: _formKey,
@@ -258,19 +221,6 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: FloatingActionButton(
-                            onPressed:
-                                // If not yet listening for speech start, otherwise stop
-                                _speechToText.isNotListening
-                                    ? _startListening
-                                    : _stopListening,
-                            tooltip: 'Listen',
-                            child: Icon(_speechToText.isNotListening
-                                ? Icons.mic_off
-                                : Icons.mic),
-                          )),
                       Text(pageType),
                       const SizedBox(
                         height: 8,
@@ -408,9 +358,6 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
 
   Widget inputWidgetwithValidation(String hint, String message) {
     return TextFormField(
-        onTap: () {
-          setActiveTextController(_nameController);
-        },
         controller: _nameController,
         // The validator receives the text that the user has entered.
         validator: (value) {
@@ -435,9 +382,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
   Widget inputWidgetNoValidation(String hint, int? lines) {
     return TextField(
         controller: _descriptionController,
-        onTap: () {
-          setActiveTextController(_descriptionController);
-        },
+
         // The validator receives the text that the user has entered.
         maxLines: lines,
         decoration: InputDecoration(

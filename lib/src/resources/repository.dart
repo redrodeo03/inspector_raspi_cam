@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/models/project_model.dart';
 import 'package:deckinspectors/src/models/section_model.dart';
 import 'package:deckinspectors/src/models/subproject_model.dart';
@@ -109,7 +110,7 @@ class Repository {
 
   Future<Object> uploadImage(String path, String containerName, String uploader,
       String id, String parentType, String entityName) {
-    if (RealmProjectServices.offlineModeOn) {
+    if (RealmProjectServices.offlineModeOn || !appSettings.activeConnection) {
       return imageApiProvider.uploadImageLocally(
           path, containerName, uploader, id, parentType, entityName);
     } else {

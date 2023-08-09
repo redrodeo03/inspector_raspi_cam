@@ -5,6 +5,7 @@ class AppSettings {
   String companyName = 'deckInspectors';
   int reportImageQuality = 100;
   int imageinRowCount = 4;
+  bool activeConnection = true;
 }
 
 enum ImageQuality { high, medium, low }

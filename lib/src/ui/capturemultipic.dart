@@ -16,21 +16,21 @@ class CameraScreenState extends State<CameraScreen>
     with WidgetsBindingObserver {
   CameraController? controller;
 
-  File? _imageFile;
+  //File? _imageFile;
 
   // Initial values
   bool _isCameraInitialized = false;
   //bool _isCameraPermissionGranted = false;
   //bool _isRearCameraSelected = true;
 
-  double _minAvailableExposureOffset = 0.0;
-  double _maxAvailableExposureOffset = 0.0;
+  // double _minAvailableExposureOffset = 0.0;
+  // double _maxAvailableExposureOffset = 0.0;
   double _minAvailableZoom = 1.0;
   double _maxAvailableZoom = 1.0;
 
   // Current values
   double _currentZoomLevel = 1.0;
-  double _currentExposureOffset = 0.0;
+  //double _currentExposureOffset = 0.0;
   FlashMode? _currentFlashMode;
 
   List<File> allFileList = [];
@@ -75,7 +75,7 @@ class CameraScreenState extends State<CameraScreen>
 
   void resetCameraValues() async {
     _currentZoomLevel = 1.0;
-    _currentExposureOffset = 0.0;
+    //_currentExposureOffset = 0.0;
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -105,12 +105,12 @@ class CameraScreenState extends State<CameraScreen>
     try {
       await cameraController.initialize();
       await Future.wait([
-        cameraController
-            .getMinExposureOffset()
-            .then((value) => _minAvailableExposureOffset = value),
-        cameraController
-            .getMaxExposureOffset()
-            .then((value) => _maxAvailableExposureOffset = value),
+        // cameraController
+        //     .getMinExposureOffset()
+        //     .then((value) => _minAvailableExposureOffset = value),
+        // cameraController
+        //     .getMaxExposureOffset()
+        //     .then((value) => _maxAvailableExposureOffset = value),
         cameraController
             .getMaxZoomLevel()
             .then((value) => _maxAvailableZoom = value),
@@ -193,6 +193,7 @@ class CameraScreenState extends State<CameraScreen>
                     //   child:
                     Expanded(
                       child: Stack(
+                        alignment: Alignment.bottomCenter,
                         children: [
                           CameraPreview(
                             controller!,
@@ -222,144 +223,109 @@ class CameraScreenState extends State<CameraScreen>
                               8.0,
                             ),
                             child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                // Align(
+                                //   alignment: Alignment.topRight,
+                                //   child: Container(
+                                //     decoration: BoxDecoration(
+                                //       color: Colors.black87,
+                                //       borderRadius: BorderRadius.circular(10.0),
+                                //     ),
+                                //     child: Padding(
+                                //       padding: const EdgeInsets.only(
+                                //         left: 8.0,
+                                //         right: 8.0,
+                                //       ),
+                                //       child: DropdownButton<ResolutionPreset>(
+                                //         dropdownColor: Colors.black87,
+                                //         underline: Container(),
+                                //         value: currentResolutionPreset,
+                                //         items: [
+                                //           for (ResolutionPreset preset
+                                //               in resolutionPresets)
+                                //             DropdownMenuItem(
+                                //               value: preset,
+                                //               child: Text(
+                                //                 preset
+                                //                     .toString()
+                                //                     .split('.')[1]
+                                //                     .toUpperCase(),
+                                //                 style: const TextStyle(
+                                //                     color: Colors.white),
+                                //               ),
+                                //             )
+                                //         ],
+                                //         onChanged: (value) {
+                                //           setState(() {
+                                //             currentResolutionPreset = value!;
+                                //             _isCameraInitialized = false;
+                                //           });
+                                //           onNewCameraSelected(
+                                //               controller!.description);
+                                //         },
+                                //         hint: const Text("select resolution"),
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                                 Align(
-                                  alignment: Alignment.topRight,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black87,
-                                      borderRadius: BorderRadius.circular(10.0),
+                                  alignment: Alignment.bottomRight,
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                        shape: (RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14.0),
+                                            side: const BorderSide(
+                                                color: Colors.blue)))),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(capturedImages
+                                          .map((e) => e.path)
+                                          .toList());
+                                    },
+                                    icon: const Icon(
+                                      Icons.done,
+                                      size: 40,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 8.0,
-                                        right: 8.0,
-                                      ),
-                                      child: DropdownButton<ResolutionPreset>(
-                                        dropdownColor: Colors.black87,
-                                        underline: Container(),
-                                        value: currentResolutionPreset,
-                                        items: [
-                                          for (ResolutionPreset preset
-                                              in resolutionPresets)
-                                            DropdownMenuItem(
-                                              value: preset,
-                                              child: Text(
-                                                preset
-                                                    .toString()
-                                                    .split('.')[1]
-                                                    .toUpperCase(),
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            )
-                                        ],
-                                        onChanged: (value) {
-                                          setState(() {
-                                            currentResolutionPreset = value!;
-                                            _isCameraInitialized = false;
-                                          });
-                                          onNewCameraSelected(
-                                              controller!.description);
-                                        },
-                                        hint: const Text("select resolution"),
-                                      ),
+                                    label: Text(
+                                      'Save ${capturedImages.length}',
+                                      style: const TextStyle(fontSize: 15),
                                     ),
                                   ),
                                 ),
-                                // Spacer(),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 8.0, top: 16.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        '${_currentExposureOffset.toStringAsFixed(1)}x',
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      if (controller!.value.isTakingPicture) {
+                                        // A capture is already pending, do nothing.
+                                        return;
+                                      }
 
-                                Expanded(
-                                  child: RotatedBox(
-                                    quarterTurns: 3,
-                                    child: SizedBox(
-                                      height: 30,
-                                      child: Slider(
-                                        value: _currentExposureOffset,
-                                        min: _minAvailableExposureOffset,
-                                        max: _maxAvailableExposureOffset,
-                                        activeColor: Colors.white,
-                                        inactiveColor: Colors.white30,
-                                        onChanged: (value) async {
-                                          setState(() {
-                                            _currentExposureOffset = value;
-                                          });
-                                          await controller!
-                                              .setExposureOffset(value);
-                                        },
+                                      try {
+                                        XFile file =
+                                            await controller!.takePicture();
+                                        capturedImages.add(file);
+                                        //var imageFile = File(file.path);
+                                      } on CameraException catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Error occured while taking picture: $e')),
+                                        );
+
+                                        return;
+                                      }
+                                    },
+                                    child: const Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.circle,
+                                        color: Colors.white,
+                                        size: 80,
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                      shape: (RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(14.0),
-                                          side: const BorderSide(
-                                              color: Colors.blue)))),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(capturedImages
-                                        .map((e) => e.path)
-                                        .toList());
-                                  },
-                                  icon: const Icon(
-                                    Icons.done,
-                                    size: 40,
-                                  ),
-                                  label: Text(
-                                    '${capturedImages.length}',
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () async {
-                                    if (controller!.value.isTakingPicture) {
-                                      // A capture is already pending, do nothing.
-                                      return;
-                                    }
-
-                                    try {
-                                      XFile file =
-                                          await controller!.takePicture();
-                                      capturedImages.add(file);
-                                      _imageFile = File(file.path);
-                                    } on CameraException catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Error occured while taking picture: $e')),
-                                      );
-
-                                      return;
-                                    }
-                                  },
-                                  child: const Align(
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.circle,
-                                      color: Colors.white,
-                                      size: 80,
                                     ),
                                   ),
                                 ),
@@ -401,51 +367,6 @@ class CameraScreenState extends State<CameraScreen>
                                     ),
                                   ],
                                 ),
-
-                                // Row(
-                                //   mainAxisAlignment:
-                                //       MainAxisAlignment.spaceBetween,
-                                //   children: [
-                                //     Container(
-                                //       width: 60,
-                                //     ),
-                                //     InkWell(
-                                //       onTap: _imageFile != null
-                                //           ? () {
-                                //               Navigator.of(context).push(
-                                //                 MaterialPageRoute(
-                                //                   builder: (context) =>
-                                //                       PreviewScreen(
-                                //                     imageFile: _imageFile!,
-                                //                     fileList: capturedImages,
-                                //                   ),
-                                //                 ),
-                                //               );
-                                //             }
-                                //           : null,
-                                //       child: Container(
-                                //         width: 100,
-                                //         height: 100,
-                                //         decoration: BoxDecoration(
-                                //           color: Colors.black,
-                                //           borderRadius:
-                                //               BorderRadius.circular(8.0),
-                                //           border: Border.all(
-                                //             color: Colors.white,
-                                //             width: 2,
-                                //           ),
-                                //           image: _imageFile != null
-                                //               ? DecorationImage(
-                                //                   image: FileImage(_imageFile!),
-                                //                   fit: BoxFit.cover,
-                                //                 )
-                                //               : null,
-                                //         ),
-                                //         child: Container(),
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
                               ],
                             ),
                           ),

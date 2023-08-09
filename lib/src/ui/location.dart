@@ -9,7 +9,7 @@ import 'package:realm/realm.dart';
 
 import '../models/realm/realm_schemas.dart';
 import '../resources/realm/realm_services.dart';
-import 'breadcrumb_navigation.dart';
+//import 'breadcrumb_navigation.dart';
 import 'cachedimage_widget.dart';
 import 'showprojecttype_widget.dart';
 
@@ -63,6 +63,8 @@ class _LocationPageState extends State<LocationPage> {
               color: Colors.blue,
             ),
             label: Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               parenttype,
               style: const TextStyle(color: Colors.blue),
             ),
@@ -80,10 +82,10 @@ class _LocationPageState extends State<LocationPage> {
                 color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: BreadCrumbNavigator(),
-        ),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
         body: StreamBuilder<RealmObjectChanges<LocalLocation>>(
             //projectsBloc.projects
             stream: realmServices.getLocation(locationId)!.changes,
@@ -233,7 +235,7 @@ class _LocationPageState extends State<LocationPage> {
             .toList()
         : currentLocation.sections.toList();
     return SizedBox(
-        height: 500,
+        height: 550,
         child: Padding(
             padding: const EdgeInsets.all(4),
             child: Column(
@@ -281,7 +283,7 @@ class _LocationPageState extends State<LocationPage> {
                 sections.isEmpty
                     ? const Center(
                         child: Text(
-                        'No invasive locations to show.',
+                        'No locations to show.',
                         style: TextStyle(fontSize: 16),
                       ))
                     : Expanded(
@@ -368,14 +370,18 @@ class _LocationPageState extends State<LocationPage> {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text(
-                              sections[index].name as String,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                overflow: TextOverflow.ellipsis,
+                                sections[index].name as String,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                             Visibility(
                                 visible: sections[index].isUploading,
@@ -385,7 +391,7 @@ class _LocationPageState extends State<LocationPage> {
                                     backgroundColor: Colors.orange,
                                     color: Colors.blue,
                                   ),
-                                ))
+                                )),
                           ]),
                     ),
                     const Divider(

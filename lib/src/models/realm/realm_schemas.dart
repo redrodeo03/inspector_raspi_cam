@@ -1,25 +1,6 @@
 import 'package:realm/realm.dart';
 part 'realm_schemas.g.dart';
 
-// @RealmModel()
-// class _LocalSingleProject {
-//   @MapTo('_id')
-//   @PrimaryKey()
-//   late ObjectId id;
-//   late String? name;
-//   late String? projecttype;
-//   late String? description;
-//   late String? address;
-//   late String? createdby;
-//   late String? createdat;
-//   late String? url;
-//   late DateTime? editedat;
-//   String? lasteditedby;
-//   late Set<String> assignedto;
-//   List<_LocalSection> children = [];
-//   List<_LocalSection> invasiveChildren = [];
-// }
-
 @RealmModel()
 class _LocalProject {
   @MapTo('_id')

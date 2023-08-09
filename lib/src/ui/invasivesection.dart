@@ -67,6 +67,8 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
               color: Colors.blue,
             ),
             label: Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               prevPageName,
               style: const TextStyle(color: Colors.blue),
             ),
@@ -97,7 +99,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                     ),
                     labelPadding: EdgeInsets.all(2),
                     label: Text(
-                      'Save Location',
+                      'Save',
                       style: TextStyle(color: Colors.black),
                       selectionColor: Colors.white,
                     ),
@@ -200,7 +202,9 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
             Expanded(
               child: SingleChildScrollView(
                 child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 1.5,
+                    height: MediaQuery.of(context).textScaleFactor > 1
+                        ? MediaQuery.of(context).size.height * 1.8
+                        : MediaQuery.of(context).size.height * 1.5,
                     child: TabBarView(children: getTabs())),
               ),
             )
@@ -902,6 +906,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Good'),
             leading: Radio<VisualReview>(
@@ -918,6 +923,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fair'),
             leading: Radio<VisualReview>(
@@ -933,6 +939,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Bad'),
             leading: Radio<VisualReview>(
@@ -1313,6 +1320,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Pass'),
             leading: Radio<ConditionalAssessment>(
@@ -1329,6 +1337,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fail'),
             leading: Radio<ConditionalAssessment>(
@@ -1343,6 +1352,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Future Inspection'),
             leading: Radio<ConditionalAssessment>(
@@ -1358,6 +1368,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       }
     }
     return ListTile(
+      horizontalTitleGap: 2,
       contentPadding: const EdgeInsets.all(0),
       title: const Text('Fair'),
       leading: Radio<VisualReview>(
@@ -1449,7 +1460,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                     ),
                     labelPadding: EdgeInsets.all(2),
                     label: Text(
-                      'Add Invasive Photos',
+                      'Add Photos',
                       style: TextStyle(color: Colors.blue, fontSize: 15),
                     ),
                     shadowColor: Colors.transparent,
@@ -1593,9 +1604,14 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Invasive repairs inspected and completed',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                const Expanded(
+                  child: Text(
+                    maxLines: 2,
+                    'Invasive repairs inspected and completed',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
                 Switch(
                   onChanged: (value) {
@@ -1663,32 +1679,35 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                         children: [
                           Text(
                               'Conclusive photos(${capturedConclusiveImages.length})'),
-                          PopupMenuButton(
-                            child: const Chip(
-                              avatar: Icon(
-                                Icons.add_a_photo_outlined,
-                                color: Colors.blue,
+                          Expanded(
+                            child: PopupMenuButton(
+                              child: const Chip(
+                                avatar: Icon(
+                                  Icons.add_a_photo_outlined,
+                                  color: Colors.blue,
+                                ),
+                                labelPadding: EdgeInsets.all(2),
+                                label: Text(
+                                  maxLines: 2,
+                                  'Add Photos',
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 15),
+                                ),
+                                shadowColor: Colors.transparent,
+                                backgroundColor: Colors.transparent,
+                                elevation: 10,
+                                autofocus: true,
                               ),
-                              labelPadding: EdgeInsets.all(2),
-                              label: Text(
-                                'Add Conclusive Photos',
-                                style:
-                                    TextStyle(color: Colors.blue, fontSize: 15),
-                              ),
-                              shadowColor: Colors.transparent,
-                              backgroundColor: Colors.transparent,
-                              elevation: 10,
-                              autofocus: true,
+                              onSelected: (value) {
+                                _onMenuItemSelected(value as int, 2);
+                              },
+                              itemBuilder: (ctx) => [
+                                _buildPopupMenuItem(
+                                    'Camera', Icons.camera_alt_outlined, 1),
+                                _buildPopupMenuItem('Gallery',
+                                    Icons.browse_gallery_outlined, 2),
+                              ],
                             ),
-                            onSelected: (value) {
-                              _onMenuItemSelected(value as int, 2);
-                            },
-                            itemBuilder: (ctx) => [
-                              _buildPopupMenuItem(
-                                  'Camera', Icons.camera_alt_outlined, 1),
-                              _buildPopupMenuItem(
-                                  'Gallery', Icons.browse_gallery_outlined, 2),
-                            ],
                           ),
                         ]),
                     capturedConclusiveImages.isEmpty

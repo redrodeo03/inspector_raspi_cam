@@ -11,8 +11,6 @@ import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
 
@@ -54,47 +52,79 @@ class SectionPage extends StatefulWidget {
 
 class _SectionPageState extends State<SectionPage> {
   late RealmProjectServices realmServices;
+
   @override
   Widget build(BuildContext context) {
     BreadCrumbNavigator();
     return Scaffold(
-      floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topRight,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                // wrap the background in a column
-                children: [
-                  const SizedBox(height: 100),
-                  BreadCrumbNavigator(), // add the SizedBox with height = 100.0
-                ],
-              ),
-              Positioned(
-                bottom: 30,
-                child: FloatingActionButton(
-                    tooltip: 'Save and Create New',
-                    elevation: 8,
-                    onPressed: () {
-                      saveAndNext(context, realmServices);
-                    },
-                    backgroundColor: Colors.blue,
-                    child: const Icon(Icons.save_sharp)),
-              )
-            ],
-          )),
+      // floatingActionButton: Padding(
+      //     padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      //     child: Stack(
+      //       clipBehavior: Clip.none,
+      //       alignment: Alignment.topRight,
+      //       children: [
+      //         Column(
+      //           mainAxisSize: MainAxisSize.min,
+      //           // wrap the background in a column
+      //           children: [
+      //             const SizedBox(height: 100),
+      //             BreadCrumbNavigator(), // add the SizedBox with height = 100.0
+      //           ],
+      //         ),
+      //         Positioned(
+      //           bottom: 30,
+      //           child: FloatingActionButton(
+      //               tooltip: 'Save and Create New',
+      //               elevation: 8,
+      //               onPressed: () {
+      //                 saveAndNext(context, realmServices);
+      //               },
+      //               backgroundColor: Colors.blue,
+      //               child: const Icon(Icons.save_sharp)),
+      //         )
+      //       ],
+      //     )),
       appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 120,
           leading: ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () async {
+              if (isFormUpdated) {
+                bool? cangoback = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Save Section'),
+                    content: const Text('Do you want to discard the changes?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(false);
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(true);
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  ),
+                );
+                if (cangoback == true) {
+                  Navigator.of(context).pop();
+                }
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
             icon: const Icon(
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
             label: Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               prevPageName,
               style: const TextStyle(color: Colors.blue),
             ),
@@ -149,6 +179,29 @@ class _SectionPageState extends State<SectionPage> {
             ),
     );
   }
+//FOR warning on navigating back.
+// WillPopScope(
+//         onWillPop: () async {
+//           bool? goBack = await showDialog<bool>(
+//             context: context,
+//             builder: (context) => AlertDialog(
+//               title: const Text('Save Section'),
+//               content: const Text('Do you want to discard the changes?'),
+//               actions: <Widget>[
+//                 TextButton(
+//                   onPressed: () => false,
+//                   child: const Text('Cancel'),
+//                 ),
+//                 TextButton(
+//                   onPressed: () => true,
+//                   child: const Text('OK'),
+//                 ),
+//               ],
+//             ),
+//           );
+//           return goBack as bool;
+//         },
+//         child:
 
   bool isRunning = false;
   String userFullName = "";
@@ -204,45 +257,6 @@ class _SectionPageState extends State<SectionPage> {
     super.initState();
   }
 
-//speech code.
-  late TextEditingController _activeController;
-  final SpeechToText _speechToText = SpeechToText();
-  //bool _speechEnabled = false;
-  String _lastWords = '';
-  void _initSpeech() async {
-    //_speechEnabled =
-    await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      if (result.finalResult) {
-        _lastWords = result.recognizedWords;
-        _activeController.text = "${_activeController.text} $_lastWords";
-      }
-
-      //print(_lastWords);
-    });
-  }
-
-  void setActiveTextController(TextEditingController controller) {
-    _activeController = controller;
-  }
-
   void setInitialValues() {
     //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
@@ -284,6 +298,8 @@ class _SectionPageState extends State<SectionPage> {
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
+
+  bool isSaved = false;
 
   Future<bool> save(BuildContext context, RealmProjectServices realmServices,
       bool createNew) async {
@@ -330,6 +346,7 @@ class _SectionPageState extends State<SectionPage> {
           unitUnavailable);
 
       if (saveResult) {
+        isSaved = true;
         Navigator.of(context).pop(createNew);
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -396,6 +413,7 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
+  bool isFormUpdated = false;
   _onMenuItemSelected(int value) async {
     if (value == 1) {
       await Navigator.push(
@@ -443,6 +461,7 @@ class _SectionPageState extends State<SectionPage> {
     return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Form(
+            onChanged: () => isFormUpdated = true,
             key: _formKey,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -463,7 +482,7 @@ class _SectionPageState extends State<SectionPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Is Unit Unavailable',
+                        'Is access to unit unavailable',
                         style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       Switch(
@@ -791,23 +810,10 @@ class _SectionPageState extends State<SectionPage> {
                     indent: 2,
                     endIndent: 2,
                   ),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Additional considerations or concerns'),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: FloatingActionButton(
-                            onPressed:
-                                // If not yet listening for speech start, otherwise stop
-                                _speechToText.isNotListening
-                                    ? _startListening
-                                    : _stopListening,
-                            tooltip: 'Listen',
-                            child: Icon(_speechToText.isNotListening
-                                ? Icons.mic_off
-                                : Icons.mic),
-                          )),
+                      Text('Additional considerations or concerns'),
                     ],
                   ),
                   const SizedBox(
@@ -949,9 +955,6 @@ class _SectionPageState extends State<SectionPage> {
   Widget inputWidgetwithNoValidation(String hint, String message, int lines,
       TextEditingController controller) {
     return TextFormField(
-        onTap: () {
-          setActiveTextController(controller);
-        },
         controller: controller,
         maxLines: lines,
         decoration: InputDecoration(

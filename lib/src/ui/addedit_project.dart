@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
+//import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
@@ -8,9 +8,6 @@ import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../bloc/images_bloc.dart';
 
 import '../models/realm/realm_schemas.dart';
@@ -67,39 +64,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       imageURL = currentProject.url as String;
     }
     super.initState();
-    _initSpeech();
-  }
-
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(
-      onResult: _onSpeechResult,
-      listenMode: ListenMode.dictation,
-    );
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-
-    setState(() {});
-  }
-
-  String initialValue = "";
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-
-      _activeController.text = "$initialValue $_lastWords";
-    });
+    //_initSpeech();
   }
 
   bool showAssetPic = true;
@@ -146,16 +111,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
         if (isNewProject) {
           if (currentProject.projecttype == 'singlelevel') {
             Navigator.pushReplacement(
-                    context,
-                    SingleProjectDetailsPage.getRoute(currentProject.id,
-                        userFullName, false, currentProject.name as String))
-                .then((value) => setState(() {}));
+                context,
+                SingleProjectDetailsPage.getRoute(currentProject.id,
+                    userFullName, false, currentProject.name as String));
+            // .then((value) => setState(() {}));
           } else {
             Navigator.pushReplacement(
-                    context,
-                    ProjectDetailsPage.getRoute(currentProject.id, userFullName,
-                        false, currentProject.name as String))
-                .then((value) => setState(() {}));
+                context,
+                ProjectDetailsPage.getRoute(currentProject.id, userFullName,
+                    false, currentProject.name as String));
+            // .then((value) => setState(() {
+
+            // })
+            //);
           }
         } else {
           Navigator.pop(context);
@@ -191,7 +159,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   String imageURL = 'assets/images/icon.png';
 
   final TextEditingController _nameController = TextEditingController(text: '');
-  late TextEditingController _activeController;
+  //late TextEditingController _activeController;
 
   final TextEditingController _addressController =
       TextEditingController(text: '');
@@ -215,10 +183,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
   }
 
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-
   @override
   Widget build(BuildContext context) {
     realmProjServices =
@@ -235,6 +199,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             color: Colors.blue,
           ),
           label: Text(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             prevPageName,
             style: const TextStyle(
                 color: Colors.blue, overflow: TextOverflow.clip),
@@ -276,10 +242,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
               color: Colors.black, fontWeight: FontWeight.normal),
         ),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-        child: BreadCrumbNavigator(),
-      ),
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      //   child: BreadCrumbNavigator(),
+      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
         child: Form(
@@ -306,19 +272,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             value: isProjectSingleLevel,
                           ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: FloatingActionButton(
-                              onPressed:
-                                  // If not yet listening for speech start, otherwise stop
-                                  _speechToText.isNotListening
-                                      ? _startListening
-                                      : _stopListening,
-                              tooltip: 'Listen',
-                              child: Icon(_speechToText.isNotListening
-                                  ? Icons.mic_off
-                                  : Icons.mic),
-                            )),
                       ],
                     ),
                     const Text('Project name'),
@@ -450,9 +403,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   Widget inputWidgetwithValidation(
       String hint, String message, TextEditingController controller) {
     return TextFormField(
-        onTap: () {
-          setActiveTextController(controller);
-        },
         controller: controller,
         // The validator receives the text that the user has entered.
         validator: (value) {
@@ -478,9 +428,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       String hint, int? lines, TextEditingController controller) {
     return TextField(
         controller: controller,
-        onTap: () {
-          setActiveTextController(controller);
-        },
+
         // The validator receives the text that the user has entered.
         maxLines: lines,
         decoration: InputDecoration(
@@ -516,10 +464,5 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to deleted project.')));
     }
-  }
-
-  void setActiveTextController(TextEditingController controller) {
-    _activeController = controller;
-    initialValue = _activeController.text;
   }
 }

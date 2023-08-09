@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/models/exteriorelements.dart';
 import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
@@ -151,7 +152,7 @@ class RealmProjectServices with ChangeNotifier {
 
   bool updateProjectUrl(LocalProject project, String url) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         DeckImage image = DeckImage(
             ObjectId(),
             url,
@@ -344,7 +345,7 @@ class RealmProjectServices with ChangeNotifier {
 
   bool updateSubProjectUrl(LocalSubProject subProject, String url) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         DeckImage image = DeckImage(
             ObjectId(),
             url,
@@ -418,7 +419,7 @@ class RealmProjectServices with ChangeNotifier {
 
   bool updateLocationUrl(LocalLocation currentLocation, String url) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         DeckImage image = DeckImage(
             ObjectId(),
             url,
@@ -653,7 +654,7 @@ class RealmProjectServices with ChangeNotifier {
 
   bool addImagesUrl(LocalVisualSection localVisualSection, List<String> urls) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         realm.write(() {
           for (var url in urls) {
             DeckImage image = DeckImage(
@@ -1018,7 +1019,7 @@ class RealmProjectServices with ChangeNotifier {
   bool addInvasiveImagesUrl(String visualSectionName,
       LocalInvasiveSection currentInvasiveSection, List<String> urls) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         realm.write(() {
           for (var url in urls) {
             DeckImage image = DeckImage(
@@ -1052,7 +1053,7 @@ class RealmProjectServices with ChangeNotifier {
   bool addConclusiveImagesUrl(String visualSectionName,
       LocalConclusiveSection currentConclusiveSection, List<String> urls) {
     try {
-      if (offlineModeOn) {
+      if (offlineModeOn || !appSettings.activeConnection) {
         realm.write(() {
           for (var url in urls) {
             DeckImage image = DeckImage(

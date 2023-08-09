@@ -24,6 +24,7 @@ class App extends StatelessWidget {
 
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
+                  boldText: false,
                   textScaleFactor:
                       data.textScaleFactor > 2 ? 1.2 : data.textScaleFactor),
               child: child!,

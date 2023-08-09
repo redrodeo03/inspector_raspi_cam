@@ -17,7 +17,7 @@ import '../models/realm/realm_schemas.dart';
 
 import 'addedit_subproject.dart';
 
-import 'breadcrumb_navigation.dart';
+//import 'breadcrumb_navigation.dart';
 import 'htmlviewer.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
@@ -213,10 +213,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: BreadCrumbNavigator(),
-        ),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
         body: StreamBuilder<RealmObjectChanges<LocalProject>>(
           //projectsBloc.projects
           stream: realmServices.getProject(projectId)?.changes,
@@ -356,72 +356,94 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    Expanded(
-                      child: isInvasiveMode
-                          ? PopupMenuButton(
-                              child: Chip(
-                                avatar: isDownloading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.file_download_done_outlined,
-                                        color: Colors.blue),
-                                labelPadding: const EdgeInsets.all(2),
-                                label: const Text(
-                                  'Download Report',
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 15),
-                                ),
-                                shadowColor: Colors.transparent,
-                                backgroundColor: Colors.transparent,
-                                elevation: 10,
-                                autofocus: true,
-                              ),
-                              onSelected: (value) {
-                                _onMenuItemSelected(value as int);
-                              },
-                              itemBuilder: (ctx) => [
-                                _buildPopupMenuItem(
-                                    'Invasive', Icons.edit_document, 1),
-                                _buildPopupMenuItem('Invasive Only',
-                                    Icons.browse_gallery_outlined, 2),
-                              ],
-                            )
-                          : InkWell(
-                              onTap: () {
-                                isDownloading
-                                    ? null
-                                    : downloadProjectReport(id, 'Visual');
-                              },
-                              child: Chip(
-                                avatar: isDownloading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.file_download_done_outlined,
-                                        color: Colors.blue),
-                                labelPadding: const EdgeInsets.all(2),
-                                label: const Text(
-                                  'Download Report ',
-                                  style: TextStyle(color: Colors.blue),
-                                  selectionColor: Colors.transparent,
-                                ),
-                                shadowColor: Colors.white,
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                                autofocus: true,
-                              )),
-                    ),
+                    //remove project download option
+                    // Expanded(
+                    //   child: isInvasiveMode
+                    //       ? PopupMenuButton(
+                    //           child: Chip(
+                    //             avatar: isDownloading
+                    //                 ? const SizedBox(
+                    //                     width: 20,
+                    //                     height: 20,
+                    //                     child: CircularProgressIndicator(
+                    //                       strokeWidth: 3,
+                    //                     ),
+                    //                   )
+                    //                 : const Icon(
+                    //                     Icons.file_download_done_outlined,
+                    //                     color: Colors.blue),
+                    //             labelPadding: const EdgeInsets.all(2),
+                    //             label: const Text(
+                    //               'Download Report',
+                    //               style: TextStyle(
+                    //                   color: Colors.blue, fontSize: 15),
+                    //             ),
+                    //             shadowColor: Colors.transparent,
+                    //             backgroundColor: Colors.transparent,
+                    //             elevation: 10,
+                    //             autofocus: true,
+                    //           ),
+                    //           onSelected: (value) {
+                    //             _onMenuItemSelected(value as int);
+                    //           },
+                    //           itemBuilder: (ctx) => [
+                    //             _buildPopupMenuItem(
+                    //                 'Invasive', Icons.edit_document, 1),
+                    //             _buildPopupMenuItem('Invasive Only',
+                    //                 Icons.browse_gallery_outlined, 2),
+                    //           ],
+                    //         )
+                    //       : InkWell(
+                    //           onTap: () {
+                    //             isDownloading
+                    //                 ? null
+                    //                 : downloadProjectReport(id, 'Visual');
+                    //           },
+                    //           child: Chip(
+                    //             avatar: isDownloading
+                    //                 ? const SizedBox(
+                    //                     width: 20,
+                    //                     height: 20,
+                    //                     child: CircularProgressIndicator(
+                    //                       strokeWidth: 3,
+                    //                     ),
+                    //                   )
+                    //                 : const Icon(
+                    //                     Icons.file_download_done_outlined,
+                    //                     color: Colors.blue),
+                    //             labelPadding: const EdgeInsets.all(2),
+                    //             label: const Text(
+                    //               'Download Report ',
+                    //               style: TextStyle(color: Colors.blue),
+                    //               selectionColor: Colors.transparent,
+                    //             ),
+                    //             shadowColor: Colors.white,
+                    //             backgroundColor: Colors.transparent,
+                    //             elevation: 0,
+                    //             autofocus: true,
+                    //           )),
+                    // ),
+                    Visibility(
+                      visible: !isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            addEditProject();
+                          },
+                          child: const Chip(
+                            avatar:
+                                Icon(Icons.edit_outlined, color: Colors.blue),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Edit Project ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.transparent,
+                            ),
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    )
                   ],
                 )),
           ),
@@ -456,70 +478,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    Visibility(
-                      visible: !isInvasiveMode,
-                      child: InkWell(
-                          onTap: () {
-                            addEditProject();
-                          },
-                          child: const Chip(
-                            avatar:
-                                Icon(Icons.edit_outlined, color: Colors.blue),
-                            labelPadding: EdgeInsets.all(2),
-                            label: Text(
-                              'Edit Project ',
-                              style: TextStyle(color: Colors.blue),
-                              selectionColor: Colors.transparent,
-                            ),
-                            shadowColor: Colors.white,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            autofocus: true,
-                          )),
-                    )
                   ],
                 )),
           ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Text(
-                'Created By:',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.left,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 2, 8, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      userFullName,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700),
-                      textAlign: TextAlign.left,
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      createdAt,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
-                  ],
-                )),
-          ),
+
           const Divider(
             color: Color.fromARGB(255, 222, 213, 213),
             height: 5,
@@ -532,32 +494,32 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     );
   }
 
-  PopupMenuItem _buildPopupMenuItem(
-      String title, IconData iconData, int position) {
-    return PopupMenuItem(
-      value: position,
-      child: Row(
-        children: [
-          Icon(
-            iconData,
-            color: Colors.blue,
-          ),
-          const SizedBox(
-            width: 15,
-          ),
-          Text(title),
-        ],
-      ),
-    );
-  }
+  // PopupMenuItem _buildPopupMenuItem(
+  //     String title, IconData iconData, int position) {
+  //   return PopupMenuItem(
+  //     value: position,
+  //     child: Row(
+  //       children: [
+  //         Icon(
+  //           iconData,
+  //           color: Colors.blue,
+  //         ),
+  //         const SizedBox(
+  //           width: 15,
+  //         ),
+  //         Text(title),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  _onMenuItemSelected(int value) async {
-    if (value == 1) {
-      downloadProjectReport(currentProject.id, 'Invasive');
-    } else {
-      downloadProjectReport(currentProject.id, 'InvasiveOnly');
-    }
-  }
+  // _onMenuItemSelected(int value) async {
+  //   if (value == 1) {
+  //     downloadProjectReport(currentProject.id, 'Invasive');
+  //   } else {
+  //     downloadProjectReport(currentProject.id, 'InvasiveOnly');
+  //   }
+  // }
 
   Widget projectChildrenTab(BuildContext context) {
     // return DefaultTabController(
@@ -592,6 +554,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   Widget locationsWidget(String type) {
+    bool isEmpty = true;
+    if (type == 'location') {
+      isEmpty = locations.isEmpty;
+    } else {
+      isEmpty = buildings.isEmpty;
+    }
     return Padding(
         padding: const EdgeInsets.all(4),
         child: Column(
@@ -624,7 +592,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     )),
               ),
             ),
-            locations.isEmpty
+            isEmpty
                 ? Center(
                     child: Text(
                     'No $type, Add project $type.',
@@ -691,8 +659,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
                   child: Text(
+                    overflow: TextOverflow.ellipsis,
                     locations[index]!.name as String,
-                    maxLines: 2,
+                    maxLines: 1,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -710,7 +679,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                       children: [
                         Expanded(
                           child: Text(
-                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             locations[index]!.description as String,
                             style: const TextStyle(
                               overflow: TextOverflow.ellipsis,
@@ -730,6 +700,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   Widget horizontalScrollChildrenBuildings(BuildContext context, int index) {
     return SizedBox(
         width: MediaQuery.of(context).size.width / 2,
+        height: 180,
         child: Padding(
           padding: const EdgeInsets.all(2),
           child: Column(
@@ -765,7 +736,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
                   child: Text(
                     buildings[index]!.name as String,
-                    maxLines: 2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -783,7 +755,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                       children: [
                         Expanded(
                           child: Text(
-                            maxLines: 2,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             buildings[index]!.description as String,
                             style: const TextStyle(
                               overflow: TextOverflow.ellipsis,
@@ -794,9 +767,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         ),
                       ],
                     )),
-              ),
-              const SizedBox(
-                height: 8,
               ),
             ],
           ),

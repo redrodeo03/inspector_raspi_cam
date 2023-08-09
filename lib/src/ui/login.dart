@@ -1,9 +1,15 @@
+import 'dart:io';
+//import 'dart:math';
+
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
+import 'package:deckinspectors/src/models/login_response.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+//import 'package:realm/realm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../resources/realm/app_services.dart';
@@ -31,6 +37,20 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  bool activeConnection = false;
+  String T = "";
+  Future checkUserConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        activeConnection = true;
+      }
+    } on SocketException catch (_) {
+      activeConnection = false;
+    }
+    appSettings.activeConnection = activeConnection;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,13 +65,38 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isLoading = true;
       });
-      var loginResult = await usersBloc.login(
-          _usernameController.text, _passwordController.text);
+      //check if no connectivity
+      await checkUserConnection();
+      LoginResponse loginResult;
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (_isChecked == true) {
-        await prefs.setString('username', _usernameController.text);
-        await prefs.setString('password', _passwordController.text);
-        await prefs.setBool('isChecked', _isChecked as bool);
+      if (activeConnection) {
+        loginResult = await usersBloc.login(
+            _usernameController.text, _passwordController.text);
+
+        if (_isChecked == true) {
+          await prefs.setString('username', _usernameController.text);
+          await prefs.setString('password', _passwordController.text);
+          await prefs.setBool('isChecked', _isChecked as bool);
+          await prefs.setString('firstname', loginResult.firstname as String);
+          await prefs.setString('lastname', loginResult.lastname as String);
+        }
+      } else {
+        var fName = prefs.getString('firstname') ?? '';
+        var lName = prefs.getString('lastname') ?? '';
+        loginResult = LoginResponse(
+            username: _usernameController.text,
+            accesstype: 'mobile',
+            firstname: fName,
+            lastname: lName);
+        usersBloc.userDetails = loginResult;
+        if (fName.isEmpty && _usernameController.text.isEmpty) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                  'Please login once in online mode,offline user details are missing.')));
+        }
       }
 
       setState(() {
@@ -66,9 +111,12 @@ class _LoginPageState extends State<LoginPage> {
       if (loginResult.username!.isNotEmpty &&
           loginResult.accesstype != "desktop") {
         if (!mounted) return;
-        appServices.registerUserEmailPassword(
-            loginResult.email as String, _passwordController.text);
-
+        if (activeConnection) {
+          appServices.registerUserEmailPassword(
+              loginResult.email as String, _passwordController.text);
+        } else {
+          appServices.notifyinCaseofOfflineMode();
+        }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
@@ -179,16 +227,16 @@ class _LoginPageState extends State<LoginPage> {
 
                     //keep signed in and forget password section
                     rememberMe(),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
-                        child: InkWell(
-                            onTap: () => registerUser(),
-                            child: const Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  'Don\'t have account,Register',
-                                  style: TextStyle(color: Colors.blue),
-                                ))))
+                    // Padding(
+                    //     padding: const EdgeInsets.fromLTRB(0, 70, 0, 0),
+                    //     child: InkWell(
+                    //         onTap: () => registerUser(),
+                    //         child: const Align(
+                    //             alignment: Alignment.centerRight,
+                    //             child: Text(
+                    //               'Don\'t have account,Register',
+                    //               style: TextStyle(color: Colors.blue),
+                    //             ))))
                   ],
                 ),
               ),

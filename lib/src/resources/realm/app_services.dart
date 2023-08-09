@@ -38,6 +38,10 @@ class AppServices with ChangeNotifier {
     return loggedInUser;
   }
 
+  void notifyinCaseofOfflineMode() {
+    notifyListeners();
+  }
+
 // Future<void> setRole(User loggedInUser) async {
 //     final realm = Realm(Configuration.flexibleSync(loggedInUser, [Role.schema, Item.schema]));
 //     String subscriptionName = "rolesSubscription";
