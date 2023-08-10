@@ -577,7 +577,7 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
             context,
             SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
-                parenttype, currentLocation.name as String, true, "New"))
+                locationType, currentLocation.name as String, true, "New"))
         .then((value) => setState(() {}));
   }
 
@@ -585,7 +585,7 @@ class _LocationPageState extends State<LocationPage> {
     Navigator.push(
       context,
       SectionPage.getRoute(sectionId, currentLocation.id, userFullName,
-          parenttype, currentLocation.name as String, false, sectionName),
+          locationType, currentLocation.name as String, false, sectionName),
     ).then((value) {
       if (!mounted) {
         return;
@@ -611,8 +611,14 @@ class _LocationPageState extends State<LocationPage> {
   void gotoInvasiveDetails(ObjectId id, String sectionName) {
     Navigator.push(
             context,
-            InvasiveSectionPage.getRoute(id, currentLocation.id, userFullName,
-                parenttype, currentLocation.name as String, false, sectionName))
+            InvasiveSectionPage.getRoute(
+                id,
+                currentLocation.id,
+                userFullName,
+                locationType,
+                currentLocation.name as String,
+                false,
+                sectionName))
         .then((value) {
       if (!mounted) {
         return;

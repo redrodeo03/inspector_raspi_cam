@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
 import 'package:http/http.dart' as http;
@@ -290,7 +291,15 @@ class _SectionPageState extends State<SectionPage> {
           currentVisualSection.furtherinvasivereviewrequired;
       hasSignsOfLeak = currentVisualSection.visualsignsofleak;
       if (currentVisualSection.images.isNotEmpty) {
-        capturedImages.addAll(currentVisualSection.images);
+        if (appSettings.activeConnection) {
+          capturedImages.addAll(currentVisualSection.images);
+          //call upload local images
+          realmServices.uploadLocalImages();
+        } else {
+          for (var imgpath in currentVisualSection.images) {
+            capturedImages.add(realmServices.getlocalPath(imgpath));
+          }
+        }
       }
     }
   }
@@ -352,8 +361,11 @@ class _SectionPageState extends State<SectionPage> {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
         if (capturedImages.isNotEmpty) {
-          var imagesToUpload =
-              capturedImages.where((e) => !e.startsWith('http')).toList();
+          // var imagesToUpload =
+          //     capturedImages.where((e) => !e.startsWith('http')).toList();
+          // get the images which are not uploaded.
+          var imagesToUpload = realmServices.getImagesNotUploaded(
+              capturedImages, appSettings.activeConnection, isNewSection);
           if (imagesToUpload.isNotEmpty) {
             imagesBloc
                 .uploadMultipleImages(
@@ -372,7 +384,8 @@ class _SectionPageState extends State<SectionPage> {
               }
               realmServices.updateImageUploadStatus(
                   currentLocation, currentVisualSection.id, false);
-              realmServices.addImagesUrl(currentVisualSection, urls);
+              realmServices.addImagesUrl(
+                  currentVisualSection, imagesToUpload, urls);
             });
           }
         }

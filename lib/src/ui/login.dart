@@ -44,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         activeConnection = true;
+        //start upload process
       }
     } on SocketException catch (_) {
       activeConnection = false;

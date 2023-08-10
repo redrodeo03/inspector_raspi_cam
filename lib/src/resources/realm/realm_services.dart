@@ -50,10 +50,15 @@ class RealmProjectServices with ChangeNotifier {
         debugPrint("Error message: ${error.message}");
       }));
       //showAll = (realm.subscriptions.findByName(queryAllProjects) != null);
+      offlineModeOn = false;
       if (realm.subscriptions.isEmpty) {
         updateSubscriptions();
+      } else {
+        //call updatelocalimages.
+        //if (!isImageUplaoding) uploadLocalImages();
       }
       //set offline mode value;
+
       SharedPreferences.getInstance().then((value) {
         var configValue = value.getString('appSync') ?? 'true';
         if (configValue == 'false') {
@@ -469,6 +474,9 @@ class RealmProjectServices with ChangeNotifier {
   }
 
   LocalLocation? getLocation(ObjectId id) {
+    // if (appSettings.activeConnection) {
+    //   uploadLocalImages();
+    // }
     return realm.find<LocalLocation>(id);
   }
 
@@ -652,11 +660,23 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
-  bool addImagesUrl(LocalVisualSection localVisualSection, List<String> urls) {
+  String getlocalPath(String onlinePath) {
+    if (!onlinePath.startsWith('http')) {
+      return onlinePath;
+    }
+    var images = realm.query<DeckImage>('onlinePath == \$0', [onlinePath]);
+    if (images.isNotEmpty) {
+      return images.first.imageLocalPath;
+    }
+    return "";
+  }
+
+  bool addImagesUrl(LocalVisualSection localVisualSection,
+      List<String> localPaths, List<String> onlinePaths) {
     try {
       if (offlineModeOn || !appSettings.activeConnection) {
         realm.write(() {
-          for (var url in urls) {
+          for (var url in onlinePaths) {
             DeckImage image = DeckImage(
                 ObjectId(),
                 url,
@@ -670,18 +690,43 @@ class RealmProjectServices with ChangeNotifier {
 
             realm.add<DeckImage>(image, update: true);
           }
-          // localVisualSection.images.addAll(urls);
+          localVisualSection.images.addAll(onlinePaths);
+        });
+      } else {
+        int k = 0;
+        realm.write(() {
+          for (var url in localPaths) {
+            DeckImage image = DeckImage(
+                ObjectId(),
+                url,
+                onlinePaths[k],
+                true,
+                localVisualSection.id,
+                'visualSection',
+                'visualSectionImage',
+                localVisualSection.name as String,
+                usersBloc.userDetails.username as String);
+
+            realm.add<DeckImage>(image, update: true);
+
+            if (localVisualSection.images.contains(url)) {
+              int index = localVisualSection.images.indexOf(url);
+              localVisualSection.images[index] = onlinePaths[k];
+            } else {
+              localVisualSection.images.add(onlinePaths[k]);
+            }
+            k++;
+          }
         });
       }
 
       realm.write(() {
-        localVisualSection.images.addAll(urls);
         updateImageCount(
             localVisualSection.parenttype,
             localVisualSection.id,
             localVisualSection.parentid,
             localVisualSection.images.length,
-            urls.last);
+            onlinePaths.last);
       });
 
       notifyListeners();
@@ -706,9 +751,11 @@ class RealmProjectServices with ChangeNotifier {
     super.dispose();
   }
 
+  static bool isImageUplaoding = false;
   void uploadLocalImages() async {
     realm.syncSession.resume();
     final images = realm.query<DeckImage>("isUploaded == false");
+    isImageUplaoding = true;
 
     for (var image in images) {
       String localPath = image.imageLocalPath;
@@ -728,10 +775,20 @@ class RealmProjectServices with ChangeNotifier {
           image.parentType,
           image.entityName);
       if (result is ImageResponse) {
+//check if the image is already added to db
+        final addedImage =
+            realm.query<DeckImage>("imageLocalPath == \$0", [localPath]);
         realm.write(() {
-          image.isUploaded = true;
-          image.onlinePath = result.url as String;
-          realm.add<DeckImage>(image, update: true);
+          if (addedImage.isEmpty) {
+            image.isUploaded = true;
+            image.onlinePath = result.url as String;
+            image.imageLocalPath = localPath;
+            realm.add<DeckImage>(image, update: true);
+          } else {
+            addedImage.first.isUploaded = true;
+            addedImage.first.onlinePath = result.url as String;
+          }
+
           switch (parentType) {
             case 'project':
               var project = realm.find<LocalProject>(parentId);
@@ -750,7 +807,16 @@ class RealmProjectServices with ChangeNotifier {
               if (visualsection != null) {
                 int index = visualsection.images
                     .indexWhere((element) => element == image.imageLocalPath);
-                visualsection.images[index] = result.url as String;
+                if (index != -1) {
+                  visualsection.images[index] = result.url as String;
+                  //update coverurls
+                  updateImageCount(
+                      visualsection.parenttype,
+                      visualsection.id,
+                      visualsection.parentid,
+                      visualsection.images.length,
+                      visualsection.images.last);
+                }
               }
               break;
             case 'invasiveSection':
@@ -758,7 +824,9 @@ class RealmProjectServices with ChangeNotifier {
               if (invasiveSection != null) {
                 int index = invasiveSection.invasiveimages
                     .indexWhere((element) => element == image.imageLocalPath);
-                invasiveSection.invasiveimages[index] = result.url as String;
+                if (index != -1) {
+                  invasiveSection.invasiveimages[index] = result.url as String;
+                }
               }
               break;
             case 'conclusiveSection':
@@ -767,8 +835,10 @@ class RealmProjectServices with ChangeNotifier {
               if (conclusiveSection != null) {
                 int index = conclusiveSection.conclusiveimages
                     .indexWhere((element) => element == image.imageLocalPath);
-                conclusiveSection.conclusiveimages[index] =
-                    result.url as String;
+                if (index != -1) {
+                  conclusiveSection.conclusiveimages[index] =
+                      result.url as String;
+                }
               }
               break;
             default:
@@ -1180,5 +1250,33 @@ class RealmProjectServices with ChangeNotifier {
     } catch (e) {
       return false;
     }
+  }
+
+  List<String> getImagesNotUploaded(
+      List<String> capturedImages, bool activeConnection, bool isNewSection) {
+    List<String> offlineImages = [];
+    RealmResults<DeckImage> deckImages;
+    try {
+      if (activeConnection) {
+        return capturedImages.where((e) => !e.startsWith('http')).toList();
+      } else {
+        if (isNewSection) {
+          return capturedImages;
+        } else {
+          for (var imgpath in capturedImages) {
+            deckImages =
+                realm.query<DeckImage>('imageLocalPath == \$0', [imgpath]);
+            if (deckImages.isNotEmpty) {
+              // if (!deckImages.first.isUploaded) {
+              //   offlineImages.add(deckImages.first.imageLocalPath);
+              // }
+            } else {
+              offlineImages.add(imgpath);
+            }
+          }
+        }
+      }
+    } catch (e) {}
+    return offlineImages.toList();
   }
 }
