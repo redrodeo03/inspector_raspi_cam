@@ -198,12 +198,11 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             Icons.arrow_back_ios,
             color: Colors.blue,
           ),
-          label: Text(
+          label: const Text(
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            prevPageName,
-            style: const TextStyle(
-                color: Colors.blue, overflow: TextOverflow.clip),
+            'Back',
+            style: TextStyle(color: Colors.blue, overflow: TextOverflow.clip),
           ),
           style: ElevatedButton.styleFrom(
             elevation: 0,
@@ -300,6 +299,32 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                     const SizedBox(
                       height: 16,
                     ),
+                    OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                            side: BorderSide.none,
+                            // the height is 50, the width is full
+                            minimumSize: const Size.fromHeight(40),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 1),
+                        onPressed: () async {
+                          showAssetPic = false;
+                          //add logic to open camera.
+                          var xfile = await captureImage(context);
+                          if (xfile != null) {
+                            setState(() {
+                              imageURL = xfile.path;
+                            });
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.camera_outlined,
+                          color: Colors.blueAccent,
+                        ),
+                        label: const Text(
+                          'Add Image',
+                          style: TextStyle(color: Colors.blueAccent),
+                        )),
                     SizedBox(
                         height: 220,
                         child: Card(
@@ -342,32 +367,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                                   : cachedNetworkImage(imageURL),
                             ),
                           ),
-                        )),
-                    OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                            side: BorderSide.none,
-                            // the height is 50, the width is full
-                            minimumSize: const Size.fromHeight(40),
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            elevation: 1),
-                        onPressed: () async {
-                          showAssetPic = false;
-                          //add logic to open camera.
-                          var xfile = await captureImage(context);
-                          if (xfile != null) {
-                            setState(() {
-                              imageURL = xfile.path;
-                            });
-                          }
-                        },
-                        icon: const Icon(
-                          Icons.camera_outlined,
-                          color: Colors.blueAccent,
-                        ),
-                        label: const Text(
-                          'Add Image',
-                          style: TextStyle(color: Colors.blueAccent),
                         )),
                     if (!isNewProject)
                       OutlinedButton.icon(

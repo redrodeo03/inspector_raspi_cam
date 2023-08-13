@@ -220,10 +220,10 @@ class _SettingsPageState extends State<SettingsPage> {
               endIndent: 2,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Text(
-                  'Online Sync Enabled ?',
+                  'Offline ',
                   style: TextStyle(fontSize: 15),
                 ),
                 Switch(
@@ -231,6 +231,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     toggleSwitch(value);
                   },
                   value: isSyncOn,
+                ),
+                const Text(
+                  'Online',
+                  style: TextStyle(fontSize: 15),
                 ),
               ],
             ),
@@ -253,130 +257,130 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Force Sync',
                   style: TextStyle(color: Colors.blue),
                 )),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  'Report Settings',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            const Divider(
-              color: Color.fromARGB(255, 222, 213, 213),
-              height: 0,
-              thickness: 1,
-              indent: 2,
-              endIndent: 2,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Company Name',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  DropdownButton<String>(
-                    value: companyName,
-                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.blue),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.blue,
-                    ),
-                    onChanged: (String? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        companyName = value!;
-                        savereportSettings();
-                      });
-                    },
-                    items: list.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Image Quality(%)',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  DropdownButton<int>(
-                    value: reportImageQuality,
-                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.blue),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.blue,
-                    ),
-                    onChanged: (int? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        reportImageQuality = value!;
-                        savereportSettings();
-                      });
-                    },
-                    items: reportQulityList
-                        .map<DropdownMenuItem<int>>((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(value.toString()),
-                      );
-                    }).toList(),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Images in a row',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  DropdownButton<int>(
-                    value: imageCount,
-                    icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.blue),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.blue,
-                    ),
-                    onChanged: (int? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        imageCount = value!;
-                        savereportSettings();
-                      });
-                    },
-                    items:
-                        imageCountList.map<DropdownMenuItem<int>>((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(value.toString()),
-                      );
-                    }).toList(),
-                  )
-                ],
-              ),
-            ),
+            // const Align(
+            //   alignment: Alignment.centerLeft,
+            //   child: Padding(
+            //     padding: EdgeInsets.all(8),
+            //     child: Text(
+            //       'Report Settings',
+            //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //     ),
+            //   ),
+            // ),
+            // const Divider(
+            //   color: Color.fromARGB(255, 222, 213, 213),
+            //   height: 0,
+            //   thickness: 1,
+            //   indent: 2,
+            //   endIndent: 2,
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Company Name',
+            //         style: TextStyle(fontSize: 15),
+            //       ),
+            //       DropdownButton<String>(
+            //         value: companyName,
+            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+            //         elevation: 16,
+            //         style: const TextStyle(color: Colors.blue),
+            //         underline: Container(
+            //           height: 2,
+            //           color: Colors.blue,
+            //         ),
+            //         onChanged: (String? value) {
+            //           // This is called when the user selects an item.
+            //           setState(() {
+            //             companyName = value!;
+            //             savereportSettings();
+            //           });
+            //         },
+            //         items: list.map<DropdownMenuItem<String>>((String value) {
+            //           return DropdownMenuItem<String>(
+            //             value: value,
+            //             child: Text(value),
+            //           );
+            //         }).toList(),
+            //       )
+            //     ],
+            //   ),
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Image Quality(%)',
+            //         style: TextStyle(fontSize: 15),
+            //       ),
+            //       DropdownButton<int>(
+            //         value: reportImageQuality,
+            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+            //         elevation: 16,
+            //         style: const TextStyle(color: Colors.blue),
+            //         underline: Container(
+            //           height: 2,
+            //           color: Colors.blue,
+            //         ),
+            //         onChanged: (int? value) {
+            //           // This is called when the user selects an item.
+            //           setState(() {
+            //             reportImageQuality = value!;
+            //             savereportSettings();
+            //           });
+            //         },
+            //         items: reportQulityList
+            //             .map<DropdownMenuItem<int>>((int value) {
+            //           return DropdownMenuItem<int>(
+            //             value: value,
+            //             child: Text(value.toString()),
+            //           );
+            //         }).toList(),
+            //       )
+            //     ],
+            //   ),
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Images in a row',
+            //         style: TextStyle(fontSize: 15),
+            //       ),
+            //       DropdownButton<int>(
+            //         value: imageCount,
+            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+            //         elevation: 16,
+            //         style: const TextStyle(color: Colors.blue),
+            //         underline: Container(
+            //           height: 2,
+            //           color: Colors.blue,
+            //         ),
+            //         onChanged: (int? value) {
+            //           // This is called when the user selects an item.
+            //           setState(() {
+            //             imageCount = value!;
+            //             savereportSettings();
+            //           });
+            //         },
+            //         items:
+            //             imageCountList.map<DropdownMenuItem<int>>((int value) {
+            //           return DropdownMenuItem<int>(
+            //             value: value,
+            //             child: Text(value.toString()),
+            //           );
+            //         }).toList(),
+            //       )
+            //     ],
+            //   ),
+            // ),
             const SizedBox(
               height: 30,
             ),

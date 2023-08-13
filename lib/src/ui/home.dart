@@ -1,5 +1,5 @@
 import 'package:deckinspectors/src/ui/projects.dart';
-import 'package:deckinspectors/src/ui/reports_screen.dart';
+//import 'package:deckinspectors/src/ui/reports_screen.dart';
 import 'package:deckinspectors/src/ui/settings.dart';
 // import 'package:google_fonts/google_fonts.dart';
 //import 'package:flutter/cupertino.dart';
@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   final pages = [
     const Center(child: ProjectsPage()),
     //Center(child: OfflineModePage()),
-    const Center(child: ReportsPage()),
+    //const Center(child: ReportsPage()),
     const Center(child: SettingsPage()),
   ];
 
@@ -43,11 +43,11 @@ class _HomePageState extends State<HomePage> {
                 label: 'Home',
                 // backgroundColor: Colors.orange
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.document_scanner),
-                label: 'Reports',
-                // backgroundColor: Colors.blueAccent
-              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.document_scanner),
+              //   label: 'Reports',
+              //   // backgroundColor: Colors.blueAccent
+              // ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
                 label: 'Settings',

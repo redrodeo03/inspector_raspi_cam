@@ -123,11 +123,11 @@ class _SectionPageState extends State<SectionPage> {
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: Text(
+            label: const Text(
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              prevPageName,
-              style: const TextStyle(color: Colors.blue),
+              'Back',
+              style: TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,

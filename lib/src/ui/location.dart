@@ -62,11 +62,11 @@ class _LocationPageState extends State<LocationPage> {
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: Text(
+            label: const Text(
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              parenttype,
-              style: const TextStyle(color: Colors.blue),
+              'Back',
+              style: TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -455,7 +455,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    visualLeaks == true ? 'True' : 'False',
+                                    visualLeaks == true ? 'Yes' : 'No',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,
@@ -487,7 +487,7 @@ class _LocationPageState extends State<LocationPage> {
                               Expanded(
                                   flex: 1,
                                   child: Text(
-                                    furtherInvasive == true ? 'True' : 'False',
+                                    furtherInvasive == true ? 'Yes' : 'No',
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
                                         fontSize: 14,

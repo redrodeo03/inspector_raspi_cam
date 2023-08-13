@@ -165,11 +165,11 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: Text(
+            label: const Text(
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
-              prevPagename,
-              style: const TextStyle(color: Colors.blue),
+              'Back',
+              style: TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -240,7 +240,31 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                       const SizedBox(
                         height: 16,
                       ),
-
+                      OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                              side: BorderSide.none,
+                              // the height is 50, the width is full
+                              minimumSize: const Size.fromHeight(40),
+                              backgroundColor: Colors.white,
+                              shadowColor: Colors.blue,
+                              elevation: 0),
+                          onPressed: () async {
+                            showAssetPic = false;
+                            var xfile = await captureImage(context);
+                            if (xfile != null) {
+                              setState(() {
+                                imageURL = xfile.path;
+                              });
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.camera_outlined,
+                            color: Colors.blueAccent,
+                          ),
+                          label: const Text(
+                            'Add image',
+                            style: TextStyle(color: Colors.blueAccent),
+                          )),
                       SizedBox(
                           height: 220,
                           child: Card(
@@ -284,31 +308,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                               ),
                             ),
                           )),
-                      OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                              side: BorderSide.none,
-                              // the height is 50, the width is full
-                              minimumSize: const Size.fromHeight(40),
-                              backgroundColor: Colors.white,
-                              shadowColor: Colors.blue,
-                              elevation: 0),
-                          onPressed: () async {
-                            showAssetPic = false;
-                            var xfile = await captureImage(context);
-                            if (xfile != null) {
-                              setState(() {
-                                imageURL = xfile.path;
-                              });
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.camera_outlined,
-                            color: Colors.blueAccent,
-                          ),
-                          label: const Text(
-                            'Add image',
-                            style: TextStyle(color: Colors.blueAccent),
-                          )),
+
                       if (!isNewLocation)
                         OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
