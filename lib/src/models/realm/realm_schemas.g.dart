@@ -17,7 +17,7 @@ class LocalProject extends _LocalProject
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
     Iterable<LocalChild> invasiveChildren = const [],
@@ -97,10 +97,10 @@ class LocalProject extends _LocalProject
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -170,7 +170,7 @@ class LocalProject extends _LocalProject
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('assignedto', RealmPropertyType.string,
           collectionType: RealmCollectionType.set),
@@ -289,7 +289,7 @@ class LocalSubProject extends _LocalSubProject
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
     Iterable<LocalChild> invasiveChildren = const [],
@@ -377,10 +377,10 @@ class LocalSubProject extends _LocalSubProject
       throw RealmUnsupportedSetError();
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -436,7 +436,7 @@ class LocalSubProject extends _LocalSubProject
       SchemaProperty('url', RealmPropertyType.string, optional: true),
       SchemaProperty('assignedto', RealmPropertyType.string,
           collectionType: RealmCollectionType.set),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('children', RealmPropertyType.object,
@@ -460,7 +460,7 @@ class LocalLocation extends _LocalLocation
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<LocalSection> sections = const [],
     Iterable<LocalSection> invasiveSections = const [],
@@ -538,10 +538,10 @@ class LocalLocation extends _LocalLocation
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -594,7 +594,7 @@ class LocalLocation extends _LocalLocation
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
@@ -753,7 +753,7 @@ class LocalVisualSection extends _LocalVisualSection
     String? createdby,
     String? createdat,
     String parenttype = '',
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<String> images = const [],
     Iterable<String> exteriorelements = const [],
@@ -911,10 +911,10 @@ class LocalVisualSection extends _LocalVisualSection
       RealmObjectBase.set(this, 'unitUnavailable', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -961,7 +961,7 @@ class LocalVisualSection extends _LocalVisualSection
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('parenttype', RealmPropertyType.string),
       SchemaProperty('unitUnavailable', RealmPropertyType.bool),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
     ]);
   }

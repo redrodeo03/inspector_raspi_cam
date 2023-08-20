@@ -203,7 +203,7 @@ class RealmProjectServices with ChangeNotifier {
         }
 
         project.createdat ??= creationtime;
-        project.editedat = DateTime.now();
+        project.editedat = DateTime.now().toString();
 
         return realm.add<LocalProject>(project, update: true);
       });
@@ -393,7 +393,7 @@ class RealmProjectServices with ChangeNotifier {
           subProject.lasteditedby = fullUserName;
         }
         subProject.createdat ??= creationtime;
-        subProject.editedat = DateTime.now();
+        subProject.editedat = DateTime.now().toString();
 
         //find the project and update it.
         updateProjectChildren(
@@ -494,7 +494,7 @@ class RealmProjectServices with ChangeNotifier {
           location.lasteditedby = fullUserName;
         }
         location.createdat ??= creationtime;
-        location.editedat = DateTime.now();
+        location.editedat = DateTime.now().toString();
 
         //find the project and update it.
         if (location.parenttype == 'project') {
@@ -623,7 +623,7 @@ class RealmProjectServices with ChangeNotifier {
 
         var creationtime = DateTime.now().toString();
         visualSection.createdat ??= creationtime;
-        visualSection.editedat = DateTime.now();
+        visualSection.editedat = DateTime.now().toString();
         //update parent with the section detail
         updateLocationSection(
             visualSection.parenttype,

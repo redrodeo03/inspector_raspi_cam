@@ -14,7 +14,7 @@ class _LocalProject {
   late String? createdby;
   late String? createdat;
   late String? url;
-  late DateTime? editedat;
+  late String? editedat;
   String? lasteditedby;
   late Set<String> assignedto;
   List<_LocalChild> children = [];
@@ -51,7 +51,7 @@ class _LocalSubProject {
   String? createdat;
   String? url;
   late Set<String> assignedto;
-  DateTime? editedat;
+  String? editedat;
   String? lasteditedby;
   late bool isInvasive;
   List<_LocalChild> children = [];
@@ -72,11 +72,11 @@ class _LocalLocation {
   String? createdby;
   String? createdat;
   String? url;
-  DateTime? editedat;
+  String? editedat;
   String? lasteditedby;
   late bool isInvasive;
   List<_LocalSection> sections = [];
-  List<_LocalSection> invasiveSections = [];
+  // List<_LocalSection> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -119,7 +119,7 @@ class _LocalVisualSection {
   late bool unitUnavailable;
   // InvasiveSection? invasiveSection;
   // ConclusiveSection? conclusiveSection;
-  DateTime? editedat;
+  String? editedat;
   String? lasteditedby;
 }
 
