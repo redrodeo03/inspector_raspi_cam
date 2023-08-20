@@ -356,73 +356,6 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    //remove project download option
-                    // Expanded(
-                    //   child: isInvasiveMode
-                    //       ? PopupMenuButton(
-                    //           child: Chip(
-                    //             avatar: isDownloading
-                    //                 ? const SizedBox(
-                    //                     width: 20,
-                    //                     height: 20,
-                    //                     child: CircularProgressIndicator(
-                    //                       strokeWidth: 3,
-                    //                     ),
-                    //                   )
-                    //                 : const Icon(
-                    //                     Icons.file_download_done_outlined,
-                    //                     color: Colors.blue),
-                    //             labelPadding: const EdgeInsets.all(2),
-                    //             label: const Text(
-                    //               'Download Report',
-                    //               style: TextStyle(
-                    //                   color: Colors.blue, fontSize: 15),
-                    //             ),
-                    //             shadowColor: Colors.transparent,
-                    //             backgroundColor: Colors.transparent,
-                    //             elevation: 10,
-                    //             autofocus: true,
-                    //           ),
-                    //           onSelected: (value) {
-                    //             _onMenuItemSelected(value as int);
-                    //           },
-                    //           itemBuilder: (ctx) => [
-                    //             _buildPopupMenuItem(
-                    //                 'Invasive', Icons.edit_document, 1),
-                    //             _buildPopupMenuItem('Invasive Only',
-                    //                 Icons.browse_gallery_outlined, 2),
-                    //           ],
-                    //         )
-                    //       : InkWell(
-                    //           onTap: () {
-                    //             isDownloading
-                    //                 ? null
-                    //                 : downloadProjectReport(id, 'Visual');
-                    //           },
-                    //           child: Chip(
-                    //             avatar: isDownloading
-                    //                 ? const SizedBox(
-                    //                     width: 20,
-                    //                     height: 20,
-                    //                     child: CircularProgressIndicator(
-                    //                       strokeWidth: 3,
-                    //                     ),
-                    //                   )
-                    //                 : const Icon(
-                    //                     Icons.file_download_done_outlined,
-                    //                     color: Colors.blue),
-                    //             labelPadding: const EdgeInsets.all(2),
-                    //             label: const Text(
-                    //               'Download Report ',
-                    //               style: TextStyle(color: Colors.blue),
-                    //               selectionColor: Colors.transparent,
-                    //             ),
-                    //             shadowColor: Colors.white,
-                    //             backgroundColor: Colors.transparent,
-                    //             elevation: 0,
-                    //             autofocus: true,
-                    //           )),
-                    // ),
                     Visibility(
                       visible: !isInvasiveMode,
                       child: InkWell(
@@ -447,18 +380,87 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   ],
                 )),
           ),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Text(
-                'Description',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.left,
-              ),
-            ),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Description',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                    //remove project download option
+                    isInvasiveMode
+                        ? PopupMenuButton(
+                            child: Chip(
+                              avatar: isDownloading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.file_download_done_outlined,
+                                      color: Colors.blue),
+                              labelPadding: const EdgeInsets.all(2),
+                              label: const Text(
+                                'Download Report',
+                                style:
+                                    TextStyle(color: Colors.blue, fontSize: 15),
+                              ),
+                              shadowColor: Colors.transparent,
+                              backgroundColor: Colors.transparent,
+                              elevation: 10,
+                              autofocus: true,
+                            ),
+                            onSelected: (value) {
+                              _onMenuItemSelected(value as int);
+                            },
+                            itemBuilder: (ctx) => [
+                              _buildPopupMenuItem(
+                                  'Invasive', Icons.edit_document, 1),
+                              _buildPopupMenuItem('Invasive Only',
+                                  Icons.browse_gallery_outlined, 2),
+                            ],
+                          )
+                        : InkWell(
+                            onTap: () {
+                              isDownloading
+                                  ? null
+                                  : downloadProjectReport(id, 'Visual');
+                            },
+                            child: Chip(
+                              avatar: isDownloading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.file_download_done_outlined,
+                                      color: Colors.blue),
+                              labelPadding: const EdgeInsets.all(2),
+                              label: const Text(
+                                'Download Report ',
+                                style: TextStyle(color: Colors.blue),
+                                selectionColor: Colors.transparent,
+                              ),
+                              shadowColor: Colors.white,
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              autofocus: true,
+                            )),
+                  ],
+                )),
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -494,32 +496,32 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     );
   }
 
-  // PopupMenuItem _buildPopupMenuItem(
-  //     String title, IconData iconData, int position) {
-  //   return PopupMenuItem(
-  //     value: position,
-  //     child: Row(
-  //       children: [
-  //         Icon(
-  //           iconData,
-  //           color: Colors.blue,
-  //         ),
-  //         const SizedBox(
-  //           width: 15,
-  //         ),
-  //         Text(title),
-  //       ],
-  //     ),
-  //   );
-  // }
+  PopupMenuItem _buildPopupMenuItem(
+      String title, IconData iconData, int position) {
+    return PopupMenuItem(
+      value: position,
+      child: Row(
+        children: [
+          Icon(
+            iconData,
+            color: Colors.blue,
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          Text(title),
+        ],
+      ),
+    );
+  }
 
-  // _onMenuItemSelected(int value) async {
-  //   if (value == 1) {
-  //     downloadProjectReport(currentProject.id, 'Invasive');
-  //   } else {
-  //     downloadProjectReport(currentProject.id, 'InvasiveOnly');
-  //   }
-  // }
+  _onMenuItemSelected(int value) async {
+    if (value == 1) {
+      downloadProjectReport(currentProject.id, 'Invasive');
+    } else {
+      downloadProjectReport(currentProject.id, 'InvasiveOnly');
+    }
+  }
 
   Widget projectChildrenTab(BuildContext context) {
     // return DefaultTabController(

@@ -2,7 +2,7 @@ class AppSettings {
   ImageQuality currentQuality = ImageQuality.high;
   bool isAppOfflineMode = false;
   bool isInvasiveMode = false;
-  String companyName = 'deckInspectors';
+  String companyName = 'DeckInspectors';
   int reportImageQuality = 100;
   int imageinRowCount = 4;
   bool activeConnection = true;
