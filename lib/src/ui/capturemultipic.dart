@@ -113,7 +113,8 @@ class CameraScreenState extends State<CameraScreen>
         //     .then((value) => _maxAvailableExposureOffset = value),
         cameraController
             .getMaxZoomLevel()
-            .then((value) => _maxAvailableZoom = value),
+            .then((value) => _maxAvailableZoom = 10),
+
         cameraController
             .getMinZoomLevel()
             .then((value) => _minAvailableZoom = value),

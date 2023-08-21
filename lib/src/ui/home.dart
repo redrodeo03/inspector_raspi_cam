@@ -5,6 +5,8 @@ import 'package:deckinspectors/src/ui/settings.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'reports_screen.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -18,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   final pages = [
     const Center(child: ProjectsPage()),
     //Center(child: OfflineModePage()),
-    //const Center(child: ReportsPage()),
+    const Center(child: ReportsPage()),
     const Center(child: SettingsPage()),
   ];
 
@@ -43,11 +45,11 @@ class _HomePageState extends State<HomePage> {
                 label: 'Home',
                 // backgroundColor: Colors.orange
               ),
-              // BottomNavigationBarItem(
-              //   icon: Icon(Icons.document_scanner),
-              //   label: 'Reports',
-              //   // backgroundColor: Colors.blueAccent
-              // ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.document_scanner),
+                label: 'Reports',
+                // backgroundColor: Colors.blueAccent
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
                 label: 'Settings',
