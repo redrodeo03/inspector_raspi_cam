@@ -1,4 +1,5 @@
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:deckinspectors/src/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -256,6 +257,41 @@ class _SettingsPageState extends State<SettingsPage> {
                 label: const Text(
                   'Force Sync',
                   style: TextStyle(color: Colors.blue),
+                )),
+            const SizedBox(
+              height: 30,
+            ),
+            const Divider(
+              color: Color.fromARGB(255, 222, 213, 213),
+              height: 0,
+              thickness: 1,
+              indent: 2,
+              endIndent: 2,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide.none,
+                    // the height is 50, the width is full
+                    minimumSize: const Size.fromHeight(40),
+                    backgroundColor: Colors.white,
+                    shadowColor: Colors.orange,
+                    elevation: 0),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.logout_outlined,
+                  color: Colors.blue,
+                ),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.orange),
                 )),
             // const Align(
             //   alignment: Alignment.centerLeft,

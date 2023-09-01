@@ -759,7 +759,10 @@ class _SectionPageState extends State<SectionPage> {
                     'Visual Review',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  radioWidget('visual', 3),
+                  //radioWidget('visual', 3),
+                  getListTile('visual', 1),
+                  getListTile('visual', 2),
+                  getListTile('visual', 3),
                   const Divider(
                     color: Color.fromARGB(255, 222, 213, 213),
                     height: 0,
@@ -815,7 +818,11 @@ class _SectionPageState extends State<SectionPage> {
                     'Conditional Assessment',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  radioWidget('conditional', 3),
+                  //radioWidget('conditional', 3),
+                  getListTile('conditional', 1),
+                  getListTile('conditional', 2),
+                  getListTile('conditional', 3),
+
                   const Divider(
                     color: Color.fromARGB(255, 222, 213, 213),
                     height: 15,
@@ -1334,6 +1341,7 @@ class _SectionPageState extends State<SectionPage> {
         )
       ]);
     }
+
     return Row(
       children: <Widget>[
         Expanded(flex: 2, child: getListTile(radioType, 1)),

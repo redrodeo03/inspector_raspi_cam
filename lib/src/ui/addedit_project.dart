@@ -353,7 +353,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               child: showAssetPic
                                   ? currentProject.url == ""
                                       ? Image.asset(
-                                          "assets/images/heroimage.png",
+                                          "assets/images/icon.png",
                                           fit: BoxFit.cover,
                                           width: double.infinity,
                                           height: 250,

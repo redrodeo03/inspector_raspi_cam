@@ -272,7 +272,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                 child: showAssetPic
                                     ? currentBuilding.url == ""
                                         ? Image.asset(
-                                            "assets/images/heroimage.png",
+                                            "assets/images/icon.png",
                                             fit: BoxFit.cover,
                                             width: double.infinity,
                                             height: 250,

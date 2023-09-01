@@ -6,7 +6,7 @@ class _LocalProject {
   @MapTo('_id')
   @PrimaryKey()
   late ObjectId id;
-
+  
   late String? name;
   late String? projecttype;
   late String? description;

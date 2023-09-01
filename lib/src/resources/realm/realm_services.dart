@@ -82,8 +82,10 @@ class RealmProjectServices with ChangeNotifier {
 
       mutableSubscriptions.add(realm.all<LocalLocation>(),
           name: queryAllLocations);
-      mutableSubscriptions.add(
-          realm.query<LocalSubProject>('\$0 IN assignedto', [loggedInUser]),
+      // mutableSubscriptions.add(
+      //     realm.query<LocalSubProject>('\$0 IN assignedto', [loggedInUser]),
+      //     name: queryAllSubProjects);
+      mutableSubscriptions.add(realm.all<LocalSubProject>(),
           name: queryAllSubProjects);
       mutableSubscriptions.add(realm.all<DeckImage>(), name: queryAllImage);
       mutableSubscriptions.add(realm.all<LocalVisualSection>(),
@@ -695,7 +697,7 @@ class RealmProjectServices with ChangeNotifier {
       } else {
         int k = 0;
         realm.write(() {
-          for (var url in localPaths) {
+          for (var url in onlinePaths) {
             DeckImage image = DeckImage(
                 ObjectId(),
                 url,

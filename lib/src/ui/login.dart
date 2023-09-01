@@ -109,8 +109,7 @@ class _LoginPageState extends State<LoginPage> {
             content: Text('Login failed,please check your credentials.')));
         return;
       }
-      if (loginResult.username!.isNotEmpty &&
-          loginResult.accesstype != "desktop") {
+      if (loginResult.username!.isNotEmpty && loginResult.accesstype != "web") {
         if (!mounted) return;
         if (activeConnection) {
           appServices.registerUserEmailPassword(
