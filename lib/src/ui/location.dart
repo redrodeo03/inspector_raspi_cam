@@ -301,7 +301,7 @@ class _LocationPageState extends State<LocationPage> {
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
     String visualReview = (sections[index].visualreview as String);
-    switch (visualReview) {
+    switch (visualReview.toLowerCase()) {
       case 'good':
         vreview = 'Good';
         break;
@@ -316,7 +316,7 @@ class _LocationPageState extends State<LocationPage> {
     String assessment = '';
     String? coverUrl = sections[index].coverUrl;
     String assessmentActual = (sections[index].conditionalassessment as String);
-    switch (assessmentActual) {
+    switch (assessmentActual.toLowerCase()) {
       case 'pass':
         assessment = 'Pass';
         break;
@@ -384,7 +384,7 @@ class _LocationPageState extends State<LocationPage> {
                               ),
                             ),
                             Visibility(
-                                visible: sections[index].isUploading,
+                                visible: sections[index].isuploading,
                                 child: const SizedBox(
                                   width: 80,
                                   child: LinearProgressIndicator(

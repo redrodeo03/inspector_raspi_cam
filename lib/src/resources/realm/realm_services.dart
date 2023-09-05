@@ -575,7 +575,7 @@ class RealmProjectServices with ChangeNotifier {
     var found =
         parentLocation.sections.where((element) => element.id == sectionId);
     if (found.isNotEmpty) {
-      realm.write(() => found.first.isUploading = status);
+      realm.write(() => found.first.isuploading = status);
     }
     notifyListeners();
   }
@@ -858,10 +858,10 @@ class RealmProjectServices with ChangeNotifier {
         LocalSection foundChild;
         if (parentProject != null) {
           if (updateInvasiveSection) {
-            foundChild = parentProject.invasiveSections
-                .firstWhere((element) => element.id == id);
+            // foundChild = parentProject.invasiveSections
+            //     .firstWhere((element) => element.id == id);
 
-            parentProject.invasiveSections.remove(foundChild);
+            // parentProject.invasiveSections.remove(foundChild);
           } else {
             foundChild = parentProject.sections
                 .firstWhere((element) => element.id == id);
@@ -877,34 +877,28 @@ class RealmProjectServices with ChangeNotifier {
       if (parentLocation != null) {
         try {
           if (updateInvasiveSection) {
-            foundChild = parentLocation.invasiveSections
-                .firstWhere((element) => element.id == id);
-
-            parentLocation.invasiveSections.remove(foundChild);
-            //delete from prents as well.
-
             if (parentLocation.parenttype == 'project') {
               var parentProject =
                   realm.find<LocalProject>(parentLocation.parentid);
               if (parentProject != null) {
-                LocalChild invasiveChild = parentProject.invasiveChildren
-                    .firstWhere((element) => element.id == parentid);
-                parentProject.invasiveChildren.remove(invasiveChild);
+                // LocalChild invasiveChild = parentProject.invasiveChildren
+                //     .firstWhere((element) => element.id == parentid);
+                // parentProject.invasiveChildren.remove(invasiveChild);
               }
             } else {
               var parentSubProject =
                   realm.find<LocalSubProject>(parentLocation.parentid);
               if (parentSubProject != null) {
-                LocalChild invasiveChild = parentSubProject.invasiveChildren
-                    .firstWhere((element) => element.id == parentid);
-                parentSubProject.invasiveChildren.remove(invasiveChild);
+                // LocalChild invasiveChild = parentSubProject.invasiveChildren
+                //     .firstWhere((element) => element.id == parentid);
+                // parentSubProject.invasiveChildren.remove(invasiveChild);
                 //remove from project as well.
                 var parentProject =
                     realm.find<LocalProject>(parentSubProject.parentid);
                 if (parentProject != null) {
-                  invasiveChild = parentProject.invasiveChildren.firstWhere(
-                      (element) => element.id == parentSubProject.id);
-                  parentProject.invasiveChildren.remove(invasiveChild);
+                  // invasiveChild = parentProject.invasiveChildren.firstWhere(
+                  //     (element) => element.id == parentSubProject.id);
+                  // parentProject.invasiveChildren.remove(invasiveChild);
                 }
               }
             }

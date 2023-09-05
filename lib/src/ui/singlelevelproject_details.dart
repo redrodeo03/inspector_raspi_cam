@@ -71,7 +71,9 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
     setState(() {
       if (currentProject.isValid) {
         if (isInvasiveMode) {
-          sections = currentProject.invasiveSections.toList();
+          sections = currentProject.sections
+              .where((element) => element.isInvasive)
+              .toList();
         } else {
           sections = currentProject.sections.toList();
         }
@@ -165,7 +167,9 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
                 currentProject = data.object;
                 if (currentProject.isValid) {
                   if (isInvasiveMode) {
-                    sections = currentProject.invasiveSections.toList();
+                    sections = currentProject.sections
+                        .where((element) => element.isInvasive)
+                        .toList();
                   } else {
                     sections = currentProject.sections.toList();
                   }

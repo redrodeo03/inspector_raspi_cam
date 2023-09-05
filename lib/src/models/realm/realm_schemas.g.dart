@@ -20,9 +20,7 @@ class LocalProject extends _LocalProject
     String? editedat,
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
-    Iterable<LocalChild> invasiveChildren = const [],
     Iterable<LocalSection> sections = const [],
-    Iterable<LocalSection> invasiveSections = const [],
     Set<String> assignedto = const {},
   }) {
     RealmObjectBase.set(this, '_id', id);
@@ -37,12 +35,8 @@ class LocalProject extends _LocalProject
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
-    RealmObjectBase.set<RealmList<LocalChild>>(
-        this, 'invasiveChildren', RealmList<LocalChild>(invasiveChildren));
     RealmObjectBase.set<RealmList<LocalSection>>(
         this, 'sections', RealmList<LocalSection>(sections));
-    RealmObjectBase.set<RealmList<LocalSection>>(
-        this, 'invasiveSections', RealmList<LocalSection>(invasiveSections));
     RealmObjectBase.set<RealmSet<String>>(
         this, 'assignedto', RealmSet<String>(assignedto));
   }
@@ -125,27 +119,11 @@ class LocalProject extends _LocalProject
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<LocalChild> get invasiveChildren =>
-      RealmObjectBase.get<LocalChild>(this, 'invasiveChildren')
-          as RealmList<LocalChild>;
-  @override
-  set invasiveChildren(covariant RealmList<LocalChild> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
   RealmList<LocalSection> get sections =>
       RealmObjectBase.get<LocalSection>(this, 'sections')
           as RealmList<LocalSection>;
   @override
   set sections(covariant RealmList<LocalSection> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
-  RealmList<LocalSection> get invasiveSections =>
-      RealmObjectBase.get<LocalSection>(this, 'invasiveSections')
-          as RealmList<LocalSection>;
-  @override
-  set invasiveSections(covariant RealmList<LocalSection> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -176,11 +154,7 @@ class LocalProject extends _LocalProject
           collectionType: RealmCollectionType.set),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
-      SchemaProperty('invasiveChildren', RealmPropertyType.object,
-          linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
       SchemaProperty('sections', RealmPropertyType.object,
-          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
-      SchemaProperty('invasiveSections', RealmPropertyType.object,
           linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
   }
@@ -188,8 +162,6 @@ class LocalProject extends _LocalProject
 
 class LocalChild extends _LocalChild
     with RealmEntity, RealmObjectBase, EmbeddedObject {
-  static var _defaultsSet = false;
-
   LocalChild(
     ObjectId id,
     bool isInvasive, {
@@ -197,20 +169,13 @@ class LocalChild extends _LocalChild
     String? type,
     String? description,
     String? url,
-    int count = 0,
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalChild>({
-        'count': 0,
-      });
-    }
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
-    RealmObjectBase.set(this, 'count', count);
   }
 
   LocalChild._();
@@ -248,11 +213,6 @@ class LocalChild extends _LocalChild
   set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
-  int get count => RealmObjectBase.get<int>(this, 'count') as int;
-  @override
-  set count(int value) => RealmObjectBase.set(this, 'count', value);
-
-  @override
   Stream<RealmObjectChanges<LocalChild>> get changes =>
       RealmObjectBase.getChanges<LocalChild>(this);
 
@@ -271,7 +231,6 @@ class LocalChild extends _LocalChild
       SchemaProperty('description', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
-      SchemaProperty('count', RealmPropertyType.int),
     ]);
   }
 }
@@ -292,7 +251,6 @@ class LocalSubProject extends _LocalSubProject
     String? editedat,
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
-    Iterable<LocalChild> invasiveChildren = const [],
     Set<String> assignedto = const {},
   }) {
     RealmObjectBase.set(this, '_id', id);
@@ -309,8 +267,6 @@ class LocalSubProject extends _LocalSubProject
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
-    RealmObjectBase.set<RealmList<LocalChild>>(
-        this, 'invasiveChildren', RealmList<LocalChild>(invasiveChildren));
     RealmObjectBase.set<RealmSet<String>>(
         this, 'assignedto', RealmSet<String>(assignedto));
   }
@@ -403,14 +359,6 @@ class LocalSubProject extends _LocalSubProject
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<LocalChild> get invasiveChildren =>
-      RealmObjectBase.get<LocalChild>(this, 'invasiveChildren')
-          as RealmList<LocalChild>;
-  @override
-  set invasiveChildren(covariant RealmList<LocalChild> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
   Stream<RealmObjectChanges<LocalSubProject>> get changes =>
       RealmObjectBase.getChanges<LocalSubProject>(this);
 
@@ -441,8 +389,6 @@ class LocalSubProject extends _LocalSubProject
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
-      SchemaProperty('invasiveChildren', RealmPropertyType.object,
-          linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -463,7 +409,6 @@ class LocalLocation extends _LocalLocation
     String? editedat,
     String? lasteditedby,
     Iterable<LocalSection> sections = const [],
-    Iterable<LocalSection> invasiveSections = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
@@ -479,8 +424,6 @@ class LocalLocation extends _LocalLocation
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalSection>>(
         this, 'sections', RealmList<LocalSection>(sections));
-    RealmObjectBase.set<RealmList<LocalSection>>(
-        this, 'invasiveSections', RealmList<LocalSection>(invasiveSections));
   }
 
   LocalLocation._();
@@ -564,14 +507,6 @@ class LocalLocation extends _LocalLocation
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<LocalSection> get invasiveSections =>
-      RealmObjectBase.get<LocalSection>(this, 'invasiveSections')
-          as RealmList<LocalSection>;
-  @override
-  set invasiveSections(covariant RealmList<LocalSection> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
   Stream<RealmObjectChanges<LocalLocation>> get changes =>
       RealmObjectBase.getChanges<LocalLocation>(this);
 
@@ -599,8 +534,6 @@ class LocalLocation extends _LocalLocation
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
           linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
-      SchemaProperty('invasiveSections', RealmPropertyType.object,
-          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -617,16 +550,16 @@ class LocalSection extends _LocalSection
     bool furtherinvasivereviewrequired = false,
     String? conditionalassessment,
     String? visualreview,
-    int count = 0,
     String? coverUrl,
-    bool isUploading = false,
+    int count = 0,
+    bool isuploading = false,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': false,
         'count': 0,
-        'isUploading': false,
+        'isuploading': false,
       });
     }
     RealmObjectBase.set(this, '_id', id);
@@ -637,9 +570,9 @@ class LocalSection extends _LocalSection
         this, 'furtherinvasivereviewrequired', furtherinvasivereviewrequired);
     RealmObjectBase.set(this, 'conditionalassessment', conditionalassessment);
     RealmObjectBase.set(this, 'visualreview', visualreview);
-    RealmObjectBase.set(this, 'count', count);
     RealmObjectBase.set(this, 'coverUrl', coverUrl);
-    RealmObjectBase.set(this, 'isUploading', isUploading);
+    RealmObjectBase.set(this, 'count', count);
+    RealmObjectBase.set(this, 'isuploading', isuploading);
   }
 
   LocalSection._();
@@ -688,22 +621,22 @@ class LocalSection extends _LocalSection
       RealmObjectBase.set(this, 'visualreview', value);
 
   @override
-  int get count => RealmObjectBase.get<int>(this, 'count') as int;
-  @override
-  set count(int value) => RealmObjectBase.set(this, 'count', value);
-
-  @override
   String? get coverUrl =>
       RealmObjectBase.get<String>(this, 'coverUrl') as String?;
   @override
   set coverUrl(String? value) => RealmObjectBase.set(this, 'coverUrl', value);
 
   @override
-  bool get isUploading =>
-      RealmObjectBase.get<bool>(this, 'isUploading') as bool;
+  int get count => RealmObjectBase.get<int>(this, 'count') as int;
   @override
-  set isUploading(bool value) =>
-      RealmObjectBase.set(this, 'isUploading', value);
+  set count(int value) => RealmObjectBase.set(this, 'count', value);
+
+  @override
+  bool get isuploading =>
+      RealmObjectBase.get<bool>(this, 'isuploading') as bool;
+  @override
+  set isuploading(bool value) =>
+      RealmObjectBase.set(this, 'isuploading', value);
 
   @override
   Stream<RealmObjectChanges<LocalSection>> get changes =>
@@ -726,9 +659,9 @@ class LocalSection extends _LocalSection
       SchemaProperty('conditionalassessment', RealmPropertyType.string,
           optional: true),
       SchemaProperty('visualreview', RealmPropertyType.string, optional: true),
-      SchemaProperty('count', RealmPropertyType.int),
       SchemaProperty('coverUrl', RealmPropertyType.string, optional: true),
-      SchemaProperty('isUploading', RealmPropertyType.bool),
+      SchemaProperty('count', RealmPropertyType.int),
+      SchemaProperty('isuploading', RealmPropertyType.bool),
     ]);
   }
 }

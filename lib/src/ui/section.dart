@@ -275,10 +275,10 @@ class _SectionPageState extends State<SectionPage> {
               currentVisualSection.waterproofingelements.contains(item.name))
           .toList();
 
-      _review = VisualReview.values
-          .firstWhere((e) => e.name == currentVisualSection.visualreview);
-      _assessment = ConditionalAssessment.values.firstWhere(
-          (e) => e.name == currentVisualSection.conditionalassessment);
+      _review = VisualReview.values.firstWhere(
+          (e) => e.name == currentVisualSection.visualreview?.toLowerCase());
+      _assessment = ConditionalAssessment.values.firstWhere((e) =>
+          e.name == currentVisualSection.conditionalassessment?.toLowerCase());
 
       _eee = ExpectancyYears.values
           .firstWhere((e) => e.name == currentVisualSection.eee);
@@ -313,8 +313,6 @@ class _SectionPageState extends State<SectionPage> {
   Future<bool> save(BuildContext context, RealmProjectServices realmServices,
       bool createNew) async {
     if (_formKey.currentState!.validate()) {
-      realmServices.updateImageUploadStatus(
-          currentLocation, currentVisualSection.id, true);
       //check if everything is filled.
       if (unitUnavailable) {
       } else {
@@ -367,6 +365,8 @@ class _SectionPageState extends State<SectionPage> {
           var imagesToUpload = realmServices.getImagesNotUploaded(
               capturedImages, appSettings.activeConnection, isNewSection);
           if (imagesToUpload.isNotEmpty) {
+            realmServices.updateImageUploadStatus(
+                currentLocation, currentVisualSection.id, true);
             imagesBloc
                 .uploadMultipleImages(
                     imagesToUpload,

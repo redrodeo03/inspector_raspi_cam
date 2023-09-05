@@ -6,7 +6,7 @@ class _LocalProject {
   @MapTo('_id')
   @PrimaryKey()
   late ObjectId id;
-  
+
   late String? name;
   late String? projecttype;
   late String? description;
@@ -19,10 +19,10 @@ class _LocalProject {
   late Set<String> assignedto;
   List<_LocalChild> children = [];
 
-  List<_LocalChild> invasiveChildren = [];
+  // List<_LocalChild> invasiveChildren = [];
 
   List<_LocalSection> sections = [];
-  List<_LocalSection> invasiveSections = [];
+  // List<_LocalSection> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -34,7 +34,6 @@ class _LocalChild {
   late String? description;
   late String? url;
   late bool isInvasive;
-  int count = 0;
 }
 
 @RealmModel()
@@ -55,7 +54,7 @@ class _LocalSubProject {
   String? lasteditedby;
   late bool isInvasive;
   List<_LocalChild> children = [];
-  List<_LocalChild> invasiveChildren = [];
+  //List<_LocalChild> invasiveChildren = [];
 }
 
 @RealmModel()
@@ -89,10 +88,10 @@ class _LocalSection {
   bool furtherinvasivereviewrequired = false;
   String? conditionalassessment;
   String? visualreview;
-  int count = 0;
   String? coverUrl;
+  int count = 0;
   //@Ignored()
-  bool isUploading = false;
+  bool isuploading = false;
 }
 
 @RealmModel()
