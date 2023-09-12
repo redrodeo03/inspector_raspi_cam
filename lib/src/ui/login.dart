@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
       });
       //check if no connectivity
       await checkUserConnection();
+      await appSettings.initConnectivity();
       LoginResponse loginResult;
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (activeConnection) {

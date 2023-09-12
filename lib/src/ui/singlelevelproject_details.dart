@@ -5,7 +5,7 @@ import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/models/error_response.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
 import 'package:deckinspectors/src/resources/realm/realm_services.dart';
-import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
+//import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/pdfviewer.dart';
 import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
@@ -116,10 +116,10 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
     final realmServices =
         Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: BreadCrumbNavigator(),
-        ),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 140,
@@ -471,7 +471,7 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
     String visualReview = (sections[index]!.visualreview as String);
-    switch (visualReview) {
+    switch (visualReview.toLowerCase()) {
       case 'good':
         vreview = 'Good';
         break;
@@ -486,7 +486,7 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
     String assessment = '';
     String? coverUrl = sections[index]!.coverUrl;
     String assessmentActual = sections[index]!.conditionalassessment as String;
-    switch (assessmentActual) {
+    switch (assessmentActual.toLowerCase()) {
       case 'pass':
         assessment = 'Pass';
         break;

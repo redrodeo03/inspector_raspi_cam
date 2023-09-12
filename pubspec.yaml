@@ -61,6 +61,8 @@ dependencies:
   webview_flutter_wkwebview: ^3.6.1
   printing: ^5.11.0
   pdf: ^3.10.4
+  thumbnailer: ^2.2.0
+  connectivity_plus: ^4.0.2
   
 
 dev_dependencies:

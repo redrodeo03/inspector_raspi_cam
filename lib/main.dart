@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,13 @@ void main() async {
   return runApp(MultiProvider(providers: [
     ChangeNotifierProvider<AppServices>(
         create: (_) => AppServices(appId, baseUrl)),
+    ChangeNotifierProxyProvider<AppSettings, RealmProjectServices?>(
+        create: (context) => null,
+        update: (BuildContext context, AppSettings appSettings,
+            RealmProjectServices? realmServices) {
+          realmServices?.uploadLocalImages();
+          return realmServices;
+        }),
     ChangeNotifierProxyProvider<AppServices, RealmProjectServices?>(
         // RealmServices can only be initialized only if the user is logged in.
         create: (context) => null,

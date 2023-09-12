@@ -251,6 +251,7 @@ class _SectionPageState extends State<SectionPage> {
     userFullName = widget.userFullName;
 
     prevPageName = widget.parentName;
+
     if (parentType != 'project') {
       currentLocation =
           realmServices.getLocation(widget.parentId) as LocalLocation;
@@ -365,8 +366,11 @@ class _SectionPageState extends State<SectionPage> {
           var imagesToUpload = realmServices.getImagesNotUploaded(
               capturedImages, appSettings.activeConnection, isNewSection);
           if (imagesToUpload.isNotEmpty) {
-            realmServices.updateImageUploadStatus(
-                currentLocation, currentVisualSection.id, true);
+            if (parentType != 'project') {
+              realmServices.updateImageUploadStatus(
+                  currentLocation, currentVisualSection.id, true);
+            }
+
             imagesBloc
                 .uploadMultipleImages(
                     imagesToUpload,
@@ -382,8 +386,11 @@ class _SectionPageState extends State<SectionPage> {
                   urls.add(element.url as String);
                 }
               }
-              realmServices.updateImageUploadStatus(
-                  currentLocation, currentVisualSection.id, false);
+              if (parentType != 'project') {
+                realmServices.updateImageUploadStatus(
+                    currentLocation, currentVisualSection.id, false);
+              }
+
               realmServices.addImagesUrl(
                   currentVisualSection, imagesToUpload, urls);
             });

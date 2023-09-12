@@ -70,6 +70,10 @@ class RealmProjectServices with ChangeNotifier {
           realm.syncSession.pause();
         }
       });
+      //subscribe to network when changed to connected.
+      appSettings.addListener(() {
+        uploadLocalImages();
+      });
     }
   }
 
@@ -95,7 +99,9 @@ class RealmProjectServices with ChangeNotifier {
       mutableSubscriptions.add(realm.all<LocalInvasiveSection>(),
           name: queryAllInvasiveSections);
     });
-    await realm.subscriptions.waitForSynchronization();
+    if (!realm.isClosed) {
+      await realm.subscriptions.waitForSynchronization();
+    }
   }
 
   Future<void> sessionSwitch(bool syncOn) async {
@@ -753,100 +759,122 @@ class RealmProjectServices with ChangeNotifier {
     super.dispose();
   }
 
-  static bool isImageUplaoding = false;
+  //static bool isImageUplaoding = false;
   void uploadLocalImages() async {
-    realm.syncSession.resume();
-    final images = realm.query<DeckImage>("isUploaded == false");
-    isImageUplaoding = true;
+    try {
+      List<DeckImage> imagesTobeDelete = [];
+      if (!realm.isClosed) {
+        realm.syncSession.resume();
 
-    for (var image in images) {
-      String localPath = image.imageLocalPath;
-      String parentType = image.parentType;
-      ObjectId parentId = image.parentId;
+        final images = realm.query<DeckImage>("isUploaded == false");
+        //isImageUplaoding = true;
 
-      final file = File(localPath);
+        for (var image in images) {
+          String localPath = image.imageLocalPath;
+          String parentType = image.parentType;
+          ObjectId parentId = image.parentId;
 
-      if (!file.existsSync()) {
-        continue;
-      }
-      var result = await imagesBloc.uploadImage(
-          localPath,
-          image.containerName,
-          image.uploadedBy,
-          image.id.toString(),
-          image.parentType,
-          image.entityName);
-      if (result is ImageResponse) {
+          final file = File(localPath);
+
+          if (!file.existsSync()) {
+            imagesTobeDelete.add(image);
+            continue;
+          }
+          var result = await imagesBloc.uploadImage(
+              localPath,
+              image.containerName,
+              image.uploadedBy,
+              image.id.toString(),
+              image.parentType,
+              image.entityName);
+          if (result is ImageResponse) {
 //check if the image is already added to db
-        final addedImage =
-            realm.query<DeckImage>("imageLocalPath == \$0", [localPath]);
-        realm.write(() {
-          if (addedImage.isEmpty) {
-            image.isUploaded = true;
-            image.onlinePath = result.url as String;
-            image.imageLocalPath = localPath;
-            realm.add<DeckImage>(image, update: true);
-          } else {
-            addedImage.first.isUploaded = true;
-            addedImage.first.onlinePath = result.url as String;
-          }
+            final addedImage =
+                realm.query<DeckImage>("imageLocalPath == \$0", [localPath]);
+            realm.write(() {
+              if (addedImage.isEmpty) {
+                if (result.url!.startsWith('http')) {
+                  image.isUploaded = true;
+                } else {
+                  image.isUploaded = false;
+                }
 
-          switch (parentType) {
-            case 'project':
-              var project = realm.find<LocalProject>(parentId);
-              project?.url = result.url;
-              break;
-            case 'subproject':
-              var subproject = realm.find<LocalSubProject>(parentId);
-              subproject?.url = result.url;
-              break;
-            case 'location':
-              var location = realm.find<LocalLocation>(parentId);
-              location?.url = result.url;
-              break;
-            case 'visualSection':
-              var visualsection = realm.find<LocalVisualSection>(parentId);
-              if (visualsection != null) {
-                int index = visualsection.images
-                    .indexWhere((element) => element == image.imageLocalPath);
-                if (index != -1) {
-                  visualsection.images[index] = result.url as String;
-                  //update coverurls
-                  updateImageCount(
-                      visualsection.parenttype,
-                      visualsection.id,
-                      visualsection.parentid,
-                      visualsection.images.length,
-                      visualsection.images.last);
+                image.onlinePath = result.url as String;
+                image.imageLocalPath = localPath;
+                realm.add<DeckImage>(image, update: true);
+              } else {
+                if (result.url!.startsWith('http')) {
+                  addedImage.first.isUploaded = true;
+                } else {
+                  addedImage.first.isUploaded = false;
                 }
+
+                addedImage.first.onlinePath = result.url as String;
               }
-              break;
-            case 'invasiveSection':
-              var invasiveSection = realm.find<LocalInvasiveSection>(parentId);
-              if (invasiveSection != null) {
-                int index = invasiveSection.invasiveimages
-                    .indexWhere((element) => element == image.imageLocalPath);
-                if (index != -1) {
-                  invasiveSection.invasiveimages[index] = result.url as String;
-                }
+
+              switch (parentType.toLowerCase()) {
+                case 'project':
+                  var project = realm.find<LocalProject>(parentId);
+                  project?.url = result.url;
+                  break;
+                case 'subproject':
+                  var subproject = realm.find<LocalSubProject>(parentId);
+                  subproject?.url = result.url;
+                  break;
+                case 'location':
+                  var location = realm.find<LocalLocation>(parentId);
+                  location?.url = result.url;
+                  break;
+                case 'visualsection':
+                  var visualsection = realm.find<LocalVisualSection>(parentId);
+                  if (visualsection != null) {
+                    int index = visualsection.images.indexWhere(
+                        (element) => element == image.imageLocalPath);
+                    if (index != -1) {
+                      visualsection.images[index] = result.url as String;
+                      //update coverurls
+                      updateImageCount(
+                          visualsection.parenttype,
+                          visualsection.id,
+                          visualsection.parentid,
+                          visualsection.images.length,
+                          visualsection.images.last);
+                    }
+                  }
+                  break;
+                case 'invasivesection':
+                  var invasiveSection =
+                      realm.find<LocalInvasiveSection>(parentId);
+                  if (invasiveSection != null) {
+                    int index = invasiveSection.invasiveimages.indexWhere(
+                        (element) => element == image.imageLocalPath);
+                    if (index != -1) {
+                      invasiveSection.invasiveimages[index] =
+                          result.url as String;
+                    }
+                  }
+                  break;
+                case 'conclusivesection':
+                  var conclusiveSection =
+                      realm.find<LocalConclusiveSection>(parentId);
+                  if (conclusiveSection != null) {
+                    int index = conclusiveSection.conclusiveimages.indexWhere(
+                        (element) => element == image.imageLocalPath);
+                    if (index != -1) {
+                      conclusiveSection.conclusiveimages[index] =
+                          result.url as String;
+                    }
+                  }
+                  break;
+                default:
               }
-              break;
-            case 'conclusiveSection':
-              var conclusiveSection =
-                  realm.find<LocalConclusiveSection>(parentId);
-              if (conclusiveSection != null) {
-                int index = conclusiveSection.conclusiveimages
-                    .indexWhere((element) => element == image.imageLocalPath);
-                if (index != -1) {
-                  conclusiveSection.conclusiveimages[index] =
-                      result.url as String;
-                }
-              }
-              break;
-            default:
+            });
           }
-        });
+        }
+        realm.write(() => realm.deleteMany<DeckImage>(imagesTobeDelete));
       }
+    } catch (e) {
+      debugPrint("Error message: $e");
     }
   }
 

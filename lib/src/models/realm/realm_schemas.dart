@@ -18,7 +18,7 @@ class _LocalProject {
   String? lasteditedby;
   late Set<String> assignedto;
   List<_LocalChild> children = [];
-
+  bool iscomplete = false;
   // List<_LocalChild> invasiveChildren = [];
 
   List<_LocalSection> sections = [];
@@ -34,6 +34,7 @@ class _LocalChild {
   late String? description;
   late String? url;
   late bool isInvasive;
+  String? sequenceNo;
 }
 
 @RealmModel()
@@ -92,6 +93,7 @@ class _LocalSection {
   int count = 0;
   //@Ignored()
   bool isuploading = false;
+  String? sequenceNo;
 }
 
 @RealmModel()

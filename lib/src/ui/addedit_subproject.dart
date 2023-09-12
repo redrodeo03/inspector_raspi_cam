@@ -1,5 +1,6 @@
 import 'dart:io';
 
+//import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/subproject.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +108,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
           return;
         }
 
-        if (imageURL != currentBuilding.url) {
+        if (imageURL != currentBuilding.url || !imageURL.startsWith('http')) {
           var result = await imagesBloc.uploadImage(
               imageURL,
               currentBuilding.name as String,
@@ -120,11 +121,28 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
             realmServices.updateSubProjectUrl(
                 currentBuilding, result.url as String);
           }
+          //appSettings.activeConnection = true;
         }
       } catch (e) {
+        // if (e is SocketException) {
+        //   //appSettings.activeConnection = false;
+        //   var result = await imagesBloc.uploadImage(
+        //       imageURL,
+        //       currentBuilding.name as String,
+        //       fullUserName,
+        //       currentBuilding.id.toString(),
+        //       'project',
+        //       'building');
+
+        //   if (result is ImageResponse) {
+        //     realmServices.updateSubProjectUrl(
+        //         currentBuilding, result.url as String);
+        //   } else {}
+        // }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Failed to save the building.${e.toString()}')),
+              content: Text(
+                  'Failed to save the ${currentBuilding.type} ${e.toString()}')),
         );
       }
     }
