@@ -43,6 +43,7 @@ Widget networkImage(String? netWorkImageURL) {
     return CachedNetworkImage(
       placeholder: (context, url) => const CircularProgressIndicator(),
       imageUrl: imageURL,
+      fit: BoxFit.fill,
     );
   } else {
     return Image.file(
