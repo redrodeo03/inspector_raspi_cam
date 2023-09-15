@@ -36,6 +36,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   LocalProject getLocalProject() {
     return LocalProject(ObjectId(),
         name: "",
+        isInvasive: false,
         description: "",
         address: "",
         url: "",

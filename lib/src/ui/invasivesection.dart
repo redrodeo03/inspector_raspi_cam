@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
+import '../bloc/settings_bloc.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
 import 'package:http/http.dart' as http;
@@ -392,8 +393,10 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       String invasiveImageName =
           '${currentVisualSection.name as String}-invasive';
       if (capturedInvasiveImages.isNotEmpty) {
-        var imagesToUpload =
-            capturedInvasiveImages.where((e) => !e.startsWith('http')).toList();
+        // var imagesToUpload =
+        //     capturedInvasiveImages.where((e) => !e.startsWith('http')).toList();
+        var imagesToUpload = realmServices.getImagesNotUploaded(
+            capturedInvasiveImages, appSettings.activeConnection, isNewSection);
         if (imagesToUpload.isNotEmpty) {
           imagesBloc
               .uploadMultipleImages(
@@ -418,9 +421,13 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       if (invasiveRepairsCompleted) {
         String conclusiveImageName =
             '${currentVisualSection.name as String}-conclusive';
-        var imagesToUpload = capturedConclusiveImages
-            .where((e) => !e.startsWith('http'))
-            .toList();
+        // var imagesToUpload = capturedConclusiveImages
+        //     .where((e) => !e.startsWith('http'))
+        //     .toList();
+        var imagesToUpload = realmServices.getImagesNotUploaded(
+            capturedConclusiveImages,
+            appSettings.activeConnection,
+            isNewSection);
         if (imagesToUpload.isEmpty) {
           return;
         }

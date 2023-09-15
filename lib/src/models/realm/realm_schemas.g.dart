@@ -8,6 +8,8 @@ part of 'realm_schemas.dart';
 
 class LocalProject extends _LocalProject
     with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
   LocalProject(
     ObjectId id, {
     String? name,
@@ -19,10 +21,18 @@ class LocalProject extends _LocalProject
     String? url,
     String? editedat,
     String? lasteditedby,
+    bool iscomplete = false,
+    bool isInvasive = false,
     Iterable<LocalChild> children = const [],
     Iterable<LocalSection> sections = const [],
     Set<String> assignedto = const {},
   }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<LocalProject>({
+        'iscomplete': false,
+        'isInvasive': false,
+      });
+    }
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'projecttype', projecttype);
@@ -33,6 +43,8 @@ class LocalProject extends _LocalProject
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'iscomplete', iscomplete);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
     RealmObjectBase.set<RealmList<LocalSection>>(
@@ -119,6 +131,16 @@ class LocalProject extends _LocalProject
       throw RealmUnsupportedSetError();
 
   @override
+  bool get iscomplete => RealmObjectBase.get<bool>(this, 'iscomplete') as bool;
+  @override
+  set iscomplete(bool value) => RealmObjectBase.set(this, 'iscomplete', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
   RealmList<LocalSection> get sections =>
       RealmObjectBase.get<LocalSection>(this, 'sections')
           as RealmList<LocalSection>;
@@ -154,6 +176,8 @@ class LocalProject extends _LocalProject
           collectionType: RealmCollectionType.set),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
+      SchemaProperty('iscomplete', RealmPropertyType.bool),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
           linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
@@ -169,6 +193,7 @@ class LocalChild extends _LocalChild
     String? type,
     String? description,
     String? url,
+    String? sequenceNo,
   }) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
@@ -176,6 +201,7 @@ class LocalChild extends _LocalChild
     RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
+    RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
   LocalChild._();
@@ -213,6 +239,13 @@ class LocalChild extends _LocalChild
   set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
+  String? get sequenceNo =>
+      RealmObjectBase.get<String>(this, 'sequenceNo') as String?;
+  @override
+  set sequenceNo(String? value) =>
+      RealmObjectBase.set(this, 'sequenceNo', value);
+
+  @override
   Stream<RealmObjectChanges<LocalChild>> get changes =>
       RealmObjectBase.getChanges<LocalChild>(this);
 
@@ -231,6 +264,7 @@ class LocalChild extends _LocalChild
       SchemaProperty('description', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
+      SchemaProperty('sequenceNo', RealmPropertyType.string, optional: true),
     ]);
   }
 }
@@ -553,6 +587,7 @@ class LocalSection extends _LocalSection
     String? coverUrl,
     int count = 0,
     bool isuploading = false,
+    String? sequenceNo,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalSection>({
@@ -573,6 +608,7 @@ class LocalSection extends _LocalSection
     RealmObjectBase.set(this, 'coverUrl', coverUrl);
     RealmObjectBase.set(this, 'count', count);
     RealmObjectBase.set(this, 'isuploading', isuploading);
+    RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
   LocalSection._();
@@ -639,6 +675,13 @@ class LocalSection extends _LocalSection
       RealmObjectBase.set(this, 'isuploading', value);
 
   @override
+  String? get sequenceNo =>
+      RealmObjectBase.get<String>(this, 'sequenceNo') as String?;
+  @override
+  set sequenceNo(String? value) =>
+      RealmObjectBase.set(this, 'sequenceNo', value);
+
+  @override
   Stream<RealmObjectChanges<LocalSection>> get changes =>
       RealmObjectBase.getChanges<LocalSection>(this);
 
@@ -662,6 +705,7 @@ class LocalSection extends _LocalSection
       SchemaProperty('coverUrl', RealmPropertyType.string, optional: true),
       SchemaProperty('count', RealmPropertyType.int),
       SchemaProperty('isuploading', RealmPropertyType.bool),
+      SchemaProperty('sequenceNo', RealmPropertyType.string, optional: true),
     ]);
   }
 }

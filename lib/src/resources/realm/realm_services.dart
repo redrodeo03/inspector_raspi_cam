@@ -228,6 +228,7 @@ class RealmProjectServices with ChangeNotifier {
     var parentProject = realm.find<LocalProject>(parentId);
 
     if (parentProject != null) {
+      parentProject.isInvasive = isInvasive;
       var found =
           parentProject.children.where((element) => element.id == childId);
       if (found.isEmpty) {
@@ -657,8 +658,13 @@ class RealmProjectServices with ChangeNotifier {
     try {
       realm.write(() {
         localVisualSection.images.remove(url);
-        updateImageCount(localVisualSection.parenttype, localVisualSection.id,
-            localVisualSection.parentid, localVisualSection.images.length, "");
+
+        updateImageCount(
+            localVisualSection.parenttype,
+            localVisualSection.id,
+            localVisualSection.parentid,
+            localVisualSection.images.length,
+            localVisualSection.images.last);
       });
 
       notifyListeners();
@@ -820,10 +826,14 @@ class RealmProjectServices with ChangeNotifier {
                 case 'subproject':
                   var subproject = realm.find<LocalSubProject>(parentId);
                   subproject?.url = result.url;
+                  updateChildUrl(parentId, subproject?.parentid as ObjectId,
+                      result.url as String);
                   break;
                 case 'location':
                   var location = realm.find<LocalLocation>(parentId);
                   location?.url = result.url;
+                  updateSubChildUrl(parentId, location?.parentid as ObjectId,
+                      result.url as String);
                   break;
                 case 'visualsection':
                   var visualsection = realm.find<LocalVisualSection>(parentId);
@@ -1014,6 +1024,8 @@ class RealmProjectServices with ChangeNotifier {
             var childLocation = parentProject.children
                 .where((element) => element.id == parentLocation.id);
             childLocation.first.isInvasive = furtherinvasivereviewrequired;
+            parentProject.isInvasive = parentProject.children
+                .any((element) => element.isInvasive == true);
           }
         }
         if (parentLocation.parenttype == 'subproject') {
@@ -1032,6 +1044,8 @@ class RealmProjectServices with ChangeNotifier {
               var childLocation = parentProject.children
                   .where((element) => element.id == parentSubProject.id);
               childLocation.first.isInvasive = furtherinvasivereviewrequired;
+              parentProject.isInvasive = parentProject.children
+                  .any((element) => element.isInvasive == true);
             }
           }
         }
@@ -1156,8 +1170,8 @@ class RealmProjectServices with ChangeNotifier {
                 '',
                 false,
                 currentConclusiveSection.id,
-                'invasiveSection',
-                'invasiveSectionImage',
+                'conclusiveSection',
+                'conclusiveSectionImage',
                 visualSectionName,
                 usersBloc.userDetails.username as String);
 

@@ -437,11 +437,13 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         isSyncOn = true;
         realmServices.sessionSwitch(true);
+        appSettings.activeConnection = true;
       });
     } else {
       setState(() {
         isSyncOn = false;
         realmServices.sessionSwitch(false);
+        appSettings.activeConnection = false;
       });
     }
     appSettings.isAppOfflineMode = !isSyncOn;
@@ -449,6 +451,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void forceSync(BuildContext context, RealmProjectServices realmServices) {
-    realmServices.uploadLocalImages();
+    if (appSettings.activeConnection) {
+      realmServices.uploadLocalImages();
+    }
   }
 }

@@ -20,7 +20,7 @@ class _LocalProject {
   List<_LocalChild> children = [];
   bool iscomplete = false;
   // List<_LocalChild> invasiveChildren = [];
-
+  bool isInvasive = false;
   List<_LocalSection> sections = [];
   // List<_LocalSection> invasiveSections = [];
 }

@@ -613,6 +613,7 @@ class _SectionPageState extends State<SectionPage> {
                                                     )),
                                               ),
                                             ),
+                                            Text(capturedImages[index]),
                                             OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
                                                     side: BorderSide.none,
