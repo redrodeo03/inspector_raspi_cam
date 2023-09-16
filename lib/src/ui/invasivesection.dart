@@ -1539,13 +1539,36 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                                                           color: Colors.orange)
                                                     ]),
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  child: networkImage(
-                                                      capturedInvasiveImages[
-                                                          index]),
-                                                )),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    child: Stack(
+                                                      fit: StackFit.expand,
+                                                      children: [
+                                                        networkImage(
+                                                            capturedInvasiveImages[
+                                                                index]),
+                                                        Align(
+                                                            alignment: Alignment
+                                                                .bottomRight,
+                                                            child: capturedInvasiveImages[
+                                                                        index]
+                                                                    .startsWith(
+                                                                        'http')
+                                                                ? const Icon(
+                                                                    weight: 3,
+                                                                    size: 50,
+                                                                    Icons.done,
+                                                                    color: Colors
+                                                                        .blue)
+                                                                : const Icon(
+                                                                    weight: 3,
+                                                                    size: 50,
+                                                                    Icons.sync,
+                                                                    color: Colors
+                                                                        .orange))
+                                                      ],
+                                                    ))),
                                           ),
                                         ),
                                         OutlinedButton.icon(
@@ -1771,13 +1794,45 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
                                                                     Colors.blue)
                                                           ]),
                                                       child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                        child: networkImage(
-                                                            capturedConclusiveImages[
-                                                                index]),
-                                                      )),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                          child: Stack(
+                                                            fit:
+                                                                StackFit.expand,
+                                                            children: [
+                                                              networkImage(
+                                                                  capturedConclusiveImages[
+                                                                      index]),
+                                                              Align(
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .bottomRight,
+                                                                  child: capturedConclusiveImages[
+                                                                              index]
+                                                                          .startsWith(
+                                                                              'http')
+                                                                      ? const Icon(
+                                                                          weight:
+                                                                              3,
+                                                                          size:
+                                                                              50,
+                                                                          Icons
+                                                                              .done,
+                                                                          color: Colors
+                                                                              .blue)
+                                                                      : const Icon(
+                                                                          weight:
+                                                                              3,
+                                                                          size:
+                                                                              50,
+                                                                          Icons
+                                                                              .sync,
+                                                                          color:
+                                                                              Colors.orange))
+                                                            ],
+                                                          ))),
                                                 ),
                                               ),
                                               OutlinedButton.icon(

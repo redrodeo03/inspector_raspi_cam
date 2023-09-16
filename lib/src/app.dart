@@ -8,6 +8,7 @@ import 'ui/navigation_observer.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
+  static bool isImageUploading = false;
   @override
   Widget build(BuildContext context) {
     // final currentUser =

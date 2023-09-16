@@ -295,6 +295,7 @@ class _SectionPageState extends State<SectionPage> {
         if (appSettings.activeConnection) {
           capturedImages.addAll(currentVisualSection.images);
           //call upload local images
+
           realmServices.uploadLocalImages();
         } else {
           for (var imgpath in currentVisualSection.images) {
@@ -604,16 +605,44 @@ class _SectionPageState extends State<SectionPage> {
                                                                   Colors.blue)
                                                         ]),
                                                     child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.0),
-                                                      child: networkImage(
-                                                          capturedImages[
-                                                              index]),
-                                                    )),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.0),
+                                                        child: Stack(
+                                                          fit: StackFit.expand,
+                                                          children: [
+                                                            networkImage(
+                                                                capturedImages[
+                                                                    index]),
+                                                            Align(
+                                                                alignment: Alignment
+                                                                    .bottomRight,
+                                                                child: capturedImages[
+                                                                            index]
+                                                                        .startsWith(
+                                                                            'http')
+                                                                    ? const Icon(
+                                                                        weight:
+                                                                            3,
+                                                                        size:
+                                                                            50,
+                                                                        Icons
+                                                                            .done,
+                                                                        color: Colors
+                                                                            .blueAccent)
+                                                                    : const Icon(
+                                                                        weight:
+                                                                            3,
+                                                                        size:
+                                                                            50,
+                                                                        Icons
+                                                                            .sync,
+                                                                        color: Colors
+                                                                            .orange))
+                                                          ],
+                                                        ))),
                                               ),
                                             ),
-                                            Text(capturedImages[index]),
                                             OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
                                                     side: BorderSide.none,

@@ -12,7 +12,7 @@ class AppSettings extends ChangeNotifier {
   int reportImageQuality = 100;
   int imageinRowCount = 4;
   bool activeConnection = true;
-
+  bool isImageUploading = false;
   ConnectivityResult connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> connectivitySubscription;

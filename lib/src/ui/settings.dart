@@ -1,3 +1,4 @@
+import 'package:deckinspectors/src/app.dart';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/ui/login.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +104,7 @@ class _SettingsPageState extends State<SettingsPage> {
   int imageCount = 4;
   String companyName = 'DeckInspectors';
   late RealmProjectServices realmServices;
+  bool isImageUploading = false;
   @override
   void initState() {
     super.initState();
@@ -112,6 +114,9 @@ class _SettingsPageState extends State<SettingsPage> {
     reportImageQuality = reportQulityList.first;
 
     _loadImageSettings();
+    // realmServices.addListener(() {
+    //   isImageUploading = App.isImageUploading;
+    // });
   }
 
   void setImageQuality(String quality) {
@@ -120,6 +125,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(App.isImageUploading.toString());
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 20,
@@ -239,6 +245,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
+            Visibility(
+              visible: App.isImageUploading,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.orange,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+
             OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                     side: BorderSide.none,
@@ -452,6 +469,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void forceSync(BuildContext context, RealmProjectServices realmServices) {
     if (appSettings.activeConnection) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            duration: Duration(seconds: 20),
+            content: Text('Checking for unsynced images, please wait...')),
+      );
+      isImageUploading = true;
       realmServices.uploadLocalImages();
     }
   }

@@ -6,6 +6,7 @@ import 'package:deckinspectors/src/bloc/users_bloc.dart';
 import 'package:deckinspectors/src/models/exteriorelements.dart';
 import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
+
 import 'package:deckinspectors/src/ui/section.dart';
 import 'package:realm/realm.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +73,7 @@ class RealmProjectServices with ChangeNotifier {
       });
       //subscribe to network when changed to connected.
       appSettings.addListener(() {
+        appSettings.isImageUploading = true;
         uploadLocalImages();
       });
     }
@@ -765,7 +767,6 @@ class RealmProjectServices with ChangeNotifier {
     super.dispose();
   }
 
-  //static bool isImageUplaoding = false;
   void uploadLocalImages() async {
     try {
       List<DeckImage> imagesTobeDelete = [];
@@ -773,9 +774,12 @@ class RealmProjectServices with ChangeNotifier {
         realm.syncSession.resume();
 
         final images = realm.query<DeckImage>("isUploaded == false");
-        //isImageUplaoding = true;
 
         for (var image in images) {
+          if (!appSettings.activeConnection) {
+            appSettings.isImageUploading = false;
+            return;
+          }
           String localPath = image.imageLocalPath;
           String parentType = image.parentType;
           ObjectId parentId = image.parentId;
@@ -885,7 +889,9 @@ class RealmProjectServices with ChangeNotifier {
       }
     } catch (e) {
       debugPrint("Error message: $e");
+      appSettings.isImageUploading = false;
     }
+    appSettings.isImageUploading = false;
   }
 
   void deleteLocationSection(String parentType, ObjectId id, ObjectId parentid,
