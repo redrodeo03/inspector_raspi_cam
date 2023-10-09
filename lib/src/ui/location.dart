@@ -88,7 +88,7 @@ class _LocationPageState extends State<LocationPage> {
         // ),
         body: StreamBuilder<RealmObjectChanges<LocalLocation>>(
             //projectsBloc.projects
-            stream: realmServices.getLocation(locationId)!.changes,
+            stream: realmServices.getLocation(locationId)?.changes,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final data = snapshot.data;

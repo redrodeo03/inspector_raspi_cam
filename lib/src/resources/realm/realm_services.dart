@@ -770,6 +770,7 @@ class RealmProjectServices with ChangeNotifier {
   void uploadLocalImages() async {
     try {
       List<DeckImage> imagesTobeDelete = [];
+
       if (!realm.isClosed) {
         realm.syncSession.resume();
 
@@ -1029,7 +1030,7 @@ class RealmProjectServices with ChangeNotifier {
           if (parentProject != null) {
             var childLocation = parentProject.children
                 .where((element) => element.id == parentLocation.id);
-            childLocation.first.isInvasive = furtherinvasivereviewrequired;
+            childLocation.first.isInvasive = parentLocation.isInvasive;
             parentProject.isInvasive = parentProject.children
                 .any((element) => element.isInvasive == true);
           }
@@ -1040,7 +1041,7 @@ class RealmProjectServices with ChangeNotifier {
           if (parentSubProject != null) {
             var childLocation = parentSubProject.children
                 .where((element) => element.id == parentLocation.id);
-            childLocation.first.isInvasive = furtherinvasivereviewrequired;
+            childLocation.first.isInvasive = parentLocation.isInvasive;
             parentSubProject.isInvasive = parentSubProject.children
                 .any((element) => element.isInvasive == true);
 
@@ -1049,7 +1050,7 @@ class RealmProjectServices with ChangeNotifier {
             if (parentProject != null) {
               var childLocation = parentProject.children
                   .where((element) => element.id == parentSubProject.id);
-              childLocation.first.isInvasive = furtherinvasivereviewrequired;
+              childLocation.first.isInvasive = parentSubProject.isInvasive;
               parentProject.isInvasive = parentProject.children
                   .any((element) => element.isInvasive == true);
             }

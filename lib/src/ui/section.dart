@@ -180,29 +180,6 @@ class _SectionPageState extends State<SectionPage> {
             ),
     );
   }
-//FOR warning on navigating back.
-// WillPopScope(
-//         onWillPop: () async {
-//           bool? goBack = await showDialog<bool>(
-//             context: context,
-//             builder: (context) => AlertDialog(
-//               title: const Text('Save Section'),
-//               content: const Text('Do you want to discard the changes?'),
-//               actions: <Widget>[
-//                 TextButton(
-//                   onPressed: () => false,
-//                   child: const Text('Cancel'),
-//                 ),
-//                 TextButton(
-//                   onPressed: () => true,
-//                   child: const Text('OK'),
-//                 ),
-//               ],
-//             ),
-//           );
-//           return goBack as bool;
-//         },
-//         child:
 
   bool isRunning = false;
   String userFullName = "";

@@ -41,9 +41,13 @@ Widget networkImage(String? netWorkImageURL) {
     //   },
     // );
     return CachedNetworkImage(
-      placeholder: (context, url) => const CircularProgressIndicator(),
+      placeholder: (context, url) => const SizedBox(
+        width: 30,
+        height: 30,
+        child: CircularProgressIndicator(),
+      ),
       imageUrl: imageURL,
-      fit: BoxFit.fill,
+      fit: BoxFit.cover,
     );
   } else {
     return Image.file(

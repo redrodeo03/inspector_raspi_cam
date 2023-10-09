@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
         loginResult = await usersBloc.login(
             _usernameController.text, _passwordController.text);
 
-        if (_isChecked == true) {
+        if (_isChecked == true && loginResult.firstname != null) {
           await prefs.setString('username', _usernameController.text);
           await prefs.setString('password', _passwordController.text);
           await prefs.setBool('isChecked', _isChecked as bool);

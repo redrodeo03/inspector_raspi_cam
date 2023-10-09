@@ -319,6 +319,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           .where((element) =>
               element.type == 'buildinglocation' && element.isInvasive)
           .toList();
+
       apartments = currentBuilding.children
           .where((element) => element.type == 'apartment' && element.isInvasive)
           .toList();
@@ -330,7 +331,20 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           .where((element) => element.type == 'apartment')
           .toList();
     }
-
+    buildinglocations.sort((l1, l2) {
+      if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+      } else {
+        return l1.id.toString().compareTo(l2!.id.toString());
+      }
+    });
+    apartments.sort((l1, l2) {
+      if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+      } else {
+        return l1.id.toString().compareTo(l2!.id.toString());
+      }
+    });
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[

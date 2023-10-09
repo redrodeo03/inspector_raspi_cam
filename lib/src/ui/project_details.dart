@@ -118,9 +118,13 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           locations = currentProject.children
               .where((element) => element.type == 'projectlocation')
               .toList();
+          locations
+              .sort((l1, l2) => l1!.sequenceNo!.compareTo(l2!.sequenceNo!));
           buildings = currentProject.children
               .where((element) => element.type == 'subproject')
               .toList();
+          buildings
+              .sort((l1, l2) => l1!.sequenceNo!.compareTo(l2!.sequenceNo!));
         }
       }
     });
@@ -242,6 +246,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                             element.type == 'projectlocation' &&
                             element.isInvasive)
                         .toList();
+
                     buildings = currentProject.children
                         .where((element) =>
                             element.type == 'subproject' && element.isInvasive)
@@ -250,11 +255,25 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                     locations = currentProject.children
                         .where((element) => element.type == 'projectlocation')
                         .toList();
+
                     buildings = currentProject.children
                         .where((element) => element.type == 'subproject')
                         .toList();
                   }
-
+                  buildings.sort((l1, l2) {
+                    if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+                      return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+                    } else {
+                      return l1.id.toString().compareTo(l2!.id.toString());
+                    }
+                  });
+                  locations.sort((l1, l2) {
+                    if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+                      return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+                    } else {
+                      return l1.id.toString().compareTo(l2!.id.toString());
+                    }
+                  });
                   var shortDate =
                       DateTime.tryParse(currentProject.createdat as String);
                   if (shortDate != null) {
