@@ -1,44 +1,132 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
-import 'package:deckinspectors/src/models/error_response.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
 import '../models/exteriorelements.dart';
-import '../models/section_model.dart';
+import '../models/realm/realm_schemas.dart';
+
 import '../models/success_response.dart';
-import '../bloc/section_bloc.dart';
+import 'package:path/path.dart' as path;
+import '../resources/realm/realm_services.dart';
+import 'breadcrumb_navigation.dart';
 import 'capturemultipic.dart';
 import 'image_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SectionPage extends StatefulWidget {
-  final String sectionId;
+  final ObjectId sectionId;
   final String userFullName;
   final String parentType;
-  final String parentId;
-  const SectionPage(
-      this.sectionId, this.parentId, this.userFullName, this.parentType,
+  final ObjectId parentId;
+  final String parentName;
+  final bool isNewSection;
+  const SectionPage(this.sectionId, this.parentId, this.userFullName,
+      this.parentType, this.parentName, this.isNewSection,
       {Key? key})
       : super(key: key);
   //VisualSection currentSection;
+  static MaterialPageRoute getRoute(
+          ObjectId id,
+          ObjectId parentId,
+          String userName,
+          String parentType,
+          String parentName,
+          bool isNewSection,
+          String pageName) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: pageName),
+          builder: (context) => SectionPage(
+              id, parentId, userName, parentType, parentName, isNewSection));
   @override
   State<SectionPage> createState() => _SectionPageState();
 }
 
 class _SectionPageState extends State<SectionPage> {
+  late RealmProjectServices realmServices;
+
   @override
   Widget build(BuildContext context) {
+    BreadCrumbNavigator();
     return Scaffold(
+      // floatingActionButton: Padding(
+      //     padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      //     child: Stack(
+      //       clipBehavior: Clip.none,
+      //       alignment: Alignment.topRight,
+      //       children: [
+      //         Column(
+      //           mainAxisSize: MainAxisSize.min,
+      //           // wrap the background in a column
+      //           children: [
+      //             const SizedBox(height: 100),
+      //             BreadCrumbNavigator(), // add the SizedBox with height = 100.0
+      //           ],
+      //         ),
+      //         Positioned(
+      //           bottom: 30,
+      //           child: FloatingActionButton(
+      //               tooltip: 'Save and Create New',
+      //               elevation: 8,
+      //               onPressed: () {
+      //                 saveAndNext(context, realmServices);
+      //               },
+      //               backgroundColor: Colors.blue,
+      //               child: const Icon(Icons.save_sharp)),
+      //         )
+      //       ],
+      //     )),
       appBar: AppBar(
           automaticallyImplyLeading: false,
           leadingWidth: 120,
           leading: ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () async {
+              if (isFormUpdated) {
+                bool? cangoback = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Save Section'),
+                    content: const Text('Do you want to discard the changes?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(false);
+                        },
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop(true);
+                        },
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  ),
+                );
+                if (cangoback == true) {
+                  Navigator.of(context).pop();
+                }
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
             icon: const Icon(
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
             label: const Text(
-              'Locations',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              'Back',
               style: TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
@@ -59,7 +147,7 @@ class _SectionPageState extends State<SectionPage> {
               ),
               InkWell(
                   onTap: () {
-                    save(context);
+                    save(context, realmServices, false);
                   },
                   child: const Chip(
                     avatar: Icon(
@@ -68,7 +156,7 @@ class _SectionPageState extends State<SectionPage> {
                     ),
                     labelPadding: EdgeInsets.all(2),
                     label: Text(
-                      'Save Location',
+                      'Save',
                       style: TextStyle(color: Colors.black),
                       selectionColor: Colors.white,
                     ),
@@ -96,155 +184,206 @@ class _SectionPageState extends State<SectionPage> {
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late VisualSection currentVisualSection;
+  late LocalVisualSection currentVisualSection;
+  late LocalLocation currentLocation;
   late Future sectionResponse;
-  bool isNewSection = true;
-
-  Future<Object?> fetchData() async {
+  late bool isNewSection;
+  late String prevPageName;
+  void fetchData() {
     isRunning = true;
-    var sectionResponse = await sectionsBloc.getSection(widget.sectionId);
-    if (sectionResponse is SectionResponse) {
-      currentVisualSection = sectionResponse.item as VisualSection;
-      setInitialValues();
-    }
-    setState(() => isRunning = false);
-    return sectionResponse;
+    currentVisualSection =
+        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+
+    setInitialValues();
+    isRunning = false;
+  }
+
+  LocalVisualSection getNewVisualSection() {
+    return LocalVisualSection(
+      ObjectId(),
+      "",
+      "",
+      "",
+      widget.parentId,
+      false,
+      parenttype: parentType,
+      visualsignsofleak: false,
+      createdby: userFullName,
+      furtherinvasivereviewrequired: false,
+    );
   }
 
   @override
   void initState() {
-    if (widget.sectionId == "") {
-      currentVisualSection = VisualSection(
-          parentid: widget.parentId,
-          visualsignsofleak: false,
-          createdby: userFullName,
-          furtherinvasivereviewrequired: false,
-          awe: 'one',
-          eee: 'one',
-          lbc: 'one');
+    parentType = widget.parentType;
+    realmServices = Provider.of<RealmProjectServices>(context, listen: false);
+    isNewSection = widget.isNewSection;
+    if (isNewSection) {
+      currentVisualSection = getNewVisualSection();
       capturedImages = [];
     } else {
-      sectionResponse = fetchData();
-      capturedImages = [];
+      capturedImages.clear();
+      fetchData();
     }
     userFullName = widget.userFullName;
-    parentType = widget.parentType;
+
+    prevPageName = widget.parentName;
+
+    if (parentType != 'project') {
+      currentLocation =
+          realmServices.getLocation(widget.parentId) as LocalLocation;
+    }
     super.initState();
   }
 
   void setInitialValues() {
     //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
-    _concernsController.text =
-        currentVisualSection.additionalconsiderations as String;
-    selectedExteriorelements = exteriorElements
-        .where((item) =>
-            currentVisualSection.exteriorelements!.contains(item.name))
-        .toList();
+    unitUnavailable = currentVisualSection.unitUnavailable;
+    if (!currentVisualSection.unitUnavailable) {
+      _concernsController.text =
+          currentVisualSection.additionalconsiderations as String;
+      selectedExteriorelements = exteriorElements
+          .where((item) =>
+              currentVisualSection.exteriorelements.contains(item.name))
+          .toList();
 
-    selectedWaterproofingElements = waterproofingElements
-        .where((item) =>
-            currentVisualSection.waterproofingelements!.contains(item.name))
-        .toList();
+      selectedWaterproofingElements = waterproofingElements
+          .where((item) =>
+              currentVisualSection.waterproofingelements.contains(item.name))
+          .toList();
 
-    _review = VisualReview.values
-        .firstWhere((e) => e.name == currentVisualSection.visualreview);
-    _assessment = ConditionalAssessment.values.firstWhere(
-        (e) => e.name == currentVisualSection.conditionalassessment);
+      _review = VisualReview.values.firstWhere(
+          (e) => e.name == currentVisualSection.visualreview?.toLowerCase());
+      _assessment = ConditionalAssessment.values.firstWhere((e) =>
+          e.name == currentVisualSection.conditionalassessment?.toLowerCase());
 
-    _eee = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.eee);
-    _lbc = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.lbc);
-    _awe = ExpectancyYears.values
-        .firstWhere((e) => e.name == currentVisualSection.awe);
+      _eee = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.eee);
+      _lbc = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.lbc);
+      _awe = ExpectancyYears.values
+          .firstWhere((e) => e.name == currentVisualSection.awe);
 
-    invasiveReviewRequired = currentVisualSection.furtherinvasivereviewrequired;
-    hasSignsOfLeak = currentVisualSection.visualsignsofleak;
-    if (currentVisualSection.images!.isNotEmpty) {
-      capturedImages = currentVisualSection.images as List<String>;
+      invasiveReviewRequired =
+          currentVisualSection.furtherinvasivereviewrequired;
+      hasSignsOfLeak = currentVisualSection.visualsignsofleak;
+      if (currentVisualSection.images.isNotEmpty) {
+        if (appSettings.activeConnection) {
+          capturedImages.addAll(currentVisualSection.images);
+          //call upload local images
+
+          realmServices.uploadLocalImages();
+        } else {
+          for (var imgpath in currentVisualSection.images) {
+            capturedImages.add(realmServices.getlocalPath(imgpath));
+          }
+        }
+      }
     }
   }
 
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _concernsController =
       TextEditingController(text: '');
-  save(BuildContext context) async {
-    if (currentVisualSection.id != null) {
-      isNewSection = false;
-    }
+
+  bool isSaved = false;
+
+  Future<bool> save(BuildContext context, RealmProjectServices realmServices,
+      bool createNew) async {
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, display a snackbar. In the real world,
-      // you'd often call a server or save the information in a database.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saving Location...')),
-      );
-      currentVisualSection.name = _nameController.text;
-      currentVisualSection.additionalconsiderations = _concernsController.text;
-      currentVisualSection.exteriorelements =
-          selectedExteriorelements.map((element) => element.name).toList();
-      currentVisualSection.waterproofingelements =
-          selectedWaterproofingElements.map((element) => element.name).toList();
-
-      currentVisualSection.visualreview = _review!.name;
-      currentVisualSection.conditionalassessment = _assessment!.name;
-      currentVisualSection.eee = _eee!.name;
-      currentVisualSection.lbc = _lbc!.name;
-      currentVisualSection.awe = _awe!.name;
-      currentVisualSection.furtherinvasivereviewrequired =
-          invasiveReviewRequired;
-      currentVisualSection.visualsignsofleak = hasSignsOfLeak;
-
-      if (isNewSection) {
-        currentVisualSection.createdby = userFullName;
+      //check if everything is filled.
+      if (unitUnavailable) {
       } else {
-        currentVisualSection.lasteditedby = userFullName;
+        if (selectedExteriorelements.isEmpty ||
+            selectedWaterproofingElements.isEmpty ||
+            _review == null ||
+            _eee == null ||
+            _lbc == null ||
+            _awe == null ||
+            capturedImages.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Please add images & fill all the values, then save the location.')),
+          );
+          return false;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Saving Location...')),
+        );
       }
 
-      Object result;
-      String visualsectionId = "";
-      bool isErrorSaving = false;
-      if (currentVisualSection.id == null) {
-        result = await sectionsBloc.addSection(currentVisualSection);
-        if (result is SuccessResponse) {
-          visualsectionId = result.id as String;
-        } else {
-          isErrorSaving = true;
-        }
-      } else {
-        visualsectionId = currentVisualSection.id as String;
-        result = await sectionsBloc.updateSection(currentVisualSection);
-        if (result is ErrorResponse) {
-          isErrorSaving = true;
-        }
-      }
-      if (!isErrorSaving) {
-        if (capturedImages.isNotEmpty) {
-          var imagesToUpload =
-              capturedImages.where((e) => !e.startsWith('http')).toList();
-          imagesBloc.uploadMultipleImages(
-              imagesToUpload,
-              currentVisualSection.name as String,
-              userFullName,
-              visualsectionId,
-              parentType,
-              'section');
-        }
-      }
+      var saveResult = realmServices.addupdateVisualSection(
+          currentVisualSection,
+          _nameController.text,
+          _concernsController.text,
+          selectedExteriorelements,
+          selectedWaterproofingElements,
+          _review,
+          _assessment,
+          _eee,
+          _lbc,
+          _awe,
+          invasiveReviewRequired,
+          hasSignsOfLeak,
+          isNewSection,
+          userFullName,
+          unitUnavailable);
 
-      if (!mounted) {
-        return;
-      }
-      if (!isErrorSaving) {
+      if (saveResult) {
+        isSaved = true;
+        Navigator.of(context).pop(createNew);
+
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location saved successfully.')));
-        Navigator.pop(context);
+        if (capturedImages.isNotEmpty) {
+          // var imagesToUpload =
+          //     capturedImages.where((e) => !e.startsWith('http')).toList();
+          // get the images which are not uploaded.
+          var imagesToUpload = realmServices.getImagesNotUploaded(
+              capturedImages, appSettings.activeConnection, isNewSection);
+          if (imagesToUpload.isNotEmpty) {
+            if (parentType != 'project') {
+              realmServices.updateImageUploadStatus(
+                  currentLocation, currentVisualSection.id, true);
+            }
+
+            imagesBloc
+                .uploadMultipleImages(
+                    imagesToUpload,
+                    currentVisualSection.name as String,
+                    userFullName,
+                    currentVisualSection.id.toString(),
+                    parentType,
+                    'section')
+                .then((value) {
+              List<String> urls = [];
+              for (var element in value) {
+                if (element is ImageResponse) {
+                  urls.add(element.url as String);
+                }
+              }
+              if (parentType != 'project') {
+                realmServices.updateImageUploadStatus(
+                    currentLocation, currentVisualSection.id, false);
+              }
+
+              realmServices.addImagesUrl(
+                  currentVisualSection, imagesToUpload, urls);
+            });
+          }
+        }
+        return true;
+        // Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to save the location.')),
         );
+        return false;
       }
     }
+    return false;
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -252,7 +391,7 @@ class _SectionPageState extends State<SectionPage> {
   List<String> capturedImages = [];
   bool hasSignsOfLeak = false;
   bool invasiveReviewRequired = false;
-
+  bool unitUnavailable = false;
   PopupMenuItem _buildPopupMenuItem(
       String title, IconData iconData, int position) {
     return PopupMenuItem(
@@ -272,6 +411,7 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
+  bool isFormUpdated = false;
   _onMenuItemSelected(int value) async {
     if (value == 1) {
       await Navigator.push(
@@ -281,10 +421,18 @@ class _SectionPageState extends State<SectionPage> {
         setState(() {
           if (value != null) {
             capturedImages.addAll(value);
-            for (var element in capturedImages) {
-              currentVisualSection.images ??= [];
-              currentVisualSection.images?.add(element);
+            if (value.isNotEmpty) {
+              setState(() {
+                // currentVisualSection.realm.write(() {
+                //   currentVisualSection.images
+                //       .addAll(value.map((e) => e.path).toList());
+                // });
+              });
             }
+            // for (var element in capturedImages) {
+            //   //currentVisualSection.images ??= RealmList<String>[];
+            //   currentVisualSection.images.add(element);
+            // }
           }
         });
       });
@@ -296,12 +444,10 @@ class _SectionPageState extends State<SectionPage> {
       if (imageFiles.isNotEmpty) {
         setState(() {
           capturedImages.addAll(imageFiles.map((e) => e.path).toList());
-          // if (isNewSection) {
-          //   for (var element in capturedImages) {
-          //     currentVisualSection.images ??= [];
-          //     currentVisualSection.images?.add(element);
-          //   }
-          // }
+          // currentVisualSection.realm.write(() {
+          //   currentVisualSection.images
+          //       .addAll(imageFiles.map((e) => e.path).toList());
+          // });
         });
       }
     }
@@ -313,11 +459,12 @@ class _SectionPageState extends State<SectionPage> {
     return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Form(
+            onChanged: () => isFormUpdated = true,
             key: _formKey,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Location name'),
@@ -332,7 +479,29 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Unit photos'),
+                      const Text(
+                        'Is access to unit unavailable',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Switch(
+                        onChanged: (value) {
+                          toggleUnitSwitch(value);
+                        },
+                        value: unitUnavailable,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Color.fromARGB(255, 222, 213, 213),
+                    height: 0,
+                    thickness: 1,
+                    indent: 2,
+                    endIndent: 2,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Unit photos(${capturedImages.length})'),
                       PopupMenuButton(
                         child: const Chip(
                           avatar: Icon(
@@ -370,39 +539,112 @@ class _SectionPageState extends State<SectionPage> {
                             style: TextStyle(fontSize: 16),
                           )))
                       : SizedBox(
-                          height: MediaQuery.of(context).size.height / 3.5,
+                          height: MediaQuery.of(context).size.height / 3.2,
                           child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: isNewSection
-                                ? capturedImages.length
-                                : currentVisualSection.images!.length,
+                            itemCount: capturedImages.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(2, 8, 8, 8),
-                                    height: 180,
-                                    width: 300,
-                                    decoration: const BoxDecoration(
-                                        color: Colors.orange,
-                                        // image: DecorationImage(
-                                        //     image:
-                                        //         AssetImage('assets/images/icon.png'),
-                                        //     fit: BoxFit.cover),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 1.0,
-                                              color: Colors.blue)
-                                        ]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: networkImage(isNewSection
-                                          ? capturedImages[index]
-                                          : currentVisualSection
-                                              .images![index]),
-                                    )),
+                                SizedBox(
+                                    width: 320,
+                                    height: 200,
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    gotoImageEditorPage(
+                                                        context,
+                                                        capturedImages[index],
+                                                        index),
+                                                child: Container(
+                                                    margin: const EdgeInsets
+                                                        .fromLTRB(2, 8, 8, 0),
+                                                    height: 180,
+                                                    width: 300,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                            color: Colors.blue,
+                                                            // image: DecorationImage(
+                                                            //     image:
+                                                            //         AssetImage('assets/images/icon.png'),
+                                                            //     fit: BoxFit.cover),
+                                                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                                            boxShadow: [
+                                                          BoxShadow(
+                                                              blurRadius: 1.0,
+                                                              color:
+                                                                  Colors.blue)
+                                                        ]),
+                                                    child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.0),
+                                                        child: Stack(
+                                                          fit: StackFit.expand,
+                                                          children: [
+                                                            networkImage(
+                                                                capturedImages[
+                                                                    index]),
+                                                            Align(
+                                                                alignment: Alignment
+                                                                    .bottomRight,
+                                                                child: capturedImages[
+                                                                            index]
+                                                                        .startsWith(
+                                                                            'http')
+                                                                    ? const Icon(
+                                                                        weight:
+                                                                            3,
+                                                                        size:
+                                                                            50,
+                                                                        Icons
+                                                                            .done,
+                                                                        color: Colors
+                                                                            .blueAccent)
+                                                                    : const Icon(
+                                                                        weight:
+                                                                            3,
+                                                                        size:
+                                                                            50,
+                                                                        Icons
+                                                                            .sync,
+                                                                        color: Colors
+                                                                            .orange))
+                                                          ],
+                                                        ))),
+                                              ),
+                                            ),
+                                            OutlinedButton.icon(
+                                                style: OutlinedButton.styleFrom(
+                                                    side: BorderSide.none,
+                                                    // the height is 50, the width is full
+                                                    minimumSize:
+                                                        const Size.fromHeight(
+                                                            30),
+                                                    shadowColor: Colors.blue,
+                                                    elevation: 0),
+                                                onPressed: () {
+                                                  removePhoto(
+                                                      context,
+                                                      currentVisualSection,
+                                                      index);
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red,
+                                                ),
+                                                label: const Text(
+                                                    'Remove Photo',
+                                                    style: TextStyle(
+                                                        color: Colors.red))),
+                                          ],
+                                        ))),
                           )),
                   const SizedBox(
                     height: 4,
@@ -417,34 +659,44 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Exterior Elements',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                        child: Text(
+                          'Exterior Elements',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
                       ),
                       InkWell(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${selectedExteriorelements.length} Selected',
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 14,
-                              color: Colors.blue,
-                            ),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${selectedExteriorelements.length} Selected',
+                                style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                size: 14,
+                                color: Colors.blue,
+                              ),
+                            ],
+                          ),
                         ),
                         onTap: () {
                           showMaterialCheckboxPicker<ElementModel>(
                             context: context,
                             title: 'Exterior Elements',
+                            selectAllConfig: SelectAllConfig(
+                              const Text('Select All'),
+                              const Text('Deselect All'),
+                            ),
                             items: exteriorElements,
                             selectedItems: selectedExteriorelements,
                             onChanged: (value) => setState(
@@ -464,42 +716,50 @@ class _SectionPageState extends State<SectionPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Waterproofing Elements',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          showMaterialCheckboxPicker<ElementModel>(
-                            context: context,
-                            title: 'Waterproofing Elements',
-                            items: waterproofingElements,
-                            selectedItems: selectedWaterproofingElements,
-//
-                            onChanged: (value) => setState(
-                                () => selectedWaterproofingElements = value),
-                          );
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${selectedWaterproofingElements.length} Selected',
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 14,
-                              color: Colors.blue,
-                            ),
-                          ],
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
+                        child: Text(
+                          'Waterproofing Elements',
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ),
+                      InkWell(
+                          onTap: () {
+                            showMaterialCheckboxPicker<ElementModel>(
+                              context: context,
+                              selectAllConfig: SelectAllConfig(
+                                const Text('Select All'),
+                                const Text('Deselect All'),
+                              ),
+                              title: 'Waterproofing Elements',
+                              items: waterproofingElements,
+                              selectedItems: selectedWaterproofingElements,
+                              onChanged: (value) => setState(
+                                  () => selectedWaterproofingElements = value),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${selectedWaterproofingElements.length} Selected',
+                                  style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                const Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  size: 14,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                          )),
                     ],
                   ),
                   const Divider(
@@ -513,7 +773,10 @@ class _SectionPageState extends State<SectionPage> {
                     'Visual Review',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  radioWidget('visual', 3),
+                  //radioWidget('visual', 3),
+                  getListTile('visual', 1),
+                  getListTile('visual', 2),
+                  getListTile('visual', 3),
                   const Divider(
                     color: Color.fromARGB(255, 222, 213, 213),
                     height: 0,
@@ -569,7 +832,11 @@ class _SectionPageState extends State<SectionPage> {
                     'Conditional Assessment',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  radioWidget('conditional', 3),
+                  //radioWidget('conditional', 3),
+                  getListTile('conditional', 1),
+                  getListTile('conditional', 2),
+                  getListTile('conditional', 3),
+
                   const Divider(
                     color: Color.fromARGB(255, 222, 213, 213),
                     height: 15,
@@ -577,11 +844,16 @@ class _SectionPageState extends State<SectionPage> {
                     indent: 2,
                     endIndent: 2,
                   ),
-                  const Text('Additional considerations or concerns'),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Additional considerations or concerns'),
+                    ],
+                  ),
                   const SizedBox(
                     height: 8,
                   ),
-                  inputWidgetwithValidation('Additonal Considerations',
+                  inputWidgetwithNoValidation('Additonal Considerations',
                       'Please enter details', 5, _concernsController),
                   const SizedBox(
                     height: 4,
@@ -618,10 +890,35 @@ class _SectionPageState extends State<SectionPage> {
                     endIndent: 2,
                   ),
                   const Text(
-                    'Life expectancy assciated waterproofing elements (AWE)',
+                    'Life expectancy associated waterproofing elements (AWE)',
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   radioWidget('AWE', 4),
+                  isNewSection
+                      ? Container()
+                      : Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                  side: BorderSide.none,
+                                  // the height is 50, the width is full
+                                  minimumSize: const Size.fromHeight(30),
+                                  backgroundColor: Colors.white,
+                                  shadowColor: Colors.blue,
+                                  elevation: 0),
+                              onPressed: () {
+                                deleteSection(context, currentVisualSection);
+                              },
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              label: const Text('Delete Location',
+                                  style: TextStyle(color: Colors.red))),
+                        ),
+                  const SizedBox(
+                    height: 100,
+                  ),
                 ],
               ),
             )));
@@ -635,6 +932,18 @@ class _SectionPageState extends State<SectionPage> {
     } else {
       setState(() {
         hasSignsOfLeak = false;
+      });
+    }
+  }
+
+  void toggleUnitSwitch(bool value) {
+    if (unitUnavailable == false) {
+      setState(() {
+        unitUnavailable = true;
+      });
+    } else {
+      setState(() {
+        unitUnavailable = false;
       });
     }
   }
@@ -662,6 +971,25 @@ class _SectionPageState extends State<SectionPage> {
           }
           return null;
         },
+        maxLines: lines,
+        decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.only(left: 5, top: 2.0, bottom: 2.0),
+            hintText: hint,
+            hintStyle: const TextStyle(
+              fontSize: 13.0,
+              color: Color(0xFFABB3BB),
+              height: 1.0,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            )));
+  }
+
+  Widget inputWidgetwithNoValidation(String hint, String message, int lines,
+      TextEditingController controller) {
+    return TextFormField(
+        controller: controller,
         maxLines: lines,
         decoration: InputDecoration(
             contentPadding:
@@ -707,6 +1035,7 @@ class _SectionPageState extends State<SectionPage> {
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Good'),
             leading: Radio<VisualReview>(
@@ -723,6 +1052,7 @@ class _SectionPageState extends State<SectionPage> {
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fair'),
             leading: Radio<VisualReview>(
@@ -738,6 +1068,7 @@ class _SectionPageState extends State<SectionPage> {
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Bad'),
             leading: Radio<VisualReview>(
@@ -937,6 +1268,7 @@ class _SectionPageState extends State<SectionPage> {
       switch (position) {
         case 1:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Pass'),
             leading: Radio<ConditionalAssessment>(
@@ -953,6 +1285,7 @@ class _SectionPageState extends State<SectionPage> {
         //break;
         case 2:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Fail'),
             leading: Radio<ConditionalAssessment>(
@@ -967,6 +1300,7 @@ class _SectionPageState extends State<SectionPage> {
           );
         case 3:
           return ListTile(
+            horizontalTitleGap: 2,
             contentPadding: const EdgeInsets.all(0),
             title: const Text('Future Inspection'),
             leading: Radio<ConditionalAssessment>(
@@ -982,6 +1316,7 @@ class _SectionPageState extends State<SectionPage> {
       }
     }
     return ListTile(
+      horizontalTitleGap: 2,
       contentPadding: const EdgeInsets.all(0),
       title: const Text('Fair'),
       leading: Radio<VisualReview>(
@@ -997,11 +1332,11 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
-  VisualReview? _review = VisualReview.good;
-  ConditionalAssessment? _assessment = ConditionalAssessment.pass;
-  ExpectancyYears? _eee = ExpectancyYears.four;
-  ExpectancyYears? _lbc = ExpectancyYears.four;
-  ExpectancyYears? _awe = ExpectancyYears.four;
+  VisualReview? _review; //= VisualReview.good;
+  ConditionalAssessment? _assessment; //= ConditionalAssessment.pass;
+  ExpectancyYears? _eee; //= ExpectancyYears.four;
+  ExpectancyYears? _lbc; // = ExpectancyYears.four;
+  ExpectancyYears? _awe; //= ExpectancyYears.four;
 
   Widget radioWidget(String radioType, int radioCount) {
     if (radioCount == 4) {
@@ -1020,6 +1355,7 @@ class _SectionPageState extends State<SectionPage> {
         )
       ]);
     }
+
     return Row(
       children: <Widget>[
         Expanded(flex: 2, child: getListTile(radioType, 1)),
@@ -1027,6 +1363,88 @@ class _SectionPageState extends State<SectionPage> {
         Expanded(flex: 3, child: getListTile(radioType, 3))
       ],
     );
+  }
+
+  void deleteSection(
+      BuildContext context, LocalVisualSection currentVisualSection) {
+    var locationame = currentVisualSection.name;
+    var result = realmServices.deleteVisualSection(currentVisualSection);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Deleting $locationame')),
+    );
+
+    if (result == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${currentVisualSection.name} deleted successfully.')));
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete the $locationame')),
+      );
+    }
+  }
+
+  void saveAndNext(
+      BuildContext context, RealmProjectServices realmServices) async {
+    //Navigator.of(context).pop();
+//if (!context.mounted) return;
+    await save(context, realmServices, true);
+
+    // if (result) {
+    //   if (!context.mounted) return;
+    //   //Navigator.of(context).pop();
+    //   // Navigator.push(
+    //   //     context,
+    //   //     MaterialPageRoute(
+    //   //         builder: (context) => SectionPage(ObjectId(), widget.parentId,
+    //   //             userFullName, widget.parentType, widget.parentName, true)));
+
+    //   Navigator.push(
+    //       context,
+    //       SectionPage.getRoute(ObjectId(), widget.parentId, userFullName,
+    //           widget.parentType, widget.parentName, true, "new"));
+    //}
+  }
+
+  gotoImageEditorPage(
+      BuildContext context, String capturedImage, int index) async {
+    Uint8List imageData;
+    if (capturedImage.contains('http')) {
+      http.Response response = await http.get(
+        Uri.parse(capturedImage),
+      );
+      imageData = response.bodyBytes;
+    } else {
+      imageData = await File(capturedImage).readAsBytes();
+    }
+
+    var editedImage = await Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ImageEditor(image: imageData)));
+    //update capturedimages collection.
+    final directory = await getApplicationDocumentsDirectory();
+    var destDirectory =
+        await Directory(path.join(directory.path, 'editedimages'))
+            .create(recursive: true);
+    String imageid = ObjectId().toString();
+    final pathOfImage =
+        await File('${destDirectory.path}/$imageid.jpg').create();
+    if (editedImage != null) {
+      var editedFile = await pathOfImage.writeAsBytes(editedImage);
+      setState(() {
+        capturedImages.removeAt(index);
+        realmServices.removeImageUrl(currentVisualSection, capturedImage);
+        capturedImages.insert(index, editedFile.path);
+      });
+    }
+  }
+
+  void removePhoto(BuildContext context,
+      LocalVisualSection currentVisualSection, int index) {
+    realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
+    setState(() {
+      capturedImages.removeAt(index);
+    });
   }
 }
 

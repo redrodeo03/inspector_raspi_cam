@@ -1,6 +1,7 @@
 import 'package:deckinspectors/src/models/project_model.dart';
 
 import 'package:rxdart/rxdart.dart';
+
 import '../resources/repository.dart';
 
 class ProjectsBloc {
@@ -16,10 +17,10 @@ class ProjectsBloc {
     _projectsFetcher.sink.add(projects);
   }
 
-  Future<Projects> fetchAllOfflineProjects() async {
-    var response = await _repository.fetchLocalProjects();
-    return response;
-  }
+  // Future<Projects> fetchAllOfflineProjects() async {
+  //   var response = await _repository.fetchLocalProjects();
+  //   return response;
+  // }
 
   Future<Object> getProject(String id) async {
     var response = await _repository.getProject(id);
@@ -44,6 +45,18 @@ class ProjectsBloc {
 
   Future<Object> deleteProjectPermanently(Project project, String id) async {
     return _repository.deleteProject(project, id);
+  }
+
+  Future<Object> downloadProjectReport(
+      String projectName,
+      String id,
+      String fileType,
+      int quality,
+      int imageFactor,
+      String reportType,
+      String companyName) {
+    return _repository.downloadProjectReport(projectName, id, fileType, quality,
+        imageFactor, reportType, companyName);
   }
 }
 

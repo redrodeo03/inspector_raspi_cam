@@ -1,9 +1,12 @@
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
-import 'package:deckinspectors/src/ui/image_widget.dart';
-
+import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
+import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
 import 'package:flutter/material.dart';
-import '../models/project_model.dart';
-import '../bloc/projects_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
+
+import '../resources/realm/realm_services.dart';
 import 'addedit_project.dart';
 import 'project_details.dart';
 
@@ -11,13 +14,17 @@ class ProjectsPage extends StatefulWidget {
   const ProjectsPage({Key? key}) : super(key: key);
   @override
   State<ProjectsPage> createState() => _ProjectsPageState();
+
+  static MaterialPageRoute getRoute() => MaterialPageRoute(
+      settings: const RouteSettings(name: 'Home'),
+      builder: (context) => const ProjectsPage());
 }
 
 //Add New Project
 class _ProjectsPageState extends State<ProjectsPage> {
   //LoginResponse loggedInUser = LoginResponse();
   late String userFullName;
-  late Project newProject;
+
   @override
   void initState() {
     super.initState();
@@ -26,34 +33,48 @@ class _ProjectsPageState extends State<ProjectsPage> {
     userFullName = "$userFullName ${loggedInUser.lastname as String}";
   }
 
-  void addEditProject() {
-    newProject = Project(
+  LocalProject getLocalProject() {
+    return LocalProject(ObjectId(),
         name: "",
+        isInvasive: false,
         description: "",
         address: "",
         url: "",
+        projecttype: 'multilevel',
+        children: [],
         createdby: userFullName);
-    setState(() {});
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AddEditProjectPage(newProject, userFullName)));
   }
 
-  void gotoProjectDetails(String projectId) {
-    setState(() {});
+  void addEditProject() {
+    Navigator.push(context,
+            AddEditProjectPage.getRoute(getLocalProject(), true, userFullName))
+        .then((value) => setState(() => {}));
+  }
+
+  void gotoProjectDetails(ObjectId projectId, String projName) {
+    //setState(() {});
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ProjectDetailsPage(projectId, userFullName)));
+            context,
+            ProjectDetailsPage.getRoute(
+                projectId, userFullName, false, projName))
+        .then((value) => setState(() => {}));
+  }
+
+  void gotoInvasiveProjectDetails(ObjectId projectId, String projName) {
+    Navigator.push(
+            context,
+            ProjectDetailsPage.getRoute(
+                projectId, userFullName, true, projName))
+        .then((value) => setState(() => {}));
   }
 
   @override
   Widget build(BuildContext context) {
-    projectsBloc.fetchAllProjects();
+    //projectsBloc.fetchAllProjects();
+    final realmServices = Provider.of<RealmProjectServices?>(context);
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             leadingWidth: 20,
             backgroundColor: Colors.white,
             foregroundColor: Colors.blue,
@@ -87,177 +108,235 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     )),
               ],
             )),
-        body: StreamBuilder(
-            stream: projectsBloc.projects,
-            builder: (context, AsyncSnapshot<Projects> snapshot) {
+        body: StreamBuilder<RealmResultsChanges<LocalProject>>(
+            //projectsBloc.projects
+            stream: realmServices?.realm
+                .query<LocalProject>("TRUEPREDICATE SORT(_id DESC)")
+                .changes,
+            builder: (context, snapshot) {
               if (snapshot.hasData) {
-                final projects = snapshot.data?.projects;
-                if (projects == null) {
+                final data = snapshot.data;
+
+                if (data == null) {
                   return const Center(
                       child: Text(
                     'No Projects to display, please add projects',
                     style: TextStyle(fontSize: 16, color: Colors.blue),
                   ));
                 } else {
-                  if (projects.isEmpty) {
-                    return const Center(
-                        child: Text(
-                      'No Projects to display, please add projects',
-                      style: TextStyle(fontSize: 16, color: Colors.blue),
-                    ));
-                  }
-                }
-                return ListView.builder(
-                  itemCount: projects.length,
-                  itemBuilder: (context, index) {
-                    //final projUrl = projects[index]?.url?.isEmpty?'assets/images/icon.png':projects[index]?.url;
-                    final projType = projects[index]?.projecttype == null
-                        ? "Multi-Level"
-                        : projects[index]?.projecttype as String;
-                    // final createdAt = projects[index]?.createdat == null
-                    //     ? ""
-                    //     : projects[index]?.createdat as String;
-                    return SizedBox(
-                      height: 120,
-                      child: Card(
-                        borderOnForeground: false,
+                  final projects = data.results;
+
+                  return ListView.builder(
+                    itemCount: projects.realm.isClosed ? 0 : projects.length,
+                    itemBuilder: (context, index) {
+                      final projType = projects[index].projecttype == null
+                          ? "Multi-Level"
+                          : projects[index].projecttype == 'singlelevel'
+                              ? "Single-Level"
+                              : "Multi-Level";
+
+                      return SizedBox(
+                        height: 160,
+                        width: MediaQuery.of(context).size.width - 5,
+                        child: Card(
+                          borderOnForeground: false,
 //                color: Colors.blue,
-                        elevation: 4,
-                        child: Row(
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8, 8.0, 8, 8.0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  gotoProjectDetails(
-                                      projects[index]!.id as String);
-                                },
-                                child: Container(
-                                  width: 90.0,
-                                  height: 90.0,
-                                  decoration: const BoxDecoration(
-                                      color: Colors.orange,
-                                      // image: DecorationImage(
-                                      //     image: AssetImage(
-                                      //         'assets/images/icon.png'),
-                                      //     fit: BoxFit.cover),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            blurRadius: 1.0, color: Colors.blue)
-                                      ]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: networkImage(projects[index]!.url),
+                          elevation: 4,
+                          child: Row(
+                            children: <Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(8, 8.0, 8, 8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (projects[index].projecttype ==
+                                        'singlelevel') {
+                                      gotoSingleLevelProject(projects[index].id,
+                                          projects[index].name as String);
+                                    } else {
+                                      gotoProjectDetails(projects[index].id,
+                                          projects[index].name as String);
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    decoration: const BoxDecoration(
+                                        color: Colors.orange,
+                                        // image: DecorationImage(
+                                        //     image: AssetImage(
+                                        //         'assets/images/icon.png'),
+                                        //     fit: BoxFit.cover),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 1.0,
+                                              color: Colors.blue)
+                                        ]),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: cachedNetworkImage(
+                                          projects[index].url),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
-                                child: Column(
-                                  children: <Widget>[
-                                    // Expanded(
-                                    //child:
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        projects[index]?.name as String,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.fade,
-                                        textAlign: TextAlign.left,
-                                        style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(2, 8, 2, 8),
+                                  child: Column(
+                                    children: <Widget>[
+                                      // Expanded(
+                                      //child:
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          projects[index].name as String,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.fade,
+                                          textAlign: TextAlign.left,
+                                          style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
-                                    ),
-                                    // ),
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        0, 8, 0, 0),
-                                                child: Text(
-                                                  projType,
-                                                  textAlign: TextAlign.left,
-                                                  style: const TextStyle(
-                                                    color: Colors.black87,
+                                      // ),
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(0, 8, 0, 0),
+                                                    child: Text(
+                                                      projType,
+                                                      textAlign: TextAlign.left,
+                                                      style: const TextStyle(
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Padding(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          0, 12, 0, 0),
-                                                  child: GestureDetector(
-                                                      onTap: () {
-                                                        gotoProjectDetails(
-                                                            projects[index]!.id
-                                                                as String);
-                                                      },
-                                                      child: Container(
-                                                          alignment: Alignment
-                                                              .bottomRight,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .fromLTRB(
-                                                                  0, 8, 8, 8),
-                                                          child: const Text(
-                                                            'View Visual',
-                                                            style: TextStyle(
-                                                                color:
-                                                                    Colors.blue,
-                                                                fontSize: 17),
-                                                          ))))
-                                            ],
-                                          ),
-                                          GestureDetector(
-                                              onTap: () {
-                                                print('clicked invasive');
-                                              },
-                                              child: Container(
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          8, 8, 16, 8),
-                                                  child: const Text(
-                                                    'Create Invasive',
-                                                    style: TextStyle(
-                                                        color: Colors.blue,
-                                                        fontSize: 17),
-                                                  )))
-                                        ],
+                                                Expanded(
+                                                    flex: 2,
+                                                    child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(0,
+                                                                8, 0, 0),
+                                                        child: GestureDetector(
+                                                            onTap: () {
+                                                              if (projects[
+                                                                          index]
+                                                                      .projecttype ==
+                                                                  'singlelevel') {
+                                                                gotoSingleLevelProject(
+                                                                    projects[index]
+                                                                        .id,
+                                                                    projects[index]
+                                                                            .name
+                                                                        as String);
+                                                              } else {
+                                                                gotoProjectDetails(
+                                                                    projects[index]
+                                                                        .id,
+                                                                    projects[index]
+                                                                            .name
+                                                                        as String);
+                                                              }
+                                                            },
+                                                            child: Container(
+                                                                alignment: Alignment
+                                                                    .bottomRight,
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .fromLTRB(
+                                                                        0,
+                                                                        8,
+                                                                        8,
+                                                                        8),
+                                                                child:
+                                                                    const Text(
+                                                                  'Visual',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .blue,
+                                                                      fontSize:
+                                                                          17),
+                                                                )))))
+                                              ],
+                                            ),
+                                            GestureDetector(
+                                                onTap: () {
+                                                  if (projects[index]
+                                                          .projecttype ==
+                                                      'singlelevel') {
+                                                    gotoInvasiveSingleProject(
+                                                        projects[index].id);
+                                                  } else {
+                                                    gotoInvasiveProjectDetails(
+                                                        projects[index].id,
+                                                        projects[index].name
+                                                            as String);
+                                                  }
+                                                },
+                                                child: Container(
+                                                    alignment:
+                                                        Alignment.bottomRight,
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(8, 8, 16, 8),
+                                                    child: const Text(
+                                                      'Invasive',
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontSize: 17),
+                                                    )))
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
+                      );
+                    },
+                  );
+                }
               }
               return const Align(
                   alignment: Alignment.center,
                   child: CircularProgressIndicator());
             }));
+  }
+
+  void gotoSingleLevelProject(ObjectId id, String projName) {
+    Navigator.push(
+            context,
+            SingleProjectDetailsPage.getRoute(
+                id, userFullName, false, projName))
+        .then((value) => setState(() => {}));
+  }
+
+  void gotoInvasiveSingleProject(ObjectId id) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                SingleProjectDetailsPage(id, userFullName, true)));
   }
 }

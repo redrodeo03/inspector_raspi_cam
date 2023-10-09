@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 Widget cachedNetworkImage(String? imageUrl) {
   if (imageUrl == null) {
     return Image.asset(
-      "assets/images/heroimage.png",
+      "assets/images/icon.png",
       fit: BoxFit.fill,
       width: double.infinity,
     );
@@ -22,7 +22,7 @@ Widget cachedNetworkImage(String? imageUrl) {
         fadeOutDuration: const Duration(seconds: 1),
         fadeInDuration: const Duration(seconds: 3),
         errorWidget: (context, url, error) => Image.asset(
-              "assets/images/heroimage.png",
+              "assets/images/icon.png",
               fit: BoxFit.fill,
               width: double.infinity,
             ),
@@ -44,7 +44,7 @@ Widget cachedNetworkImage(String? imageUrl) {
       );
     } else {
       return Image.asset(
-        "assets/images/heroimage.png",
+        "assets/images/icon.png",
         fit: BoxFit.fill,
         width: double.infinity,
       );

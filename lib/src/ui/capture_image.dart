@@ -33,7 +33,9 @@ Future<XFile?> captureImage(BuildContext context) async {
               title: const Text('Camera'),
               onTap: () async {
                 imageFile = await picker.pickImage(
-                    source: ImageSource.camera, imageQuality: imageQuality);
+                    source: ImageSource.camera,
+                    imageQuality: imageQuality,
+                    requestFullMetadata: false);
 
                 Navigator.pop(context, imageFile);
               }),
@@ -47,6 +49,7 @@ Future<XFile?> captureImage(BuildContext context) async {
               //todo
               imageFile = await picker.pickImage(
                   source: ImageSource.gallery, imageQuality: imageQuality);
+
               Navigator.pop(context, imageFile);
             },
           )

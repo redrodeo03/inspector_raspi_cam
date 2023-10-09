@@ -1,24 +1,35 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/models/project_model.dart';
+//import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/home.dart';
 import 'package:deckinspectors/src/ui/project_details.dart';
+import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
-import '../bloc/projects_bloc.dart';
+
+import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
+import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
-import 'image_widget.dart';
 
 class AddEditProjectPage extends StatefulWidget {
-  final Project newProject;
+  final LocalProject newProject;
   final String userFullName;
-  const AddEditProjectPage(this.newProject, this.userFullName, {Key? key})
+
+  final bool isNewProject;
+
+  const AddEditProjectPage(
+      this.newProject, this.isNewProject, this.userFullName,
+      {Key? key})
       : super(key: key);
+  static MaterialPageRoute getRoute(
+          LocalProject project, bool isNew, String userName) =>
+      MaterialPageRoute(
+          settings: const RouteSettings(name: 'Edit Project'),
+          builder: (context) => AddEditProjectPage(project, isNew, userName));
   @override
   State<AddEditProjectPage> createState() => _AddEditProjectPageState();
 }
@@ -35,10 +46,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   @override
   void initState() {
     currentProject = widget.newProject;
-    if (currentProject.id != null) {
+
+    if (!widget.isNewProject) {
       pageTitle = "Edit Project";
       prevPageName = currentProject.name as String; //'Project';
       isNewProject = false;
+      showAssetPic = false;
     } else {
       prevPageName = 'Projects';
     }
@@ -46,40 +59,19 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     _nameController.text = currentProject.name as String;
     _addressController.text = currentProject.address as String;
     _descriptionController.text = currentProject.description as String;
+
     if (currentProject.url != null) {
       imageURL = currentProject.url as String;
     }
     super.initState();
-    _initSpeech();
+    //_initSpeech();
   }
 
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
-  }
-
+  bool showAssetPic = true;
+  late RealmProjectServices realmProjServices;
   bool isNewProject = true;
   late String userFullName;
-  late Project currentProject;
+  late LocalProject currentProject;
   String pageTitle = "Add Project";
   final _formKey = GlobalKey<FormState>();
 
@@ -90,50 +82,49 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Project...')),
       );
-      currentProject.name = _nameController.text;
-      currentProject.address = _addressController.text;
-      currentProject.description = _descriptionController.text;
-      if (isNewProject) {
-        currentProject.createdby = userFullName;
-      } else {
-        currentProject.lasteditedby = userFullName;
-      }
-      Object result;
 
-      if (currentProject.id == null) {
-        result = await projectsBloc.addProject(currentProject);
-        if (result is SuccessResponse) {
-          currentProject.id = result.id;
-        }
-      } else {
-        result = await projectsBloc.updateProject(currentProject);
-      }
+      bool result;
 
-      //upload image if changed
+      // if (currentProject.id == null) {
+      //   result = await projectsBloc.addProject(currentProject);
+      //   if (result is SuccessResponse) {
+      //     currentProject.id = result.id;
+      //   }
+      // } else {
+      //   result = await projectsBloc.updateProject(currentProject);
+      // }
 
-      if (imageURL != currentProject.url && result is SuccessResponse) {
-        imagesBloc.uploadImage(
-            currentProject.url as String,
-            currentProject.name as String,
-            userFullName,
-            currentProject.id as String,
-            '',
-            'project');
-      }
+      result = realmProjServices.addupdateProject(
+          currentProject,
+          _nameController.text,
+          _addressController.text,
+          _descriptionController.text,
+          userFullName,
+          isNewProject);
 
       if (!mounted) {
         return;
       }
-      if (result is SuccessResponse) {
+      if (result) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Project saved successfully.')));
         if (isNewProject) {
-          var response = result;
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ProjectDetailsPage(response.id as String, userFullName)));
+          if (currentProject.projecttype == 'singlelevel') {
+            Navigator.pushReplacement(
+                context,
+                SingleProjectDetailsPage.getRoute(currentProject.id,
+                    userFullName, false, currentProject.name as String));
+            // .then((value) => setState(() {}));
+          } else {
+            Navigator.pushReplacement(
+                context,
+                ProjectDetailsPage.getRoute(currentProject.id, userFullName,
+                    false, currentProject.name as String));
+            // .then((value) => setState(() {
+
+            // })
+            //);
+          }
         } else {
           Navigator.pop(context);
         }
@@ -142,11 +133,34 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           const SnackBar(content: Text('Failed to save the project.')),
         );
       }
+      //upload image if changed
+      if (currentProject.url == null) {
+        return;
+      }
+      if (imageURL != currentProject.url) {
+        Object result;
+
+        result = await imagesBloc.uploadImage(
+            imageURL,
+            currentProject.name as String,
+            userFullName,
+            currentProject.id.toString(),
+            '',
+            'project');
+
+        if (result is ImageResponse) {
+          realmProjServices.updateProjectUrl(
+              currentProject, result.url as String);
+        }
+      }
     }
   }
 
   String imageURL = 'assets/images/icon.png';
+
   final TextEditingController _nameController = TextEditingController(text: '');
+  //late TextEditingController _activeController;
+
   final TextEditingController _addressController =
       TextEditingController(text: '');
   final TextEditingController _descriptionController =
@@ -169,66 +183,68 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
   }
 
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-
   @override
   Widget build(BuildContext context) {
+    realmProjServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leadingWidth: 150,
-          leading: ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.blue,
-            ),
-            label: Text(
-              prevPageName,
-              style: const TextStyle(
-                  color: Colors.blue, overflow: TextOverflow.clip),
-            ),
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-            ),
+        automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        leading: ElevatedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.blue,
           ),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.blue,
-          elevation: 0,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                pageTitle,
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.normal),
-              ),
-              InkWell(
-                  onTap: () {
-                    save(context);
-                  },
-                  child: const Chip(
-                    avatar: Icon(
-                      Icons.save_outlined,
-                      color: Color(0xFF3F3F3F),
-                    ),
-                    labelPadding: EdgeInsets.all(2),
-                    label: Text(
-                      'Save Project',
-                      style: TextStyle(color: Color(0xFF3F3F3F)),
-                      selectionColor: Colors.white,
-                    ),
-                    shadowColor: Colors.blue,
-                    backgroundColor: Colors.blue,
-                    elevation: 10,
-                    autofocus: true,
-                  )),
-            ],
-          )),
+          label: const Text(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            'Back',
+            style: TextStyle(color: Colors.blue, overflow: TextOverflow.clip),
+          ),
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
+        elevation: 0,
+        actions: [
+          InkWell(
+              onTap: () {
+                save(context);
+              },
+              child: const Chip(
+                avatar: Icon(
+                  Icons.save_outlined,
+                  color: Color(0xFF3F3F3F),
+                ),
+                labelPadding: EdgeInsets.all(2),
+                label: Text(
+                  'Save',
+                  style: TextStyle(color: Color(0xFF3F3F3F)),
+                  selectionColor: Colors.white,
+                ),
+                shadowColor: Colors.blue,
+                backgroundColor: Colors.blue,
+                elevation: 10,
+                autofocus: true,
+              )),
+        ],
+        title: Text(
+          pageTitle,
+          maxLines: 2,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.normal),
+        ),
+      ),
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      //   child: BreadCrumbNavigator(),
+      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
         child: Form(
@@ -236,7 +252,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 1,
+                height: MediaQuery.of(context).size.height * 1.3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -255,19 +271,6 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             value: isProjectSingleLevel,
                           ),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: FloatingActionButton(
-                              onPressed:
-                                  // If not yet listening for speech start, otherwise stop
-                                  _speechToText.isNotListening
-                                      ? _startListening
-                                      : _stopListening,
-                              tooltip: 'Listen',
-                              child: Icon(_speechToText.isNotListening
-                                  ? Icons.mic_off
-                                  : Icons.mic),
-                            )),
                       ],
                     ),
                     const Text('Project name'),
@@ -296,71 +299,74 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                     const SizedBox(
                       height: 16,
                     ),
+                    OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                            side: BorderSide.none,
+                            // the height is 50, the width is full
+                            minimumSize: const Size.fromHeight(40),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 1),
+                        onPressed: () async {
+                          showAssetPic = false;
+                          //add logic to open camera.
+                          var xfile = await captureImage(context);
+                          if (xfile != null) {
+                            setState(() {
+                              imageURL = xfile.path;
+                            });
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.camera_outlined,
+                          color: Colors.blueAccent,
+                        ),
+                        label: const Text(
+                          'Add Image',
+                          style: TextStyle(color: Colors.blueAccent),
+                        )),
                     SizedBox(
                         height: 220,
                         child: Card(
                           borderOnForeground: false,
                           elevation: 8,
                           child: GestureDetector(
-                              onTap: () async {
-                                //add logic to open camera.
-                                var xfile = await captureImage(context);
-                                if (xfile != null) {
-                                  setState(() {
-                                    currentProject.url = xfile.path;
-                                  });
-                                }
-                              },
-                              child: Stack(
-                                alignment: Alignment.bottomCenter,
-                                children: [
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.orange,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 1.0,
-                                              color: Colors.blue)
-                                        ]),
-                                    child: isNewProject
-                                        ? currentProject.url == ""
-                                            ? Image.asset(
-                                                "assets/images/heroimage.png",
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: 250,
-                                              )
-                                            : Image.file(
-                                                File(currentProject.url
-                                                    as String),
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: 250,
-                                              )
-                                        : cachedNetworkImage(
-                                            currentProject.url),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: const [
-                                      Icon(Icons.camera_outlined,
-                                          size: 40, color: Colors.blue),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Text(
-                                          'Add Image',
-                                          style: TextStyle(
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              )),
+                            onTap: () async {
+                              showAssetPic = false;
+                              //add logic to open camera.
+                              var xfile = await captureImage(context);
+                              if (xfile != null) {
+                                setState(() {
+                                  imageURL = xfile.path;
+                                });
+                              }
+                            },
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        blurRadius: 1.0, color: Colors.blue)
+                                  ]),
+                              child: showAssetPic
+                                  ? currentProject.url == ""
+                                      ? Image.asset(
+                                          "assets/images/icon.png",
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                      : Image.file(
+                                          File(imageURL),
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 250,
+                                        )
+                                  : cachedNetworkImage(imageURL),
+                            ),
+                          ),
                         )),
                     if (!isNewProject)
                       OutlinedButton.icon(
@@ -372,7 +378,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               shadowColor: Colors.transparent,
                               elevation: 1),
                           onPressed: () {
-                            deleteProject(currentProject.id);
+                            deleteProject();
                           },
                           icon: const Icon(
                             Icons.delete_outline_outlined,
@@ -421,6 +427,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       String hint, int? lines, TextEditingController controller) {
     return TextField(
         controller: controller,
+
         // The validator receives the text that the user has entered.
         maxLines: lines,
         decoration: InputDecoration(
@@ -435,15 +442,17 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             )));
   }
 
-  void deleteProject(String? id) async {
-    var result = await projectsBloc.deleteProjectPermanently(
-        currentProject, id as String);
-    if (!mounted) {
-      return;
-    }
-    if (result is SuccessResponse) {
+  void deleteProject() async {
+    // var result = await projectsBloc.deleteProjectPermanently(
+    //     currentProject, id as String);
+    // if (!mounted) {
+    //   return;
+    // }
+    var result = realmProjServices.deleteProject(currentProject);
+    if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Project deleted successfully.')));
+      Navigator.pop(context);
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(

@@ -1,22 +1,33 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
-import 'package:deckinspectors/src/models/subproject_model.dart';
+//import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
+import 'package:deckinspectors/src/ui/subproject.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
+import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
+import '../resources/realm/realm_services.dart';
+//import 'breadcrumb_navigation.dart';
 import 'capture_image.dart';
-import 'image_widget.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
-  final SubProject currentBuilding;
+  final LocalSubProject currentBuilding;
   final String fullUserName;
-  const AddEditSubProjectPage(this.currentBuilding, this.fullUserName,
+  final String prevPageName;
+  final bool isNewBuilding;
+  const AddEditSubProjectPage(this.currentBuilding, this.isNewBuilding,
+      this.fullUserName, this.prevPageName,
       {Key? key})
       : super(key: key);
-
+  static MaterialPageRoute getRoute(LocalSubProject subProject, bool isNew,
+          String userName, String prevPageName) =>
+      MaterialPageRoute(
+          settings:
+              RouteSettings(name: isNew ? 'Add Building' : 'Edit Building'),
+          builder: (context) =>
+              AddEditSubProjectPage(subProject, isNew, userName, prevPageName));
   @override
   State<AddEditSubProjectPage> createState() => _AddEditSubProjectPageState();
 }
@@ -24,7 +35,7 @@ class AddEditSubProjectPage extends StatefulWidget {
 class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   late String fullUserName;
   final TextEditingController _nameController = TextEditingController(text: '');
-
+  bool showAssetPic = true;
   final TextEditingController _descriptionController =
       TextEditingController(text: '');
   @override
@@ -34,27 +45,29 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
     pageTitle = 'Add Building';
     name = "Building";
     super.initState();
-    if (currentBuilding.id != null) {
+    isNewBuilding = widget.isNewBuilding;
+    if (!widget.isNewBuilding) {
       pageTitle = 'Edit Building';
-      prevPagename = 'Building';
-      isNewLocation = false;
+      showAssetPic = false;
       _nameController.text = currentBuilding.name as String;
       _descriptionController.text = currentBuilding.description as String;
       //currentBuilding.url ??= "/assets/images/icon.png";
-      if (currentBuilding.url != null) {
-        imageURL = currentBuilding.url as String;
-      }
     }
+    if (currentBuilding.url != null) {
+      imageURL = currentBuilding.url as String;
+    }
+    prevPagename = widget.prevPageName;
+    //_initSpeech();
   }
 
   String pageTitle = 'Add';
   String prevPagename = 'Project';
-  bool isNewLocation = true;
-  late SubProject currentBuilding;
+  late bool isNewBuilding;
+  late LocalSubProject currentBuilding;
   String name = "";
   final _formKey = GlobalKey<FormState>();
   String imageURL = 'assets/images/icon.png';
-  save(BuildContext context) async {
+  save(BuildContext context, RealmProjectServices realmServices) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
@@ -62,58 +75,74 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saving Building...')),
       );
-      currentBuilding.name = _nameController.text;
-
-      currentBuilding.description = _descriptionController.text;
-      if (isNewLocation) {
-        currentBuilding.createdby = fullUserName;
-      } else {
-        currentBuilding.lasteditedby = fullUserName;
-      }
 
       try {
-        Object result;
-        if (currentBuilding.id == null) {
-          result = await subProjectsBloc.addSubProject(currentBuilding);
-          if (result is SuccessResponse) {
-            currentBuilding.id = result.id;
-          }
-        } else {
-          result = await subProjectsBloc.updateSubProject(currentBuilding);
-        }
-        dynamic uploadResult;
-        if (imageURL != currentBuilding.url) {
-          uploadResult = await imagesBloc.uploadImage(
-              currentBuilding.url as String,
-              currentBuilding.name as String,
-              fullUserName,
-              currentBuilding.id as String,
-              'project',
-              'building');
-        }
+        bool result = realmServices.addupdateSubProject(
+            currentBuilding,
+            _nameController.text,
+            _descriptionController.text,
+            isNewBuilding,
+            fullUserName);
 
         if (!mounted) {
           return;
         }
-        if (result is SuccessResponse) {
+        if (result) {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Building saved successfully.')));
 
-          Navigator.pop(context);
+          if (isNewBuilding) {
+            Navigator.pushReplacement(
+                context,
+                SubProjectDetailsPage.getRoute(currentBuilding.id, prevPagename,
+                    fullUserName, currentBuilding.name as String));
+          } else {
+            Navigator.pop(context);
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to save the building.')),
           );
         }
-        if (uploadResult is ImageResponse) {
-          setState(() {
-            currentBuilding.url = uploadResult.url;
-          });
+        if (currentBuilding.url == null) {
+          return;
+        }
+
+        if (imageURL != currentBuilding.url || !imageURL.startsWith('http')) {
+          var result = await imagesBloc.uploadImage(
+              imageURL,
+              currentBuilding.name as String,
+              fullUserName,
+              currentBuilding.id.toString(),
+              'project',
+              'building');
+
+          if (result is ImageResponse) {
+            realmServices.updateSubProjectUrl(
+                currentBuilding, result.url as String);
+          }
+          //appSettings.activeConnection = true;
         }
       } catch (e) {
+        // if (e is SocketException) {
+        //   //appSettings.activeConnection = false;
+        //   var result = await imagesBloc.uploadImage(
+        //       imageURL,
+        //       currentBuilding.name as String,
+        //       fullUserName,
+        //       currentBuilding.id.toString(),
+        //       'project',
+        //       'building');
+
+        //   if (result is ImageResponse) {
+        //     realmServices.updateSubProjectUrl(
+        //         currentBuilding, result.url as String);
+        //   } else {}
+        // }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Failed to save the building.${e.toString()}')),
+              content: Text(
+                  'Failed to save the ${currentBuilding.type} ${e.toString()}')),
         );
       }
     }
@@ -121,58 +150,65 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final realmServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 120,
-            leading: ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.blue,
-              ),
-              label: Text(
-                prevPagename,
-                style: const TextStyle(color: Colors.blue),
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-              ),
+          automaticallyImplyLeading: false,
+          leadingWidth: 120,
+          leading: ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.blue,
             ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.blue,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  pageTitle,
-                  style: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.normal),
-                ),
-                InkWell(
-                    onTap: () {
-                      save(context);
-                    },
-                    child: Chip(
-                      avatar: const Icon(
-                        Icons.save_outlined,
-                        color: Colors.black,
-                      ),
-                      labelPadding: const EdgeInsets.all(2),
-                      label: Text(
-                        'Save $name',
-                        style: const TextStyle(color: Colors.black),
-                        selectionColor: Colors.white,
-                      ),
-                      shadowColor: Colors.blue,
-                      backgroundColor: Colors.blue,
-                      elevation: 10,
-                      autofocus: true,
-                    )),
-              ],
-            )),
+            label: const Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              'Back',
+              style: TextStyle(color: Colors.blue),
+            ),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.blue,
+          elevation: 0,
+          actions: [
+            InkWell(
+                onTap: () {
+                  save(context, realmServices);
+                },
+                child: const Chip(
+                  avatar: Icon(
+                    Icons.save_outlined,
+                    color: Colors.black,
+                  ),
+                  labelPadding: EdgeInsets.all(2),
+                  label: Text(
+                    'Save',
+                    style: TextStyle(color: Colors.black),
+                    selectionColor: Colors.white,
+                  ),
+                  shadowColor: Colors.blue,
+                  backgroundColor: Colors.blue,
+                  elevation: 10,
+                  autofocus: true,
+                )),
+          ],
+          title: Text(
+            maxLines: 2,
+            pageTitle,
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.normal),
+          ),
+        ),
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
         body: SingleChildScrollView(
           child: Form(
               key: _formKey,
@@ -200,71 +236,101 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                       const SizedBox(
                         height: 16,
                       ),
+                      OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                              side: BorderSide.none,
+                              // the height is 50, the width is full
+                              minimumSize: const Size.fromHeight(40),
+                              backgroundColor: Colors.white,
+                              shadowColor: Colors.blue,
+                              elevation: 0),
+                          onPressed: () async {
+                            showAssetPic = false;
+                            //add logic to open camera.
+                            var xfile = await captureImage(context);
+                            if (xfile != null) {
+                              setState(() {
+                                imageURL = xfile.path;
+                              });
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.camera_outlined,
+                            color: Colors.blueAccent,
+                          ),
+                          label: const Text(
+                            'Add Image',
+                            style: TextStyle(color: Colors.blueAccent),
+                          )),
                       SizedBox(
-                          height: 220,
-                          child: Card(
+                        height: 220,
+                        child: Card(
                             borderOnForeground: false,
                             elevation: 8,
                             child: GestureDetector(
-                                onTap: () async {
-                                  //add logic to open camera.
-                                  var xfile = await captureImage(context);
-                                  if (xfile != null) {
-                                    setState(() {
-                                      currentBuilding.url = xfile.path;
-                                    });
-                                  }
-                                },
-                                child: Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.orange,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 1.0,
-                                                color: Colors.blue)
-                                          ]),
-                                      child: isNewLocation
-                                          ? currentBuilding.url == null
-                                              ? networkImage(
-                                                  currentBuilding.url)
-                                              : Image.file(
-                                                  File(currentBuilding.url
-                                                      as String),
-                                                  fit: BoxFit.fill,
-                                                  width: double.infinity,
-                                                  height: 250,
-                                                )
-                                          : cachedNetworkImage(
-                                              currentBuilding.url),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: const [
-                                        Icon(Icons.camera_outlined,
-                                            size: 40, color: Colors.black),
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Add Image',
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                )),
-                          )),
+                              onTap: () async {
+                                showAssetPic = false;
+                                //add logic to open camera.
+                                var xfile = await captureImage(context);
+                                if (xfile != null) {
+                                  setState(() {
+                                    imageURL = xfile.path;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 1.0, color: Colors.blue)
+                                    ]),
+                                child: showAssetPic
+                                    ? currentBuilding.url == ""
+                                        ? Image.asset(
+                                            "assets/images/icon.png",
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: 250,
+                                          )
+                                        : Image.file(
+                                            File(imageURL),
+                                            fit: BoxFit.fill,
+                                            width: double.infinity,
+                                            height: 250,
+                                          )
+                                    : cachedNetworkImage(imageURL),
+                              ),
+                            )),
+                      ),
                       const SizedBox(
-                        height: 30,
-                      )
+                        height: 20,
+                      ),
+                      if (!isNewBuilding)
+                        OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                                side: BorderSide.none,
+                                // the height is 50, the width is full
+                                minimumSize: const Size.fromHeight(40),
+                                backgroundColor: Colors.white,
+                                shadowColor: Colors.blue,
+                                elevation: 0),
+                            onPressed: () {
+                              deleteSubProject(context, realmServices);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.redAccent,
+                            ),
+                            label: const Text(
+                              'Delete Building',
+                              style: TextStyle(color: Colors.red),
+                            )),
+                      const SizedBox(
+                        height: 40,
+                      ),
                     ],
                   ),
                 ),
@@ -275,6 +341,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   Widget inputWidgetwithValidation(String hint, String message) {
     return TextFormField(
         controller: _nameController,
+
         // The validator receives the text that the user has entered.
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -298,6 +365,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   Widget inputWidgetNoValidation(String hint, int? lines) {
     return TextField(
         controller: _descriptionController,
+
         // The validator receives the text that the user has entered.
         maxLines: lines,
         decoration: InputDecoration(
@@ -310,5 +378,25 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             )));
+  }
+
+  void deleteSubProject(
+      BuildContext context, RealmProjectServices realmServices) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Deleting Building...')),
+    );
+
+    var result = realmServices.deleteSubProject(currentBuilding);
+    if (result == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Building deleted successfully.')));
+      Navigator.of(context)
+        ..pop()
+        ..pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete the ${currentBuilding.type}')),
+      );
+    }
   }
 }

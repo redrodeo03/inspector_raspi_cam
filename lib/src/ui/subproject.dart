@@ -1,17 +1,21 @@
-import 'package:deckinspectors/src/bloc/subproject_bloc.dart';
+import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+//import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import '../models/error_response.dart';
-import '../models/location_model.dart';
-import '../models/project_model.dart';
-import '../models/subproject_model.dart';
+import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
+
+import '../models/realm/realm_schemas.dart';
+
+import '../resources/realm/realm_services.dart';
 import 'addedit_location.dart';
 import 'addedit_subproject.dart';
-import 'image_widget.dart';
+
 import 'location.dart';
 import 'package:flutter/material.dart';
 
 class SubProjectDetailsPage extends StatefulWidget {
-  final String id;
+  final ObjectId id;
   final String userfullName;
   final String prevPageName;
   const SubProjectDetailsPage(this.id, this.prevPageName, this.userfullName,
@@ -19,6 +23,12 @@ class SubProjectDetailsPage extends StatefulWidget {
       : super(key: key);
   @override
   State<SubProjectDetailsPage> createState() => _SubProjectDetailsPageState();
+  static MaterialPageRoute getRoute(
+          ObjectId id, String prevPageName, String userName, String pageName) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: pageName),
+          builder: (context) =>
+              SubProjectDetailsPage(id, prevPageName, userName));
 }
 
 //Add New Project
@@ -28,34 +38,31 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
 //Tab Controls
   late TabController _tabController;
   String userFullName = "";
-  String buildingId = "";
+  late ObjectId buildingId;
 
-  late SubProject currentBuilding;
-  late List<Child?> buildinglocations;
-  late List<Child?> apartments;
-  late Location newLocation;
-  late Location newApartment;
+  late LocalSubProject currentBuilding;
+  late List<LocalChild?> buildinglocations;
+  late List<LocalChild?> apartments;
+  late LocalLocation newLocation;
+  late LocalLocation newApartment;
   late String prevPageName;
+
+  LocalLocation getLocation(String type) {
+    return LocalLocation(ObjectId(), buildingId, false,
+        name: "",
+        description: "",
+        createdby: userFullName,
+        type: type,
+        url: "",
+        parenttype: 'subproject');
+  }
+
   @override
   void initState() {
     buildingId = widget.id;
     userFullName = widget.userfullName;
     super.initState();
     prevPageName = widget.prevPageName;
-    newLocation = Location(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'location',
-        parentid: buildingId,
-        parenttype: 'subproject');
-    newApartment = Location(
-        name: "",
-        description: "",
-        createdby: userFullName,
-        type: 'apartment',
-        parentid: buildingId,
-        parenttype: 'subproject');
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.addListener(_handleTabSelection);
@@ -81,45 +88,45 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   void addEditSubProject() {
     setState(() {});
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              AddEditSubProjectPage(currentBuilding, userFullName)),
-    ).then((value) => setState(
-          () {},
-        ));
+            context,
+            AddEditSubProjectPage.getRoute(currentBuilding, false, userFullName,
+                currentBuilding.name as String))
+        .then((value) => setState(
+              () {},
+            ));
   }
 
-  void addNewChild() {
+  void addNewChild(String name) {
     setState(() {});
-    if (selectedTabIndex == 0) {
+    if (selectedTabIndex == 1) {
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AddEditLocationPage(newLocation, userFullName)),
-      );
+          context,
+          AddEditLocationPage.getRoute(
+              getLocation('buildinglocation'), true, userFullName, name));
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AddEditLocationPage(newApartment, userFullName)),
+        AddEditLocationPage.getRoute(
+            getLocation('apartment'), true, userFullName, name),
       );
     }
   }
 
-  void gotoDetails(String? id, String type) {
+  void gotoDetails(ObjectId id, String type, String pageName) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => LocationPage(id as String,
-              currentBuilding.name as String, type, userFullName)),
-    );
+            context,
+            LocationPage.getRoute(id, currentBuilding.name as String, type,
+                userFullName, pageName)
+            // MaterialPageRoute(
+            //     builder: (context) => LocationPage(
+            //         id, currentBuilding.name as String, type, userFullName)),
+            )
+        .then((value) => setState(() => {}));
   }
 
   @override
   Widget build(BuildContext context) {
+    final realmServices = Provider.of<RealmProjectServices>(context);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -130,9 +137,11 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               Icons.arrow_back_ios,
               color: Colors.blue,
             ),
-            label: Text(
-              prevPageName,
-              style: const TextStyle(color: Colors.blue),
+            label: const Text(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              'Back',
+              style: TextStyle(color: Colors.blue),
             ),
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -148,10 +157,18 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        body: FutureBuilder(
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
+        // floatingActionButton: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+        //   child: BreadCrumbNavigator(),
+        // ),
+        body: StreamBuilder<RealmObjectChanges<LocalSubProject>>(
+          //projectsBloc.projects
+          stream: realmServices.getSubProject(buildingId)!.changes,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final data = snapshot.data;
+
+              if (data == null) {
                 return Center(
                   child: Text(
                     '${snapshot.error} occurred',
@@ -160,29 +177,18 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 );
 
                 // if we got our data
-              } else if (snapshot.hasData) {
-                final data = snapshot.data;
-                if (data is SubProjectResponse) {
-                  currentBuilding = data.item as SubProject;
-                  return SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      StatefulBuilder(builder:
-                          (BuildContext context, StateSetter setState) {
-                        return buildingDetails();
-                      }),
-                      subProjectChildrenTab(context),
-                    ],
-                  ));
-                }
-                if (data is ErrorResponse) {
-                  return Center(
-                    child: Text(
-                      '${data.message}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  );
-                }
+              } else {
+                currentBuilding = data.object;
+                return SingleChildScrollView(
+                    child: Column(
+                  children: [
+                    StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                      return buildingDetails();
+                    }),
+                    subProjectChildrenTab(context),
+                  ],
+                ));
               }
             }
 
@@ -191,7 +197,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               child: CircularProgressIndicator(),
             );
           },
-          future: subProjectsBloc.getSubProject(buildingId),
         ));
   }
 
@@ -204,8 +209,9 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           const SizedBox(
             height: 4,
           ),
+          const ProjectType(),
           Container(
-            height: 180,
+            height: 220,
             decoration: const BoxDecoration(
                 color: Colors.orange,
                 // image: DecorationImage(
@@ -264,26 +270,29 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    InkWell(
-                        onTap: () {
-                          addEditSubProject();
-                        },
-                        child: const Chip(
-                          avatar: Icon(
-                            Icons.edit_outlined,
-                            color: Colors.blue,
-                          ),
-                          labelPadding: EdgeInsets.all(2),
-                          label: Text(
-                            'Edit Building ',
-                            style: TextStyle(color: Colors.blue),
-                            selectionColor: Colors.white,
-                          ),
-                          shadowColor: Colors.white,
-                          backgroundColor: Colors.white,
-                          elevation: 0,
-                          autofocus: true,
-                        )),
+                    Visibility(
+                      visible: !appSettings.isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            addEditSubProject();
+                          },
+                          child: const Chip(
+                            avatar: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.blue,
+                            ),
+                            labelPadding: EdgeInsets.all(2),
+                            label: Text(
+                              'Edit Building ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.white,
+                            ),
+                            shadowColor: Colors.transparent,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    ),
                   ],
                 )),
           ),
@@ -294,28 +303,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             indent: 0,
             endIndent: 0,
           ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(0, 8, 0, 0.0),
-          //   child: OutlinedButton.icon(
-          //       style: OutlinedButton.styleFrom(
-          //           side: BorderSide.none,
-          //           // the height is 50, the width is full
-          //           minimumSize: const Size.fromHeight(30),
-          //           backgroundColor: Colors.white,
-          //           shadowColor: Colors.red,
-          //           elevation: 2),
-          //       onPressed: () {
-          //         print('delete building');
-          //       },
-          //       icon: const Icon(
-          //         Icons.delete_outlined,
-          //         color: Colors.red,
-          //       ),
-          //       label: const Text(
-          //         'Delete Building',
-          //         style: TextStyle(color: Colors.red),
-          //       )),
-          // )
         ],
       ),
     );
@@ -325,29 +312,51 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     // return DefaultTabController(
     //   length: 2,
     //   child:
-    if (currentBuilding.children != null) {
-      buildinglocations = currentBuilding.children!
-          .where((element) => element.type == 'location')
+    buildinglocations = List.empty(growable: true);
+    apartments = List.empty(growable: true);
+    if (appSettings.isInvasiveMode) {
+      buildinglocations = currentBuilding.children
+          .where((element) =>
+              element.type == 'buildinglocation' && element.isInvasive)
           .toList();
-      apartments = currentBuilding.children!
-          .where((element) => element.type == 'apartment')
+
+      apartments = currentBuilding.children
+          .where((element) => element.type == 'apartment' && element.isInvasive)
           .toList();
     } else {
-      buildinglocations = List.empty(growable: true);
-      apartments = List.empty(growable: true);
+      buildinglocations = currentBuilding.children
+          .where((element) => element.type == 'buildinglocation')
+          .toList();
+      apartments = currentBuilding.children
+          .where((element) => element.type == 'apartment')
+          .toList();
     }
+    buildinglocations.sort((l1, l2) {
+      if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+      } else {
+        return l1.id.toString().compareTo(l2!.id.toString());
+      }
+    });
+    apartments.sort((l1, l2) {
+      if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+      } else {
+        return l1.id.toString().compareTo(l2!.id.toString());
+      }
+    });
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         TabBar(
           controller: _tabController,
-          tabs: const [
+          tabs: [
             Tab(
-              text: "Building Locations",
+              text: "Apartments(${apartments.length})",
               height: 32,
             ),
             Tab(
-              text: "Apartments",
+              text: "Building Locations (${buildinglocations.length})",
               height: 32,
             ),
           ],
@@ -356,8 +365,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         SizedBox(
             height: MediaQuery.of(context).size.height / 2,
             child: TabBarView(controller: _tabController, children: [
-              locationsWidget('building location'),
               locationsWidget('apartment'),
+              locationsWidget('building location'),
             ])),
       ],
       // ),
@@ -374,35 +383,41 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: InkWell(
-                  onTap: () {
-                    addNewChild();
-                  },
-                  child: Chip(
-                    avatar: const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.blue,
-                    ),
-                    labelPadding: const EdgeInsets.all(2),
-                    label: Text(
-                      'Add $type',
-                      style: const TextStyle(color: Colors.blue, fontSize: 15),
-                      selectionColor: Colors.white,
-                    ),
-                    shadowColor: Colors.white,
-                    backgroundColor: Colors.white,
-                    elevation: 0,
-                    autofocus: true,
-                  )),
+            Visibility(
+              visible: !appSettings.isInvasiveMode,
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                    onTap: () {
+                      addNewChild(currentBuilding.name as String);
+                    },
+                    child: Chip(
+                      avatar: const Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.blue,
+                      ),
+                      labelPadding: const EdgeInsets.all(2),
+                      label: Text(
+                        'Add $type',
+                        style:
+                            const TextStyle(color: Colors.blue, fontSize: 15),
+                        selectionColor: Colors.white,
+                      ),
+                      shadowColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      autofocus: true,
+                    )),
+              ),
             ),
             isLocation
-                ? Center(
+                ? Align(
+                    alignment: Alignment.center,
                     child: Text(
-                    'No $type, Add $type.',
-                    style: const TextStyle(fontSize: 16),
-                  ))
+                      'No $type, Add $type.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
+                    ))
                 : type == 'building location'
                     ? Expanded(
                         child: ListView.builder(
@@ -436,7 +451,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             children: [
               GestureDetector(
                 onTap: () {
-                  gotoDetails(buildinglocations[index]!.id, 'Common Location');
+                  gotoDetails(buildinglocations[index]!.id, 'Common Location',
+                      buildinglocations[index]!.name as String);
                 },
                 child: Container(
                   height: 140,
@@ -493,49 +509,6 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              buildinglocations[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(
-              //             buildinglocations[index]!.id, 'Common Location');
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
             ],
           ),
         ));
@@ -551,7 +524,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
             children: [
               GestureDetector(
                 onTap: () {
-                  gotoDetails(apartments[index]!.id, 'Apartment');
+                  gotoDetails(apartments[index]!.id, 'Apartment',
+                      apartments[index]!.name as String);
                 },
                 child: Container(
                     height: 140,
@@ -607,52 +581,8 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
               const SizedBox(
                 height: 8,
               ),
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 16, 2),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              maxLines: 1,
-                              'Locations  Count:',
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              textAlign: TextAlign.left,
-                              apartments[index]!.count.toString(),
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                              selectionColor: Colors.white,
-                            ),
-                          ]))),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(4, 8, 4, 0.0),
-              //   child: OutlinedButton.icon(
-              //       style: OutlinedButton.styleFrom(
-              //           side: BorderSide.none,
-              //           // the height is 50, the width is full
-              //           minimumSize: const Size.fromHeight(30),
-              //           backgroundColor: Colors.white,
-              //           shadowColor: Colors.blue,
-              //           elevation: 1),
-              //       onPressed: () {
-              //         gotoDetails(apartments[index]!.id, 'Apartment');
-              //       },
-              //       icon: const Icon(Icons.view_carousel_outlined),
-              //       label: const Text('View Details')),
-              // ),
             ],
           ),
         ));
   }
-
-  void deleteProject(String? id) {}
 }

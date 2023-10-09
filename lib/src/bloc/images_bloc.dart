@@ -13,6 +13,14 @@ class ImagesBloc {
     return response;
   }
 
+  Future<Object> saveImageLocally(String path, String containerName,
+      String uploader, String id, String parentType, String entityName) async {
+    var response = await _repository.saveImageLocal(
+        path, containerName, uploader, id, parentType, entityName);
+
+    return response;
+  }
+
   Future<List<Object>> uploadMultipleImages(
       List<String> imagePathList,
       String containerName,

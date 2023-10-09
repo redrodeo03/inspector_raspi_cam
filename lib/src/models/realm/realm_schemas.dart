@@ -3,9 +3,10 @@ part 'realm_schemas.g.dart';
 
 @RealmModel()
 class _LocalProject {
+  @MapTo('_id')
   @PrimaryKey()
-  late String? id;
-  late String? onlineid;
+  late ObjectId id;
+
   late String? name;
   late String? projecttype;
   late String? description;
@@ -13,97 +14,153 @@ class _LocalProject {
   late String? createdby;
   late String? createdat;
   late String? url;
-
-  DateTime? editedat;
+  late String? editedat;
   String? lasteditedby;
-
+  late Set<String> assignedto;
   List<_LocalChild> children = [];
+  bool iscomplete = false;
+  // List<_LocalChild> invasiveChildren = [];
+  bool isInvasive = false;
+  List<_LocalSection> sections = [];
+  // List<_LocalSection> invasiveSections = [];
 }
 
-@RealmModel()
+@RealmModel(ObjectType.embeddedObject)
 class _LocalChild {
-  String? id;
-  String? name;
-  String? type;
-  String? description;
-  String? url;
-  int count = 0;
+  @MapTo('_id')
+  late ObjectId id;
+  late String? name;
+  late String? type;
+  late String? description;
+  late String? url;
+  late bool isInvasive;
+  String? sequenceNo;
 }
 
 @RealmModel()
 class _LocalSubProject {
   @PrimaryKey()
-  String? id;
-  late String? onlineid;
+  @MapTo('_id')
+  late ObjectId id;
   String? name;
   String? type;
   String? description;
-  String? parentid;
+  late ObjectId parentid;
   String? parenttype;
   String? createdby;
   String? createdat;
   String? url;
-
-  DateTime? editedat;
+  late Set<String> assignedto;
+  String? editedat;
   String? lasteditedby;
-
+  late bool isInvasive;
   List<_LocalChild> children = [];
+  //List<_LocalChild> invasiveChildren = [];
 }
 
 @RealmModel()
 class _LocalLocation {
   @PrimaryKey()
-  String? id;
-  String? onlineid;
+  @MapTo('_id')
+  late ObjectId id;
+
   String? name;
   String? type;
   String? description;
-  String? parentid;
+  late ObjectId parentid;
   String? parenttype;
   String? createdby;
   String? createdat;
   String? url;
-  DateTime? editedat;
+  String? editedat;
   String? lasteditedby;
+  late bool isInvasive;
   List<_LocalSection> sections = [];
+  // List<_LocalSection> invasiveSections = [];
 }
 
-@RealmModel()
+@RealmModel(ObjectType.embeddedObject)
 class _LocalSection {
-  String? id;
-  String? name;
-
+  @MapTo('_id')
+  late ObjectId id;
+  late String? name;
+  late bool isInvasive;
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = false;
   String? conditionalassessment;
   String? visualreview;
-  int count = 0;
   String? coverUrl;
+  int count = 0;
+  //@Ignored()
+  bool isuploading = false;
+  String? sequenceNo;
 }
 
 @RealmModel()
 class _LocalVisualSection {
   @PrimaryKey()
-  String? id;
+  @MapTo('_id')
+  late ObjectId id;
   String? name;
-  List<String> images = [];
-  List<String> exteriorelements = [];
-  List<String> waterproofingelements = [];
+  late List<String> images;
+  late List<String> exteriorelements;
+  late List<String> waterproofingelements;
   String? additionalconsiderations;
   String? visualreview;
   bool visualsignsofleak = false;
   bool furtherinvasivereviewrequired = true;
   String? conditionalassessment;
-  String eee = 'one';
-  String lbc = 'one';
-  String awe = 'one';
-  String? parentid;
-  String? onlineId;
+  late String eee;
+  late String lbc;
+  late String awe;
+  late ObjectId parentid;
   String? createdby;
   String? createdat;
-
+  String parenttype = '';
+  late bool unitUnavailable;
   // InvasiveSection? invasiveSection;
   // ConclusiveSection? conclusiveSection;
-  DateTime? editedat;
+  String? editedat;
   String? lasteditedby;
+}
+
+@RealmModel()
+class _LocalInvasiveSection {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId parentid; //visualsectionid
+  bool postinvasiverepairsrequired = false;
+  late String invasiveDescription;
+  late List<String> invasiveimages;
+}
+
+@RealmModel()
+class _LocalConclusiveSection {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId parentid; //visualsectionid
+  bool propowneragreed = false;
+  bool invasiverepairsinspectedandcompleted = false;
+  late String conclusiveconsiderations;
+  late String eeeconclusive;
+  late String lbcconclusive;
+  late String aweconclusive;
+  late List<String> conclusiveimages;
+}
+
+@RealmModel()
+class _DeckImage {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late String imageLocalPath;
+  late String onlinePath;
+  late bool isUploaded;
+  late ObjectId parentId;
+  late String parentType;
+  late String entityName;
+  late String containerName;
+  late String uploadedBy;
 }

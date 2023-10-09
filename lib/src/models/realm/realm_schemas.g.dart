@@ -8,9 +8,10 @@ part of 'realm_schemas.dart';
 
 class LocalProject extends _LocalProject
     with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
   LocalProject(
-    String? id, {
-    String? onlineid,
+    ObjectId id, {
     String? name,
     String? projecttype,
     String? description,
@@ -18,12 +19,21 @@ class LocalProject extends _LocalProject
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
+    bool iscomplete = false,
+    bool isInvasive = false,
     Iterable<LocalChild> children = const [],
+    Iterable<LocalSection> sections = const [],
+    Set<String> assignedto = const {},
   }) {
-    RealmObjectBase.set(this, 'id', id);
-    RealmObjectBase.set(this, 'onlineid', onlineid);
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<LocalProject>({
+        'iscomplete': false,
+        'isInvasive': false,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'projecttype', projecttype);
     RealmObjectBase.set(this, 'description', description);
@@ -33,22 +43,22 @@ class LocalProject extends _LocalProject
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'iscomplete', iscomplete);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
+    RealmObjectBase.set<RealmList<LocalSection>>(
+        this, 'sections', RealmList<LocalSection>(sections));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'assignedto', RealmSet<String>(assignedto));
   }
 
   LocalProject._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
-
-  @override
-  String? get onlineid =>
-      RealmObjectBase.get<String>(this, 'onlineid') as String?;
-  @override
-  set onlineid(String? value) => RealmObjectBase.set(this, 'onlineid', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
@@ -93,10 +103,10 @@ class LocalProject extends _LocalProject
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -106,11 +116,36 @@ class LocalProject extends _LocalProject
       RealmObjectBase.set(this, 'lasteditedby', value);
 
   @override
+  RealmSet<String> get assignedto =>
+      RealmObjectBase.get<String>(this, 'assignedto') as RealmSet<String>;
+  @override
+  set assignedto(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   RealmList<LocalChild> get children =>
       RealmObjectBase.get<LocalChild>(this, 'children')
           as RealmList<LocalChild>;
   @override
   set children(covariant RealmList<LocalChild> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  bool get iscomplete => RealmObjectBase.get<bool>(this, 'iscomplete') as bool;
+  @override
+  set iscomplete(bool value) => RealmObjectBase.set(this, 'iscomplete', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
+  RealmList<LocalSection> get sections =>
+      RealmObjectBase.get<LocalSection>(this, 'sections')
+          as RealmList<LocalSection>;
+  @override
+  set sections(covariant RealmList<LocalSection> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -126,9 +161,8 @@ class LocalProject extends _LocalProject
     RealmObjectBase.registerFactory(LocalProject._);
     return const SchemaObject(
         ObjectType.realmObject, LocalProject, 'LocalProject', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-      SchemaProperty('onlineid', RealmPropertyType.string, optional: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('projecttype', RealmPropertyType.string, optional: true),
       SchemaProperty('description', RealmPropertyType.string, optional: true),
@@ -136,45 +170,46 @@ class LocalProject extends _LocalProject
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('assignedto', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
+      SchemaProperty('iscomplete', RealmPropertyType.bool),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
+      SchemaProperty('sections', RealmPropertyType.object,
+          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
 class LocalChild extends _LocalChild
-    with RealmEntity, RealmObjectBase, RealmObject {
-  static var _defaultsSet = false;
-
-  LocalChild({
-    String? id,
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  LocalChild(
+    ObjectId id,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
     String? url,
-    int count = 0,
+    String? sequenceNo,
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalChild>({
-        'count': 0,
-      });
-    }
-    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'url', url);
-    RealmObjectBase.set(this, 'count', count);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
+    RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
   LocalChild._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
@@ -199,9 +234,16 @@ class LocalChild extends _LocalChild
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  int get count => RealmObjectBase.get<int>(this, 'count') as int;
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
   @override
-  set count(int value) => RealmObjectBase.set(this, 'count', value);
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
+
+  @override
+  String? get sequenceNo =>
+      RealmObjectBase.get<String>(this, 'sequenceNo') as String?;
+  @override
+  set sequenceNo(String? value) =>
+      RealmObjectBase.set(this, 'sequenceNo', value);
 
   @override
   Stream<RealmObjectChanges<LocalChild>> get changes =>
@@ -215,13 +257,14 @@ class LocalChild extends _LocalChild
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LocalChild._);
     return const SchemaObject(
-        ObjectType.realmObject, LocalChild, 'LocalChild', [
-      SchemaProperty('id', RealmPropertyType.string, optional: true),
+        ObjectType.embeddedObject, LocalChild, 'LocalChild', [
+      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('type', RealmPropertyType.string, optional: true),
       SchemaProperty('description', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('count', RealmPropertyType.int),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
+      SchemaProperty('sequenceNo', RealmPropertyType.string, optional: true),
     ]);
   }
 }
@@ -229,22 +272,22 @@ class LocalChild extends _LocalChild
 class LocalSubProject extends _LocalSubProject
     with RealmEntity, RealmObjectBase, RealmObject {
   LocalSubProject(
-    String? id, {
-    String? onlineid,
+    ObjectId id,
+    ObjectId parentid,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
-    String? parentid,
     String? parenttype,
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<LocalChild> children = const [],
+    Set<String> assignedto = const {},
   }) {
-    RealmObjectBase.set(this, 'id', id);
-    RealmObjectBase.set(this, 'onlineid', onlineid);
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'description', description);
@@ -255,22 +298,19 @@ class LocalSubProject extends _LocalSubProject
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalChild>>(
         this, 'children', RealmList<LocalChild>(children));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'assignedto', RealmSet<String>(assignedto));
   }
 
   LocalSubProject._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
-
-  @override
-  String? get onlineid =>
-      RealmObjectBase.get<String>(this, 'onlineid') as String?;
-  @override
-  set onlineid(String? value) => RealmObjectBase.set(this, 'onlineid', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
@@ -290,10 +330,10 @@ class LocalSubProject extends _LocalSubProject
       RealmObjectBase.set(this, 'description', value);
 
   @override
-  String? get parentid =>
-      RealmObjectBase.get<String>(this, 'parentid') as String?;
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
   @override
-  set parentid(String? value) => RealmObjectBase.set(this, 'parentid', value);
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
 
   @override
   String? get parenttype =>
@@ -320,10 +360,17 @@ class LocalSubProject extends _LocalSubProject
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  RealmSet<String> get assignedto =>
+      RealmObjectBase.get<String>(this, 'assignedto') as RealmSet<String>;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set assignedto(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
+  @override
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -331,6 +378,11 @@ class LocalSubProject extends _LocalSubProject
   @override
   set lasteditedby(String? value) =>
       RealmObjectBase.set(this, 'lasteditedby', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
   RealmList<LocalChild> get children =>
@@ -354,19 +406,21 @@ class LocalSubProject extends _LocalSubProject
     RealmObjectBase.registerFactory(LocalSubProject._);
     return const SchemaObject(
         ObjectType.realmObject, LocalSubProject, 'LocalSubProject', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-      SchemaProperty('onlineid', RealmPropertyType.string, optional: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('type', RealmPropertyType.string, optional: true),
       SchemaProperty('description', RealmPropertyType.string, optional: true),
-      SchemaProperty('parentid', RealmPropertyType.string, optional: true),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
       SchemaProperty('parenttype', RealmPropertyType.string, optional: true),
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('assignedto', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
     ]);
@@ -376,22 +430,21 @@ class LocalSubProject extends _LocalSubProject
 class LocalLocation extends _LocalLocation
     with RealmEntity, RealmObjectBase, RealmObject {
   LocalLocation(
-    String? id, {
-    String? onlineid,
+    ObjectId id,
+    ObjectId parentid,
+    bool isInvasive, {
     String? name,
     String? type,
     String? description,
-    String? parentid,
     String? parenttype,
     String? createdby,
     String? createdat,
     String? url,
-    DateTime? editedat,
+    String? editedat,
     String? lasteditedby,
     Iterable<LocalSection> sections = const [],
   }) {
-    RealmObjectBase.set(this, 'id', id);
-    RealmObjectBase.set(this, 'onlineid', onlineid);
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'description', description);
@@ -402,6 +455,7 @@ class LocalLocation extends _LocalLocation
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set<RealmList<LocalSection>>(
         this, 'sections', RealmList<LocalSection>(sections));
   }
@@ -409,15 +463,9 @@ class LocalLocation extends _LocalLocation
   LocalLocation._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
-
-  @override
-  String? get onlineid =>
-      RealmObjectBase.get<String>(this, 'onlineid') as String?;
-  @override
-  set onlineid(String? value) => RealmObjectBase.set(this, 'onlineid', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
@@ -437,10 +485,10 @@ class LocalLocation extends _LocalLocation
       RealmObjectBase.set(this, 'description', value);
 
   @override
-  String? get parentid =>
-      RealmObjectBase.get<String>(this, 'parentid') as String?;
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
   @override
-  set parentid(String? value) => RealmObjectBase.set(this, 'parentid', value);
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
 
   @override
   String? get parenttype =>
@@ -467,10 +515,10 @@ class LocalLocation extends _LocalLocation
   set url(String? value) => RealmObjectBase.set(this, 'url', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -478,6 +526,11 @@ class LocalLocation extends _LocalLocation
   @override
   set lasteditedby(String? value) =>
       RealmObjectBase.set(this, 'lasteditedby', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
   RealmList<LocalSection> get sections =>
@@ -500,19 +553,19 @@ class LocalLocation extends _LocalLocation
     RealmObjectBase.registerFactory(LocalLocation._);
     return const SchemaObject(
         ObjectType.realmObject, LocalLocation, 'LocalLocation', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-      SchemaProperty('onlineid', RealmPropertyType.string, optional: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('type', RealmPropertyType.string, optional: true),
       SchemaProperty('description', RealmPropertyType.string, optional: true),
-      SchemaProperty('parentid', RealmPropertyType.string, optional: true),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
       SchemaProperty('parenttype', RealmPropertyType.string, optional: true),
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
           linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
     ]);
@@ -520,48 +573,60 @@ class LocalLocation extends _LocalLocation
 }
 
 class LocalSection extends _LocalSection
-    with RealmEntity, RealmObjectBase, RealmObject {
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
-  LocalSection({
-    String? id,
+  LocalSection(
+    ObjectId id,
+    bool isInvasive, {
     String? name,
     bool visualsignsofleak = false,
     bool furtherinvasivereviewrequired = false,
     String? conditionalassessment,
     String? visualreview,
-    int count = 0,
     String? coverUrl,
+    int count = 0,
+    bool isuploading = false,
+    String? sequenceNo,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<LocalSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': false,
         'count': 0,
+        'isuploading': false,
       });
     }
-    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set(this, 'visualsignsofleak', visualsignsofleak);
     RealmObjectBase.set(
         this, 'furtherinvasivereviewrequired', furtherinvasivereviewrequired);
     RealmObjectBase.set(this, 'conditionalassessment', conditionalassessment);
     RealmObjectBase.set(this, 'visualreview', visualreview);
-    RealmObjectBase.set(this, 'count', count);
     RealmObjectBase.set(this, 'coverUrl', coverUrl);
+    RealmObjectBase.set(this, 'count', count);
+    RealmObjectBase.set(this, 'isuploading', isuploading);
+    RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
   LocalSection._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
   @override
   set name(String? value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  bool get isInvasive => RealmObjectBase.get<bool>(this, 'isInvasive') as bool;
+  @override
+  set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
   bool get visualsignsofleak =>
@@ -592,15 +657,29 @@ class LocalSection extends _LocalSection
       RealmObjectBase.set(this, 'visualreview', value);
 
   @override
+  String? get coverUrl =>
+      RealmObjectBase.get<String>(this, 'coverUrl') as String?;
+  @override
+  set coverUrl(String? value) => RealmObjectBase.set(this, 'coverUrl', value);
+
+  @override
   int get count => RealmObjectBase.get<int>(this, 'count') as int;
   @override
   set count(int value) => RealmObjectBase.set(this, 'count', value);
 
   @override
-  String? get coverUrl =>
-      RealmObjectBase.get<String>(this, 'coverUrl') as String?;
+  bool get isuploading =>
+      RealmObjectBase.get<bool>(this, 'isuploading') as bool;
   @override
-  set coverUrl(String? value) => RealmObjectBase.set(this, 'coverUrl', value);
+  set isuploading(bool value) =>
+      RealmObjectBase.set(this, 'isuploading', value);
+
+  @override
+  String? get sequenceNo =>
+      RealmObjectBase.get<String>(this, 'sequenceNo') as String?;
+  @override
+  set sequenceNo(String? value) =>
+      RealmObjectBase.set(this, 'sequenceNo', value);
 
   @override
   Stream<RealmObjectChanges<LocalSection>> get changes =>
@@ -614,16 +693,19 @@ class LocalSection extends _LocalSection
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LocalSection._);
     return const SchemaObject(
-        ObjectType.realmObject, LocalSection, 'LocalSection', [
-      SchemaProperty('id', RealmPropertyType.string, optional: true),
+        ObjectType.embeddedObject, LocalSection, 'LocalSection', [
+      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
+      SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('visualsignsofleak', RealmPropertyType.bool),
       SchemaProperty('furtherinvasivereviewrequired', RealmPropertyType.bool),
       SchemaProperty('conditionalassessment', RealmPropertyType.string,
           optional: true),
       SchemaProperty('visualreview', RealmPropertyType.string, optional: true),
-      SchemaProperty('count', RealmPropertyType.int),
       SchemaProperty('coverUrl', RealmPropertyType.string, optional: true),
+      SchemaProperty('count', RealmPropertyType.int),
+      SchemaProperty('isuploading', RealmPropertyType.bool),
+      SchemaProperty('sequenceNo', RealmPropertyType.string, optional: true),
     ]);
   }
 }
@@ -633,20 +715,22 @@ class LocalVisualSection extends _LocalVisualSection
   static var _defaultsSet = false;
 
   LocalVisualSection(
-    String? id, {
+    ObjectId id,
+    String eee,
+    String lbc,
+    String awe,
+    ObjectId parentid,
+    bool unitUnavailable, {
     String? name,
     String? additionalconsiderations,
     String? visualreview,
     bool visualsignsofleak = false,
     bool furtherinvasivereviewrequired = true,
     String? conditionalassessment,
-    String eee = 'one',
-    String lbc = 'one',
-    String awe = 'one',
-    String? parentid,
     String? createdby,
     String? createdat,
-    DateTime? editedat,
+    String parenttype = '',
+    String? editedat,
     String? lasteditedby,
     Iterable<String> images = const [],
     Iterable<String> exteriorelements = const [],
@@ -656,12 +740,10 @@ class LocalVisualSection extends _LocalVisualSection
       _defaultsSet = RealmObjectBase.setDefaults<LocalVisualSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': true,
-        'eee': 'one',
-        'lbc': 'one',
-        'awe': 'one',
+        'parenttype': '',
       });
     }
-    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(
         this, 'additionalconsiderations', additionalconsiderations);
@@ -676,6 +758,8 @@ class LocalVisualSection extends _LocalVisualSection
     RealmObjectBase.set(this, 'parentid', parentid);
     RealmObjectBase.set(this, 'createdby', createdby);
     RealmObjectBase.set(this, 'createdat', createdat);
+    RealmObjectBase.set(this, 'parenttype', parenttype);
+    RealmObjectBase.set(this, 'unitUnavailable', unitUnavailable);
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set<RealmList<String>>(
@@ -689,9 +773,9 @@ class LocalVisualSection extends _LocalVisualSection
   LocalVisualSection._();
 
   @override
-  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(String? value) => RealmObjectBase.set(this, 'id', value);
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
   String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
@@ -772,10 +856,10 @@ class LocalVisualSection extends _LocalVisualSection
   set awe(String value) => RealmObjectBase.set(this, 'awe', value);
 
   @override
-  String? get parentid =>
-      RealmObjectBase.get<String>(this, 'parentid') as String?;
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
   @override
-  set parentid(String? value) => RealmObjectBase.set(this, 'parentid', value);
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
 
   @override
   String? get createdby =>
@@ -790,10 +874,24 @@ class LocalVisualSection extends _LocalVisualSection
   set createdat(String? value) => RealmObjectBase.set(this, 'createdat', value);
 
   @override
-  DateTime? get editedat =>
-      RealmObjectBase.get<DateTime>(this, 'editedat') as DateTime?;
+  String get parenttype =>
+      RealmObjectBase.get<String>(this, 'parenttype') as String;
   @override
-  set editedat(DateTime? value) => RealmObjectBase.set(this, 'editedat', value);
+  set parenttype(String value) =>
+      RealmObjectBase.set(this, 'parenttype', value);
+
+  @override
+  bool get unitUnavailable =>
+      RealmObjectBase.get<bool>(this, 'unitUnavailable') as bool;
+  @override
+  set unitUnavailable(bool value) =>
+      RealmObjectBase.set(this, 'unitUnavailable', value);
+
+  @override
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
+  @override
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
   String? get lasteditedby =>
@@ -816,8 +914,8 @@ class LocalVisualSection extends _LocalVisualSection
     RealmObjectBase.registerFactory(LocalVisualSection._);
     return const SchemaObject(
         ObjectType.realmObject, LocalVisualSection, 'LocalVisualSection', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('images', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
@@ -835,11 +933,336 @@ class LocalVisualSection extends _LocalVisualSection
       SchemaProperty('eee', RealmPropertyType.string),
       SchemaProperty('lbc', RealmPropertyType.string),
       SchemaProperty('awe', RealmPropertyType.string),
-      SchemaProperty('parentid', RealmPropertyType.string, optional: true),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
       SchemaProperty('createdby', RealmPropertyType.string, optional: true),
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
-      SchemaProperty('editedat', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('parenttype', RealmPropertyType.string),
+      SchemaProperty('unitUnavailable', RealmPropertyType.bool),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+    ]);
+  }
+}
+
+class LocalInvasiveSection extends _LocalInvasiveSection
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  LocalInvasiveSection(
+    ObjectId id,
+    ObjectId parentid,
+    String invasiveDescription, {
+    bool postinvasiverepairsrequired = false,
+    Iterable<String> invasiveimages = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<LocalInvasiveSection>({
+        'postinvasiverepairsrequired': false,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'parentid', parentid);
+    RealmObjectBase.set(
+        this, 'postinvasiverepairsrequired', postinvasiverepairsrequired);
+    RealmObjectBase.set(this, 'invasiveDescription', invasiveDescription);
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'invasiveimages', RealmList<String>(invasiveimages));
+  }
+
+  LocalInvasiveSection._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
+  @override
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
+
+  @override
+  bool get postinvasiverepairsrequired =>
+      RealmObjectBase.get<bool>(this, 'postinvasiverepairsrequired') as bool;
+  @override
+  set postinvasiverepairsrequired(bool value) =>
+      RealmObjectBase.set(this, 'postinvasiverepairsrequired', value);
+
+  @override
+  String get invasiveDescription =>
+      RealmObjectBase.get<String>(this, 'invasiveDescription') as String;
+  @override
+  set invasiveDescription(String value) =>
+      RealmObjectBase.set(this, 'invasiveDescription', value);
+
+  @override
+  RealmList<String> get invasiveimages =>
+      RealmObjectBase.get<String>(this, 'invasiveimages') as RealmList<String>;
+  @override
+  set invasiveimages(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<LocalInvasiveSection>> get changes =>
+      RealmObjectBase.getChanges<LocalInvasiveSection>(this);
+
+  @override
+  LocalInvasiveSection freeze() =>
+      RealmObjectBase.freezeObject<LocalInvasiveSection>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(LocalInvasiveSection._);
+    return const SchemaObject(
+        ObjectType.realmObject, LocalInvasiveSection, 'LocalInvasiveSection', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
+      SchemaProperty('postinvasiverepairsrequired', RealmPropertyType.bool),
+      SchemaProperty('invasiveDescription', RealmPropertyType.string),
+      SchemaProperty('invasiveimages', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class LocalConclusiveSection extends _LocalConclusiveSection
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  LocalConclusiveSection(
+    ObjectId id,
+    ObjectId parentid,
+    String conclusiveconsiderations,
+    String eeeconclusive,
+    String lbcconclusive,
+    String aweconclusive, {
+    bool propowneragreed = false,
+    bool invasiverepairsinspectedandcompleted = false,
+    Iterable<String> conclusiveimages = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<LocalConclusiveSection>({
+        'propowneragreed': false,
+        'invasiverepairsinspectedandcompleted': false,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'parentid', parentid);
+    RealmObjectBase.set(this, 'propowneragreed', propowneragreed);
+    RealmObjectBase.set(this, 'invasiverepairsinspectedandcompleted',
+        invasiverepairsinspectedandcompleted);
+    RealmObjectBase.set(
+        this, 'conclusiveconsiderations', conclusiveconsiderations);
+    RealmObjectBase.set(this, 'eeeconclusive', eeeconclusive);
+    RealmObjectBase.set(this, 'lbcconclusive', lbcconclusive);
+    RealmObjectBase.set(this, 'aweconclusive', aweconclusive);
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'conclusiveimages', RealmList<String>(conclusiveimages));
+  }
+
+  LocalConclusiveSection._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
+  @override
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
+
+  @override
+  bool get propowneragreed =>
+      RealmObjectBase.get<bool>(this, 'propowneragreed') as bool;
+  @override
+  set propowneragreed(bool value) =>
+      RealmObjectBase.set(this, 'propowneragreed', value);
+
+  @override
+  bool get invasiverepairsinspectedandcompleted =>
+      RealmObjectBase.get<bool>(this, 'invasiverepairsinspectedandcompleted')
+          as bool;
+  @override
+  set invasiverepairsinspectedandcompleted(bool value) =>
+      RealmObjectBase.set(this, 'invasiverepairsinspectedandcompleted', value);
+
+  @override
+  String get conclusiveconsiderations =>
+      RealmObjectBase.get<String>(this, 'conclusiveconsiderations') as String;
+  @override
+  set conclusiveconsiderations(String value) =>
+      RealmObjectBase.set(this, 'conclusiveconsiderations', value);
+
+  @override
+  String get eeeconclusive =>
+      RealmObjectBase.get<String>(this, 'eeeconclusive') as String;
+  @override
+  set eeeconclusive(String value) =>
+      RealmObjectBase.set(this, 'eeeconclusive', value);
+
+  @override
+  String get lbcconclusive =>
+      RealmObjectBase.get<String>(this, 'lbcconclusive') as String;
+  @override
+  set lbcconclusive(String value) =>
+      RealmObjectBase.set(this, 'lbcconclusive', value);
+
+  @override
+  String get aweconclusive =>
+      RealmObjectBase.get<String>(this, 'aweconclusive') as String;
+  @override
+  set aweconclusive(String value) =>
+      RealmObjectBase.set(this, 'aweconclusive', value);
+
+  @override
+  RealmList<String> get conclusiveimages =>
+      RealmObjectBase.get<String>(this, 'conclusiveimages')
+          as RealmList<String>;
+  @override
+  set conclusiveimages(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<LocalConclusiveSection>> get changes =>
+      RealmObjectBase.getChanges<LocalConclusiveSection>(this);
+
+  @override
+  LocalConclusiveSection freeze() =>
+      RealmObjectBase.freezeObject<LocalConclusiveSection>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(LocalConclusiveSection._);
+    return const SchemaObject(ObjectType.realmObject, LocalConclusiveSection,
+        'LocalConclusiveSection', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
+      SchemaProperty('propowneragreed', RealmPropertyType.bool),
+      SchemaProperty(
+          'invasiverepairsinspectedandcompleted', RealmPropertyType.bool),
+      SchemaProperty('conclusiveconsiderations', RealmPropertyType.string),
+      SchemaProperty('eeeconclusive', RealmPropertyType.string),
+      SchemaProperty('lbcconclusive', RealmPropertyType.string),
+      SchemaProperty('aweconclusive', RealmPropertyType.string),
+      SchemaProperty('conclusiveimages', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class DeckImage extends _DeckImage
+    with RealmEntity, RealmObjectBase, RealmObject {
+  DeckImage(
+    ObjectId id,
+    String imageLocalPath,
+    String onlinePath,
+    bool isUploaded,
+    ObjectId parentId,
+    String parentType,
+    String entityName,
+    String containerName,
+    String uploadedBy,
+  ) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'imageLocalPath', imageLocalPath);
+    RealmObjectBase.set(this, 'onlinePath', onlinePath);
+    RealmObjectBase.set(this, 'isUploaded', isUploaded);
+    RealmObjectBase.set(this, 'parentId', parentId);
+    RealmObjectBase.set(this, 'parentType', parentType);
+    RealmObjectBase.set(this, 'entityName', entityName);
+    RealmObjectBase.set(this, 'containerName', containerName);
+    RealmObjectBase.set(this, 'uploadedBy', uploadedBy);
+  }
+
+  DeckImage._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  String get imageLocalPath =>
+      RealmObjectBase.get<String>(this, 'imageLocalPath') as String;
+  @override
+  set imageLocalPath(String value) =>
+      RealmObjectBase.set(this, 'imageLocalPath', value);
+
+  @override
+  String get onlinePath =>
+      RealmObjectBase.get<String>(this, 'onlinePath') as String;
+  @override
+  set onlinePath(String value) =>
+      RealmObjectBase.set(this, 'onlinePath', value);
+
+  @override
+  bool get isUploaded => RealmObjectBase.get<bool>(this, 'isUploaded') as bool;
+  @override
+  set isUploaded(bool value) => RealmObjectBase.set(this, 'isUploaded', value);
+
+  @override
+  ObjectId get parentId =>
+      RealmObjectBase.get<ObjectId>(this, 'parentId') as ObjectId;
+  @override
+  set parentId(ObjectId value) => RealmObjectBase.set(this, 'parentId', value);
+
+  @override
+  String get parentType =>
+      RealmObjectBase.get<String>(this, 'parentType') as String;
+  @override
+  set parentType(String value) =>
+      RealmObjectBase.set(this, 'parentType', value);
+
+  @override
+  String get entityName =>
+      RealmObjectBase.get<String>(this, 'entityName') as String;
+  @override
+  set entityName(String value) =>
+      RealmObjectBase.set(this, 'entityName', value);
+
+  @override
+  String get containerName =>
+      RealmObjectBase.get<String>(this, 'containerName') as String;
+  @override
+  set containerName(String value) =>
+      RealmObjectBase.set(this, 'containerName', value);
+
+  @override
+  String get uploadedBy =>
+      RealmObjectBase.get<String>(this, 'uploadedBy') as String;
+  @override
+  set uploadedBy(String value) =>
+      RealmObjectBase.set(this, 'uploadedBy', value);
+
+  @override
+  Stream<RealmObjectChanges<DeckImage>> get changes =>
+      RealmObjectBase.getChanges<DeckImage>(this);
+
+  @override
+  DeckImage freeze() => RealmObjectBase.freezeObject<DeckImage>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(DeckImage._);
+    return const SchemaObject(ObjectType.realmObject, DeckImage, 'DeckImage', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('imageLocalPath', RealmPropertyType.string),
+      SchemaProperty('onlinePath', RealmPropertyType.string),
+      SchemaProperty('isUploaded', RealmPropertyType.bool),
+      SchemaProperty('parentId', RealmPropertyType.objectid),
+      SchemaProperty('parentType', RealmPropertyType.string),
+      SchemaProperty('entityName', RealmPropertyType.string),
+      SchemaProperty('containerName', RealmPropertyType.string),
+      SchemaProperty('uploadedBy', RealmPropertyType.string),
     ]);
   }
 }
