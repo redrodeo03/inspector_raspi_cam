@@ -184,22 +184,22 @@ class _SectionPageState extends State<SectionPage> {
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late LocalVisualSection currentVisualSection;
-  late LocalLocation currentLocation;
+  late VisualSection currentVisualSection;
+  late Location currentLocation;
   late Future sectionResponse;
   late bool isNewSection;
   late String prevPageName;
   void fetchData() {
     isRunning = true;
     currentVisualSection =
-        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+        realmServices.getVisualSection(widget.sectionId) as VisualSection;
 
     setInitialValues();
     isRunning = false;
   }
 
-  LocalVisualSection getNewVisualSection() {
-    return LocalVisualSection(
+  VisualSection getNewVisualSection() {
+    return VisualSection(
       ObjectId(),
       "",
       "",
@@ -230,8 +230,7 @@ class _SectionPageState extends State<SectionPage> {
     prevPageName = widget.parentName;
 
     if (parentType != 'project') {
-      currentLocation =
-          realmServices.getLocation(widget.parentId) as LocalLocation;
+      currentLocation = realmServices.getLocation(widget.parentId) as Location;
     }
     super.initState();
   }
@@ -1365,8 +1364,7 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
-  void deleteSection(
-      BuildContext context, LocalVisualSection currentVisualSection) {
+  void deleteSection(BuildContext context, VisualSection currentVisualSection) {
     var locationame = currentVisualSection.name;
     var result = realmServices.deleteVisualSection(currentVisualSection);
 
@@ -1439,8 +1437,8 @@ class _SectionPageState extends State<SectionPage> {
     }
   }
 
-  void removePhoto(BuildContext context,
-      LocalVisualSection currentVisualSection, int index) {
+  void removePhoto(
+      BuildContext context, VisualSection currentVisualSection, int index) {
     realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
     setState(() {
       capturedImages.removeAt(index);

@@ -46,8 +46,8 @@ class _LocationPageState extends State<LocationPage> {
   String parenttype = 'Project';
   String userFullName = "";
   late ObjectId locationId;
-  late LocalLocation currentLocation;
-  late List<LocalSection> sections;
+  late Location currentLocation;
+  late List<Section> sections;
   @override
   Widget build(BuildContext context) {
     final realmServices =
@@ -86,7 +86,7 @@ class _LocationPageState extends State<LocationPage> {
         //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
         //   child: BreadCrumbNavigator(),
         // ),
-        body: StreamBuilder<RealmObjectChanges<LocalLocation>>(
+        body: StreamBuilder<RealmObjectChanges<Location>>(
             //projectsBloc.projects
             stream: realmServices.getLocation(locationId)?.changes,
             builder: (context, snapshot) {
@@ -121,7 +121,7 @@ class _LocationPageState extends State<LocationPage> {
             }));
   }
 
-  Widget locationDetails(LocalLocation currentLocation) {
+  Widget locationDetails(Location currentLocation) {
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -601,7 +601,7 @@ class _LocationPageState extends State<LocationPage> {
     });
   }
 
-  void addEditLocation(LocalLocation currentLocation) {
+  void addEditLocation(Location currentLocation) {
     Navigator.push(
         context,
         AddEditLocationPage.getRoute(currentLocation, false, userFullName,

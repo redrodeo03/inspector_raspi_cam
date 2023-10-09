@@ -33,8 +33,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
     userFullName = "$userFullName ${loggedInUser.lastname as String}";
   }
 
-  LocalProject getLocalProject() {
-    return LocalProject(ObjectId(),
+  Project getProject() {
+    return Project(ObjectId(),
         name: "",
         isInvasive: false,
         description: "",
@@ -47,7 +47,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   void addEditProject() {
     Navigator.push(context,
-            AddEditProjectPage.getRoute(getLocalProject(), true, userFullName))
+            AddEditProjectPage.getRoute(getProject(), true, userFullName))
         .then((value) => setState(() => {}));
   }
 
@@ -108,10 +108,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     )),
               ],
             )),
-        body: StreamBuilder<RealmResultsChanges<LocalProject>>(
+        body: StreamBuilder<RealmResultsChanges<Project>>(
             //projectsBloc.projects
             stream: realmServices?.realm
-                .query<LocalProject>("TRUEPREDICATE SORT(_id DESC)")
+                .query<Project>("TRUEPREDICATE SORT(_id DESC)")
                 .changes,
             builder: (context, snapshot) {
               if (snapshot.hasData) {

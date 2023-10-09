@@ -122,9 +122,9 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late LocalVisualSection currentVisualSection;
-  late LocalInvasiveSection currentInvasiveSection;
-  late LocalConclusiveSection currentConclusiveSection;
+  late VisualSection currentVisualSection;
+  late InvasiveSection currentInvasiveSection;
+  late ConclusiveSection currentConclusiveSection;
   late Future sectionResponse;
   late bool isNewSection;
   late String prevPageName;
@@ -133,7 +133,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
   void fetchData() {
     isRunning = true;
     currentVisualSection =
-        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+        realmServices.getVisualSection(widget.sectionId) as VisualSection;
     currentInvasiveSection = realmServices.getInvasiveSection(widget.sectionId);
 
     currentConclusiveSection =

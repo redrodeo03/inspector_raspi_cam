@@ -42,10 +42,10 @@ class SingleProjectDetailsPage extends StatefulWidget {
 //Add New Project
 class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
     with SingleTickerProviderStateMixin {
-  late LocalProject currentProject;
+  late Project currentProject;
   late String userFullName;
   late String createdAt;
-  late List<LocalSection?> sections;
+  late List<Section?> sections;
   late bool isInvasiveMode;
   late ObjectId projectId;
 
@@ -147,7 +147,7 @@ class _SingleProjectDetailsPageState extends State<SingleProjectDetailsPage>
                 TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
           ),
         ),
-        body: StreamBuilder<RealmObjectChanges<LocalProject>>(
+        body: StreamBuilder<RealmObjectChanges<Project>>(
           //projectsBloc.projects
           stream: realmServices.getProject(projectId)?.changes,
           builder: (context, snapshot) {

@@ -40,15 +40,15 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   String userFullName = "";
   late ObjectId buildingId;
 
-  late LocalSubProject currentBuilding;
-  late List<LocalChild?> buildinglocations;
-  late List<LocalChild?> apartments;
-  late LocalLocation newLocation;
-  late LocalLocation newApartment;
+  late SubProject currentBuilding;
+  late List<Child?> buildinglocations;
+  late List<Child?> apartments;
+  late Location newLocation;
+  late Location newApartment;
   late String prevPageName;
 
-  LocalLocation getLocation(String type) {
-    return LocalLocation(ObjectId(), buildingId, false,
+  Location getLocation(String type) {
+    return Location(ObjectId(), buildingId, false,
         name: "",
         description: "",
         createdby: userFullName,
@@ -161,7 +161,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
         //   child: BreadCrumbNavigator(),
         // ),
-        body: StreamBuilder<RealmObjectChanges<LocalSubProject>>(
+        body: StreamBuilder<RealmObjectChanges<SubProject>>(
           //projectsBloc.projects
           stream: realmServices.getSubProject(buildingId)!.changes,
           builder: (context, snapshot) {

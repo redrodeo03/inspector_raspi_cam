@@ -1,8 +1,9 @@
 {
-    "appId": "deckinspectorsapp-khfgr",
-    "appUrl": "https://realm.mongodb.com/groups/61cb088c09e60449b435f24f/apps/6452852b846a42131c264f30",
+    "appId": "application-0-rgmuo",
+    "appUrl": "https://realm.mongodb.com/groups/651ad9994c55990d7f2fd325/apps/6521a1d4d756ad364c051960",
     "baseUrl": "https://realm.mongodb.com",
-    "clientApiBaseUrl": "https://ap-south-1.aws.realm.mongodb.com",
-    "dataApiBaseUrl": "https://ap-south-1.aws.data.mongodb-api.com",
+    "clientApiBaseUrl": "https://westus.azure.realm.mongodb.com",
+    "dataApiBaseUrl": "https://westus.azure.data.mongodb-api.com",
+    "dataExplorerLink": "https://cloud.mongodb.com/links/651ad9994c55990d7f2fd325/explorer/DeckInspectorCluster/database/collection/find",
     "dataSourceName": "mongodb-atlas"
 }
