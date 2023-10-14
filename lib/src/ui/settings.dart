@@ -256,25 +256,25 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
 
-            OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide.none,
-                    // the height is 50, the width is full
-                    minimumSize: const Size.fromHeight(40),
-                    backgroundColor: Colors.white,
-                    shadowColor: Colors.blue,
-                    elevation: 0),
-                onPressed: () {
-                  forceSync(context, realmServices);
-                },
-                icon: const Icon(
-                  Icons.sync_alt_rounded,
-                  color: Colors.blue,
-                ),
-                label: const Text(
-                  'Force Sync',
-                  style: TextStyle(color: Colors.blue),
-                )),
+            // OutlinedButton.icon(
+            //     style: OutlinedButton.styleFrom(
+            //         side: BorderSide.none,
+            //         // the height is 50, the width is full
+            //         minimumSize: const Size.fromHeight(40),
+            //         backgroundColor: Colors.white,
+            //         shadowColor: Colors.blue,
+            //         elevation: 0),
+            //     onPressed: () {
+            //       forceSync(context, realmServices);
+            //     },
+            //     icon: const Icon(
+            //       Icons.sync_alt_rounded,
+            //       color: Colors.blue,
+            //     ),
+            //     label: const Text(
+            //       'Force Sync',
+            //       style: TextStyle(color: Colors.blue),
+            //     )),
             const SizedBox(
               height: 30,
             ),
@@ -467,15 +467,15 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setString('appSync', isSyncOn.toString());
   }
 
-  void forceSync(BuildContext context, RealmProjectServices realmServices) {
-    if (appSettings.activeConnection) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            duration: Duration(seconds: 20),
-            content: Text('Checking for unsynced images, please wait...')),
-      );
-      isImageUploading = true;
-      realmServices.uploadLocalImages();
-    }
-  }
+  // void forceSync(BuildContext context, RealmProjectServices realmServices) {
+  //   if (appSettings.activeConnection) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //           duration: Duration(seconds: 20),
+  //           content: Text('Checking for unsynced images, please wait...')),
+  //     );
+  //     isImageUploading = true;
+  //     realmServices.uploadLocalImages();
+  //   }
+  // }
 }

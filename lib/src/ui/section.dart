@@ -254,9 +254,13 @@ class _SectionPageState extends State<SectionPage> {
           .toList();
 
       _review = VisualReview.values.firstWhere(
-          (e) => e.name == currentVisualSection.visualreview?.toLowerCase());
-      _assessment = ConditionalAssessment.values.firstWhere((e) =>
-          e.name == currentVisualSection.conditionalassessment?.toLowerCase());
+          (e) => e.name == currentVisualSection.visualreview?.toLowerCase(),
+          orElse: () => VisualReview.good);
+      _assessment = ConditionalAssessment.values.firstWhere(
+        (e) =>
+            e.name == currentVisualSection.conditionalassessment?.toLowerCase(),
+        orElse: () => ConditionalAssessment.fail,
+      );
 
       _eee = ExpectancyYears.values
           .firstWhere((e) => e.name == currentVisualSection.eee);
