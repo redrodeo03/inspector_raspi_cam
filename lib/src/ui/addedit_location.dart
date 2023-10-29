@@ -294,7 +294,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                     ? currentLocation.url == ""
                                         ? Image.asset(
                                             "assets/images/icon.png",
-                                            fit: BoxFit.cover,
+                                            fit: BoxFit.fill,
                                             width: double.infinity,
                                             height: 250,
                                           )

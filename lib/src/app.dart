@@ -19,7 +19,7 @@ class App extends StatelessWidget {
         child: MaterialApp(
           navigatorObservers: [NavigationObserver()],
           debugShowCheckedModeBanner: false,
-          title: 'Deck Inspectors',
+          title: 'E3 Inspections',
           builder: (context, child) {
             final MediaQueryData data = MediaQuery.of(context);
 
