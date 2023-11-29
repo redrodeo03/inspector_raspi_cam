@@ -12,6 +12,8 @@ import 'package:realm/realm.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../bloc/notificationcontroller.dart';
+
 class RealmProjectServices with ChangeNotifier {
   static const String queryAssignedProjects = "getAssignedProjectsSubscription";
   static const String queryMyProjects = "getMyProjectsSubscription";
@@ -72,9 +74,10 @@ class RealmProjectServices with ChangeNotifier {
         }
       });
       //subscribe to network when changed to connected.
-      appSettings.addListener(() {
+      appSettings.addListener(() async {
         appSettings.isImageUploading = true;
         uploadLocalImages();
+        await realm.syncSession.waitForUpload();
       });
     }
   }
@@ -708,7 +711,7 @@ class RealmProjectServices with ChangeNotifier {
       } else {
         int k = 0;
         realm.write(() {
-          for (var url in onlinePaths) {
+          for (var url in localPaths) {
             DeckImage image = DeckImage(
                 ObjectId(),
                 url,
@@ -772,7 +775,9 @@ class RealmProjectServices with ChangeNotifier {
         realm.syncSession.resume();
 
         final images = realm.query<DeckImage>("isUploaded == false");
-
+        if (images.isNotEmpty) {
+          NotificationController.createNewNotification();
+        }
         for (var image in images) {
           if (!appSettings.activeConnection) {
             appSettings.isImageUploading = false;
@@ -887,7 +892,8 @@ class RealmProjectServices with ChangeNotifier {
     } catch (e) {
       debugPrint("Error message: $e");
       appSettings.isImageUploading = false;
-    }
+    } finally {}
+    NotificationController.cancelNotifications();
     appSettings.isImageUploading = false;
   }
 
@@ -1310,7 +1316,9 @@ class RealmProjectServices with ChangeNotifier {
           }
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
     return offlineImages.toList();
   }
 }

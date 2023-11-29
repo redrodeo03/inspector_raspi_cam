@@ -43,10 +43,14 @@ class ImagesApiProvider {
   Future<Object> uploadImageLocally(String imageFilePath, String containerName,
       String uploader, String id, String parentType, String entityName) async {
     try {
-      Directory? directory = await getApplicationDocumentsDirectory();
+      //Directory? directory = await getApplicationDocumentsDirectory();
+      Directory? directory = Platform.isAndroid
+          ? await getExternalStorageDirectory() //FOR ANDROID
+          : await getApplicationSupportDirectory();
+
       File file = File(imageFilePath);
       var destDirectory =
-          await Directory(path.join(directory.path, containerName, entityName))
+          await Directory(path.join(directory!.path, containerName, entityName))
               .create(recursive: true);
 
       File copiedFile = await file

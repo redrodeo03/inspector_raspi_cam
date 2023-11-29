@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'src/app.dart';
+import 'src/bloc/notificationcontroller.dart';
 import 'src/resources/realm/app_services.dart';
 import 'src/resources/realm/realm_services.dart';
 
@@ -14,6 +15,10 @@ void main() async {
       .decode(await rootBundle.loadString('assets/config/atlasConfig.json'));
   String appId = realmConfig['appId'];
   Uri baseUrl = Uri.parse(realmConfig['baseUrl']);
+
+  // Always initialize Awesome Notifications
+  await NotificationController.initializeLocalNotifications();
+  await NotificationController.initializeIsolateReceivePort();
 
   return runApp(MultiProvider(providers: [
     ChangeNotifierProvider<AppServices>(
