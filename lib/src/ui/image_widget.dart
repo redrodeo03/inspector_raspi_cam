@@ -50,11 +50,19 @@ Widget networkImage(String? netWorkImageURL) {
       fit: BoxFit.cover,
     );
   } else {
-    return Image.file(
-      File(imageURL),
-      fit: BoxFit.fill,
-      width: double.infinity,
-    );
+    if (File(imageURL).existsSync()) {
+      return Image.file(
+        File(imageURL),
+        fit: BoxFit.fill,
+        width: double.infinity,
+      );
+    } else {
+      return Image.asset(
+        "assets/images/icon.png",
+        fit: BoxFit.fill,
+        width: double.infinity,
+      );
+    }
   }
 }
 

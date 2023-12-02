@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// import 'resources/realm/realm_services.dart';
+import 'bloc/notificationcontroller.dart';
 import 'ui/login.dart';
 import 'ui/navigation_observer.dart';
-//import 'ui/movie_list.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  // The navigator key is necessary to navigate using static methods
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+
   static bool isImageUploading = false;
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    NotificationController.startListeningNotificationEvents();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     // final currentUser =

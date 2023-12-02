@@ -48,14 +48,19 @@ class ImagesApiProvider {
           ? await getExternalStorageDirectory() //FOR ANDROID
           : await getApplicationSupportDirectory();
 
-      File file = File(imageFilePath);
-      var destDirectory =
-          await Directory(path.join(directory!.path, containerName, entityName))
-              .create(recursive: true);
+      if (File(imageFilePath).existsSync()) {
+        File file = File(imageFilePath);
+        var destDirectory = await Directory(
+                path.join(directory!.path, entityName, containerName))
+            .create(recursive: true);
 
-      File copiedFile = await file
-          .copy(path.join(destDirectory.path, path.basename(imageFilePath)));
-      return ImageResponse(message: 'success', url: copiedFile.path);
+        File copiedFile = await file
+            .copy(path.join(destDirectory.path, path.basename(imageFilePath)));
+        return ImageResponse(message: 'success', url: copiedFile.path);
+      } else {
+        return ErrorResponse(
+            message: 'failure', errordata: 'file doesn\'t exist');
+      }
     } catch (e) {
       return ErrorResponse(message: 'failure', errordata: e);
     }

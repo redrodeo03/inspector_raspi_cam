@@ -283,7 +283,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                               },
                               child: Container(
                                 decoration: const BoxDecoration(
-                                    color: Colors.orange,
+                                    color: Colors.blue,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8.0)),
                                     boxShadow: [

@@ -343,7 +343,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             child: Container(
                               decoration: const BoxDecoration(
-                                  color: Colors.orange,
+                                  color: Colors.blue,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8.0)),
                                   boxShadow: [

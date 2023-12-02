@@ -1281,7 +1281,7 @@ class _SectionPageState extends State<SectionPage> {
                 setState(() {
                   _assessment = value;
                 });
-                debugPrint(_review!.name);
+                //debugPrint(_review!.name);
               },
             ),
           );
@@ -1370,6 +1370,7 @@ class _SectionPageState extends State<SectionPage> {
 
   void deleteSection(BuildContext context, VisualSection currentVisualSection) {
     var locationame = currentVisualSection.name;
+    Navigator.of(context).pop();
     var result = realmServices.deleteVisualSection(currentVisualSection);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1379,7 +1380,6 @@ class _SectionPageState extends State<SectionPage> {
     if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('${currentVisualSection.name} deleted successfully.')));
-      Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete the $locationame')),
@@ -1418,7 +1418,11 @@ class _SectionPageState extends State<SectionPage> {
       );
       imageData = response.bodyBytes;
     } else {
-      imageData = await File(capturedImage).readAsBytes();
+      if (File(capturedImage).existsSync()) {
+        imageData = await File(capturedImage).readAsBytes();
+      } else {
+        return;
+      }
     }
 
     var editedImage = await Navigator.push(context,

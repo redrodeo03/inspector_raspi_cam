@@ -253,10 +253,10 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
             currentVisualSection.waterproofingelements.contains(item.name))
         .toList();
 
-    _review = VisualReview.values
-        .firstWhere((e) => e.name == currentVisualSection.visualreview);
-    _assessment = ConditionalAssessment.values.firstWhere(
-        (e) => e.name == currentVisualSection.conditionalassessment);
+    _review = VisualReview.values.firstWhere(
+        (e) => e.name == currentVisualSection.visualreview?.toLowerCase());
+    _assessment = ConditionalAssessment.values.firstWhere((e) =>
+        e.name == currentVisualSection.conditionalassessment?.toLowerCase());
 
     _eee = ExpectancyYears.values
         .firstWhere((e) => e.name == currentVisualSection.eee);

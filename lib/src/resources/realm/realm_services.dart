@@ -700,7 +700,7 @@ class RealmProjectServices with ChangeNotifier {
                 false,
                 localVisualSection.id,
                 'visualSection',
-                'visualSectionImage',
+                'section',
                 localVisualSection.name as String,
                 usersBloc.userDetails.username as String);
 
@@ -719,7 +719,7 @@ class RealmProjectServices with ChangeNotifier {
                 true,
                 localVisualSection.id,
                 'visualSection',
-                'visualSectionImage',
+                'section',
                 localVisualSection.name as String,
                 usersBloc.userDetails.username as String);
 
@@ -769,13 +769,14 @@ class RealmProjectServices with ChangeNotifier {
 
   void uploadLocalImages() async {
     try {
+      if (offlineModeOn) return;
       List<DeckImage> imagesTobeDelete = [];
 
       if (!realm.isClosed) {
         realm.syncSession.resume();
 
         final images = realm.query<DeckImage>("isUploaded == false");
-        if (images.isNotEmpty) {
+        if (images.isNotEmpty && !offlineModeOn) {
           NotificationController.createNewNotification();
         }
         for (var image in images) {
@@ -1297,7 +1298,7 @@ class RealmProjectServices with ChangeNotifier {
     List<String> offlineImages = [];
     RealmResults<DeckImage> deckImages;
     try {
-      if (activeConnection) {
+      if (activeConnection && !offlineModeOn) {
         return capturedImages.where((e) => !e.startsWith('http')).toList();
       } else {
         if (isNewSection) {
