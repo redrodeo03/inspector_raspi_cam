@@ -20,8 +20,7 @@ class LocationPage extends StatefulWidget {
   final String locationType;
   const LocationPage(
       this.id, this.parentType, this.locationType, this.userFullName,
-      {Key? key})
-      : super(key: key);
+      {super.key});
   @override
   State<LocationPage> createState() => _LocationPageState();
   static MaterialPageRoute getRoute(ObjectId id, String parentType,
@@ -300,7 +299,13 @@ class _LocationPageState extends State<LocationPage> {
 
   Widget horizontalScrollChildren(BuildContext context, int index) {
     String vreview = '';
-    String visualReview = (sections[index].visualreview as String);
+    String visualReview = '';
+    if (sections[index].visualreview == null) {
+      visualReview = 'good';
+    } else {
+      visualReview = sections[index].visualreview as String;
+    }
+
     switch (visualReview.toLowerCase()) {
       case 'good':
         vreview = 'Good';
@@ -315,7 +320,13 @@ class _LocationPageState extends State<LocationPage> {
     }
     String assessment = '';
     String? coverUrl = sections[index].coverUrl;
-    String assessmentActual = (sections[index].conditionalassessment as String);
+
+    String assessmentActual = '';
+    if (sections[index].conditionalassessment == null) {
+      assessmentActual = 'pass';
+    } else {
+      assessmentActual = (sections[index].conditionalassessment as String);
+    }
     switch (assessmentActual.toLowerCase()) {
       case 'pass':
         assessment = 'Pass';

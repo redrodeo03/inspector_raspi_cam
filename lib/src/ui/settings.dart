@@ -353,7 +353,7 @@ class _SettingsPageState extends State<SettingsPage> {
             _infoTile('App version', _packageInfo.version),
             _infoTile('Build number', _packageInfo.buildNumber),
             _infoTile('Build signature', _packageInfo.buildSignature),
-            _infoTile('Created On', '30th Nov 23'),
+            _infoTile('Created On', '3rd Dec 23'),
           ],
         )
       ])),
