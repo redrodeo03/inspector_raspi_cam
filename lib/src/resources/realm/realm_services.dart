@@ -77,6 +77,7 @@ class RealmProjectServices with ChangeNotifier {
       appSettings.addListener(() async {
         appSettings.isImageUploading = true;
         uploadLocalImages();
+
         await realm.syncSession.waitForUpload();
       });
     }
@@ -95,7 +96,9 @@ class RealmProjectServices with ChangeNotifier {
       //     name: queryAllSubProjects);
       mutableSubscriptions.add(realm.all<SubProject>(),
           name: queryAllSubProjects);
-      mutableSubscriptions.add(realm.all<DeckImage>(), name: queryAllImage);
+      mutableSubscriptions.add(
+          realm.query<DeckImage>("uploadedBy==\$0", [loggedInUser]),
+          name: queryAllImage);
       mutableSubscriptions.add(realm.all<VisualSection>(),
           name: queryAllVisualSections);
       mutableSubscriptions.add(realm.all<ConclusiveSection>(),
@@ -776,6 +779,7 @@ class RealmProjectServices with ChangeNotifier {
         realm.syncSession.resume();
 
         final images = realm.query<DeckImage>("isUploaded == false");
+        //final images = realm.all<DeckImage>();
         if (images.isNotEmpty && !offlineModeOn) {
           NotificationController.createNewNotification();
         }
