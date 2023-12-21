@@ -6,11 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'src/app.dart';
 import 'src/bloc/notificationcontroller.dart';
+
+//import 'src/resources/photo_album_manager.dart';
 import 'src/resources/realm/app_services.dart';
 import 'src/resources/realm/realm_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   final realmConfig = json
       .decode(await rootBundle.loadString('assets/config/atlasConfig.json'));
   String appId = realmConfig['appId'];
