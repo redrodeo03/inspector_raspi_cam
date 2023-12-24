@@ -53,10 +53,16 @@ class ImagesApiProvider {
         var destDirectory = await Directory(
                 path.join(directory!.path, entityName, containerName))
             .create(recursive: true);
-
-        File copiedFile = await file
-            .copy(path.join(destDirectory.path, path.basename(imageFilePath)));
-        return ImageResponse(message: 'success', url: copiedFile.path);
+        var fileName = path.basename(imageFilePath);
+        File copiedFile =
+            await file.copy(path.join(destDirectory.path, fileName));
+        if (Platform.isAndroid) {
+          return ImageResponse(message: 'success', url: copiedFile.path);
+        } else {
+          return ImageResponse(
+              message: 'success',
+              url: path.join(entityName, containerName, fileName));
+        }
       } else {
         return ErrorResponse(
             message: 'failure', errordata: 'file doesn\'t exist');

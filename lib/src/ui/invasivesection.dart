@@ -395,7 +395,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       if (capturedInvasiveImages.isNotEmpty) {
         // var imagesToUpload =
         //     capturedInvasiveImages.where((e) => !e.startsWith('http')).toList();
-        var imagesToUpload = realmServices.getImagesNotUploaded(
+        var imagesToUpload = await realmServices.getImagesNotUploaded(
             capturedInvasiveImages, appSettings.activeConnection, isNewSection);
         if (imagesToUpload.isNotEmpty) {
           imagesBloc
@@ -424,7 +424,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
         // var imagesToUpload = capturedConclusiveImages
         //     .where((e) => !e.startsWith('http'))
         //     .toList();
-        var imagesToUpload = realmServices.getImagesNotUploaded(
+        var imagesToUpload = await realmServices.getImagesNotUploaded(
             capturedConclusiveImages,
             appSettings.activeConnection,
             isNewSection);

@@ -276,7 +276,7 @@ class _SectionPageState extends State<SectionPage> {
           capturedImages.addAll(currentVisualSection.images);
           //call upload local images
 
-          realmServices.uploadLocalImages();
+          //realmServices.uploadLocalImages();
         } else {
           for (var imgpath in currentVisualSection.images) {
             capturedImages.add(realmServices.getlocalPath(imgpath));
@@ -344,17 +344,30 @@ class _SectionPageState extends State<SectionPage> {
           // var imagesToUpload =
           //     capturedImages.where((e) => !e.startsWith('http')).toList();
           // get the images which are not uploaded.
-          var imagesToUpload = realmServices.getImagesNotUploaded(
+          var imagesToUpload = await realmServices.getImagesNotUploaded(
               capturedImages, appSettings.activeConnection, isNewSection);
+
           if (imagesToUpload.isNotEmpty) {
             if (parentType != 'project') {
               realmServices.updateImageUploadStatus(
                   currentLocation, currentVisualSection.id, true);
             }
-
+            List<String> transformedimagesPath = [];
+            // update the path of the images
+            if (Platform.isIOS) {
+              Directory imageDirectory = await getApplicationSupportDirectory();
+              transformedimagesPath = imagesToUpload
+                  .map((imgpath) =>
+                      imgpath = path.join(imageDirectory.path, imgpath))
+                  .toList();
+            } else {
+              transformedimagesPath = imagesToUpload;
+            }
+            //print(transformedimagesPath);
+            //print(imagesToUpload);
             imagesBloc
                 .uploadMultipleImages(
-                    imagesToUpload,
+                    transformedimagesPath,
                     currentVisualSection.name as String,
                     userFullName,
                     currentVisualSection.id.toString(),
@@ -623,6 +636,7 @@ class _SectionPageState extends State<SectionPage> {
                                                         ))),
                                               ),
                                             ),
+                                            Text(capturedImages[index]),
                                             OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
                                                     side: BorderSide.none,

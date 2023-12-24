@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:path/path.dart' as path;
 import 'package:deckinspectors/src/bloc/images_bloc.dart';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/bloc/users_bloc.dart';
@@ -8,6 +8,7 @@ import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
 import 'package:deckinspectors/src/models/success_response.dart';
 
 import 'package:deckinspectors/src/ui/section.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:realm/realm.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,6 +122,9 @@ class RealmProjectServices with ChangeNotifier {
         notifyListeners();
         realm.syncSession.resume();
         await updateSubscriptions();
+        if (!realm.isClosed) {
+          await realm.subscriptions.waitForSynchronization();
+        }
         //uplaod all the images and update deckimages
         uploadLocalImages();
       } finally {
@@ -693,6 +697,7 @@ class RealmProjectServices with ChangeNotifier {
   bool addImagesUrl(VisualSection localVisualSection, List<String> localPaths,
       List<String> onlinePaths) {
     try {
+      int k = 0;
       if (offlineModeOn || !appSettings.activeConnection) {
         realm.write(() {
           for (var url in onlinePaths) {
@@ -708,11 +713,18 @@ class RealmProjectServices with ChangeNotifier {
                 usersBloc.userDetails.username as String);
 
             realm.add<DeckImage>(image, update: true);
+            if (localVisualSection.images.contains(url)) {
+              int index = localVisualSection.images.indexOf(url);
+              localVisualSection.images[index] = onlinePaths[k];
+            } else {
+              localVisualSection.images.add(onlinePaths[k]);
+            }
+            k++;
           }
-          localVisualSection.images.addAll(onlinePaths);
+          //localVisualSection.images.addAll(onlinePaths);
         });
       } else {
-        int k = 0;
+        k = 0;
         realm.write(() {
           for (var url in localPaths) {
             DeckImage image = DeckImage(
@@ -727,12 +739,15 @@ class RealmProjectServices with ChangeNotifier {
                 usersBloc.userDetails.username as String);
 
             realm.add<DeckImage>(image, update: true);
+            print(localVisualSection.images);
 
             if (localVisualSection.images.contains(url)) {
               int index = localVisualSection.images.indexOf(url);
               localVisualSection.images[index] = onlinePaths[k];
             } else {
-              localVisualSection.images.add(onlinePaths[k]);
+              if (!localVisualSection.images.contains(onlinePaths[k])) {
+                localVisualSection.images.add(onlinePaths[k]);
+              }
             }
             k++;
           }
@@ -773,7 +788,7 @@ class RealmProjectServices with ChangeNotifier {
   void uploadLocalImages() async {
     try {
       if (offlineModeOn) return;
-      List<DeckImage> imagesTobeDelete = [];
+      //List<DeckImage> imagesTobeDelete = [];
 
       if (!realm.isClosed) {
         realm.syncSession.resume();
@@ -789,17 +804,25 @@ class RealmProjectServices with ChangeNotifier {
             return;
           }
           String localPath = image.imageLocalPath;
+          String transformedPath = '';
           String parentType = image.parentType;
           ObjectId parentId = image.parentId;
 
-          final file = File(localPath);
+          if (Platform.isIOS) {
+            final directory = await getApplicationSupportDirectory();
 
-          if (!file.existsSync()) {
-            imagesTobeDelete.add(image);
-            continue;
+            transformedPath = path.join(directory.path, localPath);
+          } else {
+            transformedPath = localPath;
           }
+          //final file = File(transformedPath);
+          //will not delete any entries now
+          // if (!file.existsSync()) {
+          //   imagesTobeDelete.add(image);
+          //   continue;
+          // }
           var result = await imagesBloc.uploadImage(
-              localPath,
+              transformedPath,
               image.containerName,
               image.uploadedBy,
               image.id.toString(),
@@ -892,7 +915,7 @@ class RealmProjectServices with ChangeNotifier {
             });
           }
         }
-        realm.write(() => realm.deleteMany<DeckImage>(imagesTobeDelete));
+        //realm.write(() => realm.deleteMany<DeckImage>(imagesTobeDelete));
       }
     } catch (e) {
       debugPrint("Error message: $e");
@@ -1297,8 +1320,8 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
-  List<String> getImagesNotUploaded(
-      List<String> capturedImages, bool activeConnection, bool isNewSection) {
+  Future<List<String>> getImagesNotUploaded(List<String> capturedImages,
+      bool activeConnection, bool isNewSection) async {
     List<String> offlineImages = [];
     RealmResults<DeckImage> deckImages;
     try {
