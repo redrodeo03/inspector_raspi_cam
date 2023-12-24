@@ -636,7 +636,7 @@ class _SectionPageState extends State<SectionPage> {
                                                         ))),
                                               ),
                                             ),
-                                            Text(capturedImages[index]),
+                                            //Text(capturedImages[index]), to show the image path.
                                             OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
                                                     side: BorderSide.none,
