@@ -794,7 +794,7 @@ class RealmProjectServices with ChangeNotifier {
         realm.syncSession.resume();
 
         final images = realm.query<DeckImage>("isUploaded == false");
-        //final images = realm.all<DeckImage>();
+        //just removing the notifications part, perhaps failing the whole method.
         if (images.isNotEmpty && !offlineModeOn) {
           NotificationController.createNewNotification();
         }
@@ -815,12 +815,12 @@ class RealmProjectServices with ChangeNotifier {
           } else {
             transformedPath = localPath;
           }
-          //final file = File(transformedPath);
+          final file = File(transformedPath);
           //will not delete any entries now
-          // if (!file.existsSync()) {
-          //   imagesTobeDelete.add(image);
-          //   continue;
-          // }
+          if (!file.existsSync()) {
+            //imagesTobeDelete.add(image);
+            continue;
+          }
           var result = await imagesBloc.uploadImage(
               transformedPath,
               image.containerName,
