@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:deckinspectors/src/resources/urls.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/error_response.dart';
 import '../models/success_response.dart';
@@ -57,8 +58,14 @@ class ImagesApiProvider {
         File copiedFile =
             await file.copy(path.join(destDirectory.path, fileName));
         if (Platform.isAndroid) {
+          //save to gallery
+          final result = await ImageGallerySaver.saveFile(copiedFile.path,
+              name: 'E3Inspections');
+
           return ImageResponse(message: 'success', url: copiedFile.path);
         } else {
+          await ImageGallerySaver.saveFile(copiedFile.path,
+              isReturnPathOfIOS: true, name: 'E3Inspections');
           return ImageResponse(
               message: 'success',
               url: path.join(entityName, containerName, fileName));

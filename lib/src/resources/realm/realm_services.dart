@@ -90,7 +90,8 @@ class RealmProjectServices with ChangeNotifier {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.clear();
       mutableSubscriptions.add(
-          realm.query<Project>('\$0 IN assignedto', [loggedInUser]),
+          realm.query<Project>(
+              '\$0 IN assignedto && iscomplete==\$1', [loggedInUser, false]),
           name: queryAssignedProjects);
 
       mutableSubscriptions.add(realm.all<Location>(), name: queryAllLocations);
