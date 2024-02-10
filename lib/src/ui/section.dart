@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -373,10 +374,12 @@ class _SectionPageState extends State<SectionPage> {
                     currentVisualSection.id.toString(),
                     parentType,
                     'section')
-                .then((value) {
+                .then((value) async {
               List<String> urls = [];
               for (var element in value) {
                 if (element is ImageResponse) {
+                  await ImageGallerySaver.saveFile(
+                      element.originalPath as String);
                   urls.add(element.url as String);
                 }
               }

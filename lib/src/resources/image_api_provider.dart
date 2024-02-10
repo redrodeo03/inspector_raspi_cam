@@ -57,24 +57,30 @@ class ImagesApiProvider {
         var fileName = path.basename(imageFilePath);
         File copiedFile =
             await file.copy(path.join(destDirectory.path, fileName));
+
         if (Platform.isAndroid) {
           //save to gallery
-          final result = await ImageGallerySaver.saveFile(copiedFile.path,
-              name: 'E3Inspections');
+          // final result = await ImageGallerySaver.saveFile(copiedFile.path,
+          //     name: 'E3Inspections');
 
-          return ImageResponse(message: 'success', url: copiedFile.path);
-        } else {
-          await ImageGallerySaver.saveFile(copiedFile.path,
-              isReturnPathOfIOS: true, name: 'E3Inspections');
           return ImageResponse(
               message: 'success',
-              url: path.join(entityName, containerName, fileName));
+              url: copiedFile.path,
+              originalPath: copiedFile.path);
+        } else {
+          // await ImageGallerySaver.saveFile(copiedFile.path,
+          //     isReturnPathOfIOS: true, name: 'E3Inspections');
+          return ImageResponse(
+              message: 'success',
+              url: path.join(entityName, containerName, fileName),
+              originalPath: copiedFile.path);
         }
       } else {
         return ErrorResponse(
             message: 'failure', errordata: 'file doesn\'t exist');
       }
     } catch (e) {
+      print(e);
       return ErrorResponse(message: 'failure', errordata: e);
     }
   }
