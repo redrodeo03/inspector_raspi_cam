@@ -40,15 +40,15 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
   String userFullName = "";
   late ObjectId buildingId;
 
-  late LocalSubProject currentBuilding;
-  late List<LocalChild?> buildinglocations;
-  late List<LocalChild?> apartments;
-  late LocalLocation newLocation;
-  late LocalLocation newApartment;
+  late SubProject currentBuilding;
+  late List<Child?> buildinglocations;
+  late List<Child?> apartments;
+  late Location newLocation;
+  late Location newApartment;
   late String prevPageName;
 
-  LocalLocation getLocation(String type) {
-    return LocalLocation(ObjectId(), buildingId, false,
+  Location getLocation(String type) {
+    return Location(ObjectId(), buildingId, false,
         name: "",
         description: "",
         createdby: userFullName,
@@ -161,7 +161,7 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
         //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
         //   child: BreadCrumbNavigator(),
         // ),
-        body: StreamBuilder<RealmObjectChanges<LocalSubProject>>(
+        body: StreamBuilder<RealmObjectChanges<SubProject>>(
           //projectsBloc.projects
           stream: realmServices.getSubProject(buildingId)!.changes,
           builder: (context, snapshot) {
@@ -212,13 +212,15 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
           const ProjectType(),
           Container(
             height: 220,
-            decoration: const BoxDecoration(
-                color: Colors.orange,
+            decoration: BoxDecoration(
+                color: appSettings.isInvasiveMode ? Colors.orange : Colors.blue,
                 // image: DecorationImage(
                 //     image: AssetImage('assets/images/icon.png'),
                 //     fit: BoxFit.cover),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                boxShadow: [BoxShadow(blurRadius: 1.0, color: Colors.blue)]),
+                borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                boxShadow: const [
+                  BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                ]),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: cachedNetworkImage(currentBuilding.url),
@@ -457,11 +459,14 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 child: Container(
                   height: 140,
                   width: 192,
-                  decoration: const BoxDecoration(
-                      color: Colors.orange,
+                  decoration: BoxDecoration(
+                      color: appSettings.isInvasiveMode
+                          ? Colors.orange
+                          : Colors.blue,
                       // image: networkImage(currentProject.url as String),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      boxShadow: [
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
+                      boxShadow: const [
                         BoxShadow(blurRadius: 1.0, color: Colors.blue)
                       ]),
                   child: ClipRRect(
@@ -530,11 +535,14 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
                 child: Container(
                     height: 140,
                     width: 192,
-                    decoration: const BoxDecoration(
-                        color: Colors.orange,
+                    decoration: BoxDecoration(
+                        color: appSettings.isInvasiveMode
+                            ? Colors.orange
+                            : Colors.blue,
                         // image: networkImage(currentProject.url as String),
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        boxShadow: [
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(8.0)),
+                        boxShadow: const [
                           BoxShadow(blurRadius: 1.0, color: Colors.blue)
                         ]),
                     child: ClipRRect(

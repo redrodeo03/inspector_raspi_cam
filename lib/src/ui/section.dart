@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -184,22 +185,22 @@ class _SectionPageState extends State<SectionPage> {
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late LocalVisualSection currentVisualSection;
-  late LocalLocation currentLocation;
+  late VisualSection currentVisualSection;
+  late Location currentLocation;
   late Future sectionResponse;
   late bool isNewSection;
   late String prevPageName;
   void fetchData() {
     isRunning = true;
     currentVisualSection =
-        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+        realmServices.getVisualSection(widget.sectionId) as VisualSection;
 
     setInitialValues();
     isRunning = false;
   }
 
-  LocalVisualSection getNewVisualSection() {
-    return LocalVisualSection(
+  VisualSection getNewVisualSection() {
+    return VisualSection(
       ObjectId(),
       "",
       "",
@@ -230,8 +231,7 @@ class _SectionPageState extends State<SectionPage> {
     prevPageName = widget.parentName;
 
     if (parentType != 'project') {
-      currentLocation =
-          realmServices.getLocation(widget.parentId) as LocalLocation;
+      currentLocation = realmServices.getLocation(widget.parentId) as Location;
     }
     super.initState();
   }
@@ -277,7 +277,7 @@ class _SectionPageState extends State<SectionPage> {
           capturedImages.addAll(currentVisualSection.images);
           //call upload local images
 
-          realmServices.uploadLocalImages();
+          //realmServices.uploadLocalImages();
         } else {
           for (var imgpath in currentVisualSection.images) {
             capturedImages.add(realmServices.getlocalPath(imgpath));
@@ -345,26 +345,41 @@ class _SectionPageState extends State<SectionPage> {
           // var imagesToUpload =
           //     capturedImages.where((e) => !e.startsWith('http')).toList();
           // get the images which are not uploaded.
-          var imagesToUpload = realmServices.getImagesNotUploaded(
+          var imagesToUpload = await realmServices.getImagesNotUploaded(
               capturedImages, appSettings.activeConnection, isNewSection);
+
           if (imagesToUpload.isNotEmpty) {
             if (parentType != 'project') {
               realmServices.updateImageUploadStatus(
                   currentLocation, currentVisualSection.id, true);
             }
-
+            List<String> transformedimagesPath = [];
+            // update the path of the images
+            if (Platform.isIOS) {
+              Directory imageDirectory = await getApplicationSupportDirectory();
+              transformedimagesPath = imagesToUpload
+                  .map((imgpath) =>
+                      imgpath = path.join(imageDirectory.path, imgpath))
+                  .toList();
+            } else {
+              transformedimagesPath = imagesToUpload;
+            }
+            //print(transformedimagesPath);
+            //print(imagesToUpload);
             imagesBloc
                 .uploadMultipleImages(
-                    imagesToUpload,
+                    transformedimagesPath,
                     currentVisualSection.name as String,
                     userFullName,
                     currentVisualSection.id.toString(),
                     parentType,
                     'section')
-                .then((value) {
+                .then((value) async {
               List<String> urls = [];
               for (var element in value) {
                 if (element is ImageResponse) {
+                  await ImageGallerySaver.saveFile(
+                      element.originalPath as String);
                   urls.add(element.url as String);
                 }
               }
@@ -624,6 +639,7 @@ class _SectionPageState extends State<SectionPage> {
                                                         ))),
                                               ),
                                             ),
+                                            //Text(capturedImages[index]), to show the image path.
                                             OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
                                                     side: BorderSide.none,
@@ -1282,7 +1298,7 @@ class _SectionPageState extends State<SectionPage> {
                 setState(() {
                   _assessment = value;
                 });
-                debugPrint(_review!.name);
+                //debugPrint(_review!.name);
               },
             ),
           );
@@ -1369,9 +1385,9 @@ class _SectionPageState extends State<SectionPage> {
     );
   }
 
-  void deleteSection(
-      BuildContext context, LocalVisualSection currentVisualSection) {
+  void deleteSection(BuildContext context, VisualSection currentVisualSection) {
     var locationame = currentVisualSection.name;
+    Navigator.of(context).pop();
     var result = realmServices.deleteVisualSection(currentVisualSection);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1381,7 +1397,6 @@ class _SectionPageState extends State<SectionPage> {
     if (result == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('${currentVisualSection.name} deleted successfully.')));
-      Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete the $locationame')),
@@ -1420,7 +1435,11 @@ class _SectionPageState extends State<SectionPage> {
       );
       imageData = response.bodyBytes;
     } else {
-      imageData = await File(capturedImage).readAsBytes();
+      if (File(capturedImage).existsSync()) {
+        imageData = await File(capturedImage).readAsBytes();
+      } else {
+        return;
+      }
     }
 
     var editedImage = await Navigator.push(context,
@@ -1443,8 +1462,8 @@ class _SectionPageState extends State<SectionPage> {
     }
   }
 
-  void removePhoto(BuildContext context,
-      LocalVisualSection currentVisualSection, int index) {
+  void removePhoto(
+      BuildContext context, VisualSection currentVisualSection, int index) {
     realmServices.removeImageUrl(currentVisualSection, capturedImages[index]);
     setState(() {
       capturedImages.removeAt(index);

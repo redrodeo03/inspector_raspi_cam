@@ -1,4 +1,4 @@
-package com.example.deckinspectors
+package com.deckinspectors.inspections
 
 import io.flutter.embedding.android.FlutterActivity
 

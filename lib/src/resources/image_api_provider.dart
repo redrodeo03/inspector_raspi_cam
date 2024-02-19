@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:deckinspectors/src/resources/urls.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/error_response.dart';
 import '../models/success_response.dart';
@@ -43,16 +44,43 @@ class ImagesApiProvider {
   Future<Object> uploadImageLocally(String imageFilePath, String containerName,
       String uploader, String id, String parentType, String entityName) async {
     try {
-      Directory? directory = await getApplicationDocumentsDirectory();
-      File file = File(imageFilePath);
-      var destDirectory =
-          await Directory(path.join(directory.path, containerName, entityName))
-              .create(recursive: true);
+      //Directory? directory = await getApplicationDocumentsDirectory();
+      Directory? directory = Platform.isAndroid
+          ? await getExternalStorageDirectory() //FOR ANDROID
+          : await getApplicationSupportDirectory();
 
-      File copiedFile = await file
-          .copy(path.join(destDirectory.path, path.basename(imageFilePath)));
-      return ImageResponse(message: 'success', url: copiedFile.path);
+      if (File(imageFilePath).existsSync()) {
+        File file = File(imageFilePath);
+        var destDirectory = await Directory(
+                path.join(directory!.path, entityName, containerName))
+            .create(recursive: true);
+        var fileName = path.basename(imageFilePath);
+        File copiedFile =
+            await file.copy(path.join(destDirectory.path, fileName));
+
+        if (Platform.isAndroid) {
+          //save to gallery
+          // final result = await ImageGallerySaver.saveFile(copiedFile.path,
+          //     name: 'E3Inspections');
+
+          return ImageResponse(
+              message: 'success',
+              url: copiedFile.path,
+              originalPath: copiedFile.path);
+        } else {
+          // await ImageGallerySaver.saveFile(copiedFile.path,
+          //     isReturnPathOfIOS: true, name: 'E3Inspections');
+          return ImageResponse(
+              message: 'success',
+              url: path.join(entityName, containerName, fileName),
+              originalPath: copiedFile.path);
+        }
+      } else {
+        return ErrorResponse(
+            message: 'failure', errordata: 'file doesn\'t exist');
+      }
     } catch (e) {
+      print(e);
       return ErrorResponse(message: 'failure', errordata: e);
     }
   }

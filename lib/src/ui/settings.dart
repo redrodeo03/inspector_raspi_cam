@@ -2,6 +2,7 @@ import 'package:deckinspectors/src/app.dart';
 import 'package:deckinspectors/src/bloc/settings_bloc.dart';
 import 'package:deckinspectors/src/ui/login.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +20,21 @@ class _SettingsPageState extends State<SettingsPage> {
   bool isLowQuality = false;
   bool isHighQuality = false;
   bool isMediumQuality = true;
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
 
   Future<void> _loadImageSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -108,6 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    _initPackageInfo();
     realmServices = Provider.of<RealmProjectServices>(context, listen: false);
     imageCount = imageCountList.first;
     companyName = list.first;
@@ -310,136 +327,43 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Logout',
                   style: TextStyle(color: Colors.orange),
                 )),
-            // const Align(
-            //   alignment: Alignment.centerLeft,
-            //   child: Padding(
-            //     padding: EdgeInsets.all(8),
-            //     child: Text(
-            //       'Report Settings',
-            //       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            //     ),
-            //   ),
-            // ),
-            // const Divider(
-            //   color: Color.fromARGB(255, 222, 213, 213),
-            //   height: 0,
-            //   thickness: 1,
-            //   indent: 2,
-            //   endIndent: 2,
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       const Text(
-            //         'Company Name',
-            //         style: TextStyle(fontSize: 15),
-            //       ),
-            //       DropdownButton<String>(
-            //         value: companyName,
-            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-            //         elevation: 16,
-            //         style: const TextStyle(color: Colors.blue),
-            //         underline: Container(
-            //           height: 2,
-            //           color: Colors.blue,
-            //         ),
-            //         onChanged: (String? value) {
-            //           // This is called when the user selects an item.
-            //           setState(() {
-            //             companyName = value!;
-            //             savereportSettings();
-            //           });
-            //         },
-            //         items: list.map<DropdownMenuItem<String>>((String value) {
-            //           return DropdownMenuItem<String>(
-            //             value: value,
-            //             child: Text(value),
-            //           );
-            //         }).toList(),
-            //       )
-            //     ],
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       const Text(
-            //         'Image Quality(%)',
-            //         style: TextStyle(fontSize: 15),
-            //       ),
-            //       DropdownButton<int>(
-            //         value: reportImageQuality,
-            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-            //         elevation: 16,
-            //         style: const TextStyle(color: Colors.blue),
-            //         underline: Container(
-            //           height: 2,
-            //           color: Colors.blue,
-            //         ),
-            //         onChanged: (int? value) {
-            //           // This is called when the user selects an item.
-            //           setState(() {
-            //             reportImageQuality = value!;
-            //             savereportSettings();
-            //           });
-            //         },
-            //         items: reportQulityList
-            //             .map<DropdownMenuItem<int>>((int value) {
-            //           return DropdownMenuItem<int>(
-            //             value: value,
-            //             child: Text(value.toString()),
-            //           );
-            //         }).toList(),
-            //       )
-            //     ],
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       const Text(
-            //         'Images in a row',
-            //         style: TextStyle(fontSize: 15),
-            //       ),
-            //       DropdownButton<int>(
-            //         value: imageCount,
-            //         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-            //         elevation: 16,
-            //         style: const TextStyle(color: Colors.blue),
-            //         underline: Container(
-            //           height: 2,
-            //           color: Colors.blue,
-            //         ),
-            //         onChanged: (int? value) {
-            //           // This is called when the user selects an item.
-            //           setState(() {
-            //             imageCount = value!;
-            //             savereportSettings();
-            //           });
-            //         },
-            //         items:
-            //             imageCountList.map<DropdownMenuItem<int>>((int value) {
-            //           return DropdownMenuItem<int>(
-            //             value: value,
-            //             child: Text(value.toString()),
-            //           );
-            //         }).toList(),
-            //       )
-            //     ],
-            //   ),
-            // ),
+
             const SizedBox(
               height: 30,
             ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'App Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const Divider(
+              color: Color.fromARGB(255, 222, 213, 213),
+              height: 0,
+              thickness: 1,
+              indent: 2,
+              endIndent: 2,
+            ),
+            _infoTile('App name', _packageInfo.appName),
+            _infoTile('Package name', _packageInfo.packageName),
+            _infoTile('App version', _packageInfo.version),
+            _infoTile('Build number', _packageInfo.buildNumber),
+            _infoTile('Build signature', _packageInfo.buildSignature),
+            _infoTile('Created On', '4th Feb 24'),
           ],
         )
       ])),
+    );
+  }
+
+  Widget _infoTile(String title, String subtitle) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle.isEmpty ? 'Not set' : subtitle),
     );
   }
 

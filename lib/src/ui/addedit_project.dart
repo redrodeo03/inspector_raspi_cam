@@ -16,7 +16,7 @@ import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
 
 class AddEditProjectPage extends StatefulWidget {
-  final LocalProject newProject;
+  final Project newProject;
   final String userFullName;
 
   final bool isNewProject;
@@ -26,7 +26,7 @@ class AddEditProjectPage extends StatefulWidget {
       {Key? key})
       : super(key: key);
   static MaterialPageRoute getRoute(
-          LocalProject project, bool isNew, String userName) =>
+          Project project, bool isNew, String userName) =>
       MaterialPageRoute(
           settings: const RouteSettings(name: 'Edit Project'),
           builder: (context) => AddEditProjectPage(project, isNew, userName));
@@ -71,7 +71,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   late RealmProjectServices realmProjServices;
   bool isNewProject = true;
   late String userFullName;
-  late LocalProject currentProject;
+  late Project currentProject;
   String pageTitle = "Add Project";
   final _formKey = GlobalKey<FormState>();
 
@@ -343,7 +343,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                             },
                             child: Container(
                               decoration: const BoxDecoration(
-                                  color: Colors.orange,
+                                  color: Colors.blue,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8.0)),
                                   boxShadow: [

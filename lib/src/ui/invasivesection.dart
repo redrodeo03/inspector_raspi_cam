@@ -122,9 +122,9 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
   bool isRunning = false;
   String userFullName = "";
   String parentType = "";
-  late LocalVisualSection currentVisualSection;
-  late LocalInvasiveSection currentInvasiveSection;
-  late LocalConclusiveSection currentConclusiveSection;
+  late VisualSection currentVisualSection;
+  late InvasiveSection currentInvasiveSection;
+  late ConclusiveSection currentConclusiveSection;
   late Future sectionResponse;
   late bool isNewSection;
   late String prevPageName;
@@ -133,7 +133,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
   void fetchData() {
     isRunning = true;
     currentVisualSection =
-        realmServices.getVisualSection(widget.sectionId) as LocalVisualSection;
+        realmServices.getVisualSection(widget.sectionId) as VisualSection;
     currentInvasiveSection = realmServices.getInvasiveSection(widget.sectionId);
 
     currentConclusiveSection =
@@ -253,10 +253,10 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
             currentVisualSection.waterproofingelements.contains(item.name))
         .toList();
 
-    _review = VisualReview.values
-        .firstWhere((e) => e.name == currentVisualSection.visualreview);
-    _assessment = ConditionalAssessment.values.firstWhere(
-        (e) => e.name == currentVisualSection.conditionalassessment);
+    _review = VisualReview.values.firstWhere(
+        (e) => e.name == currentVisualSection.visualreview?.toLowerCase());
+    _assessment = ConditionalAssessment.values.firstWhere((e) =>
+        e.name == currentVisualSection.conditionalassessment?.toLowerCase());
 
     _eee = ExpectancyYears.values
         .firstWhere((e) => e.name == currentVisualSection.eee);
@@ -395,7 +395,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
       if (capturedInvasiveImages.isNotEmpty) {
         // var imagesToUpload =
         //     capturedInvasiveImages.where((e) => !e.startsWith('http')).toList();
-        var imagesToUpload = realmServices.getImagesNotUploaded(
+        var imagesToUpload = await realmServices.getImagesNotUploaded(
             capturedInvasiveImages, appSettings.activeConnection, isNewSection);
         if (imagesToUpload.isNotEmpty) {
           imagesBloc
@@ -424,7 +424,7 @@ class _InvasiveSectionPageState extends State<InvasiveSectionPage>
         // var imagesToUpload = capturedConclusiveImages
         //     .where((e) => !e.startsWith('http'))
         //     .toList();
-        var imagesToUpload = realmServices.getImagesNotUploaded(
+        var imagesToUpload = await realmServices.getImagesNotUploaded(
             capturedConclusiveImages,
             appSettings.activeConnection,
             isNewSection);

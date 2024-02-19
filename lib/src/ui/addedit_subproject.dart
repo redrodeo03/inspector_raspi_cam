@@ -13,7 +13,7 @@ import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
 
 class AddEditSubProjectPage extends StatefulWidget {
-  final LocalSubProject currentBuilding;
+  final SubProject currentBuilding;
   final String fullUserName;
   final String prevPageName;
   final bool isNewBuilding;
@@ -21,7 +21,7 @@ class AddEditSubProjectPage extends StatefulWidget {
       this.fullUserName, this.prevPageName,
       {Key? key})
       : super(key: key);
-  static MaterialPageRoute getRoute(LocalSubProject subProject, bool isNew,
+  static MaterialPageRoute getRoute(SubProject subProject, bool isNew,
           String userName, String prevPageName) =>
       MaterialPageRoute(
           settings:
@@ -63,7 +63,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
   String pageTitle = 'Add';
   String prevPagename = 'Project';
   late bool isNewBuilding;
-  late LocalSubProject currentBuilding;
+  late SubProject currentBuilding;
   String name = "";
   final _formKey = GlobalKey<FormState>();
   String imageURL = 'assets/images/icon.png';
@@ -280,7 +280,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                               },
                               child: Container(
                                 decoration: const BoxDecoration(
-                                    color: Colors.orange,
+                                    color: Colors.blue,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8.0)),
                                     boxShadow: [
@@ -291,7 +291,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
                                     ? currentBuilding.url == ""
                                         ? Image.asset(
                                             "assets/images/icon.png",
-                                            fit: BoxFit.cover,
+                                            fit: BoxFit.fill,
                                             width: double.infinity,
                                             height: 250,
                                           )

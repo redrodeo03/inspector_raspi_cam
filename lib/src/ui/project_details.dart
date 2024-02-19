@@ -47,19 +47,19 @@ class ProjectDetailsPage extends StatefulWidget {
 //Add New Project
 class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     with SingleTickerProviderStateMixin {
-  late LocalProject currentProject;
+  late Project currentProject;
   late int selectedTabIndex = 0;
 //Tab Controls
   late TabController _tabController;
   late String userFullName;
   late String createdAt;
-  late List<LocalChild?> locations;
-  late List<LocalChild?> buildings;
+  late List<Child?> locations;
+  late List<Child?> buildings;
   late bool isInvasiveMode;
   late ObjectId projectId;
 
-  LocalLocation getNewLocation() {
-    var newLocation = LocalLocation(ObjectId(), projectId, false,
+  Location getNewLocation() {
+    var newLocation = Location(ObjectId(), projectId, false,
         name: "",
         description: "",
         url: "",
@@ -69,8 +69,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     return newLocation;
   }
 
-  LocalSubProject getNewBuilding() {
-    var newBuilding = LocalSubProject(ObjectId(), projectId, false,
+  SubProject getNewBuilding() {
+    var newBuilding = SubProject(ObjectId(), projectId, false,
         name: "",
         description: "",
         url: "",
@@ -221,7 +221,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         //   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
         //   child: BreadCrumbNavigator(),
         // ),
-        body: StreamBuilder<RealmObjectChanges<LocalProject>>(
+        body: StreamBuilder<RealmObjectChanges<Project>>(
           //projectsBloc.projects
           stream: realmServices.getProject(projectId)?.changes,
           builder: (context, snapshot) {

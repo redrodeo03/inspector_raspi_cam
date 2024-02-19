@@ -6,11 +6,10 @@ part of 'realm_schemas.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class LocalProject extends _LocalProject
-    with RealmEntity, RealmObjectBase, RealmObject {
+class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  LocalProject(
+  Project(
     ObjectId id, {
     String? name,
     String? projecttype,
@@ -23,12 +22,12 @@ class LocalProject extends _LocalProject
     String? lasteditedby,
     bool iscomplete = false,
     bool isInvasive = false,
-    Iterable<LocalChild> children = const [],
-    Iterable<LocalSection> sections = const [],
+    Iterable<Child> children = const [],
+    Iterable<Section> sections = const [],
     Set<String> assignedto = const {},
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalProject>({
+      _defaultsSet = RealmObjectBase.setDefaults<Project>({
         'iscomplete': false,
         'isInvasive': false,
       });
@@ -45,15 +44,15 @@ class LocalProject extends _LocalProject
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set(this, 'iscomplete', iscomplete);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
-    RealmObjectBase.set<RealmList<LocalChild>>(
-        this, 'children', RealmList<LocalChild>(children));
-    RealmObjectBase.set<RealmList<LocalSection>>(
-        this, 'sections', RealmList<LocalSection>(sections));
+    RealmObjectBase.set<RealmList<Child>>(
+        this, 'children', RealmList<Child>(children));
+    RealmObjectBase.set<RealmList<Section>>(
+        this, 'sections', RealmList<Section>(sections));
     RealmObjectBase.set<RealmSet<String>>(
         this, 'assignedto', RealmSet<String>(assignedto));
   }
 
-  LocalProject._();
+  Project._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -123,11 +122,10 @@ class LocalProject extends _LocalProject
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<LocalChild> get children =>
-      RealmObjectBase.get<LocalChild>(this, 'children')
-          as RealmList<LocalChild>;
+  RealmList<Child> get children =>
+      RealmObjectBase.get<Child>(this, 'children') as RealmList<Child>;
   @override
-  set children(covariant RealmList<LocalChild> value) =>
+  set children(covariant RealmList<Child> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -141,26 +139,24 @@ class LocalProject extends _LocalProject
   set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
-  RealmList<LocalSection> get sections =>
-      RealmObjectBase.get<LocalSection>(this, 'sections')
-          as RealmList<LocalSection>;
+  RealmList<Section> get sections =>
+      RealmObjectBase.get<Section>(this, 'sections') as RealmList<Section>;
   @override
-  set sections(covariant RealmList<LocalSection> value) =>
+  set sections(covariant RealmList<Section> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocalProject>> get changes =>
-      RealmObjectBase.getChanges<LocalProject>(this);
+  Stream<RealmObjectChanges<Project>> get changes =>
+      RealmObjectBase.getChanges<Project>(this);
 
   @override
-  LocalProject freeze() => RealmObjectBase.freezeObject<LocalProject>(this);
+  Project freeze() => RealmObjectBase.freezeObject<Project>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalProject._);
-    return const SchemaObject(
-        ObjectType.realmObject, LocalProject, 'LocalProject', [
+    RealmObjectBase.registerFactory(Project._);
+    return const SchemaObject(ObjectType.realmObject, Project, 'Project', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
@@ -175,18 +171,17 @@ class LocalProject extends _LocalProject
       SchemaProperty('assignedto', RealmPropertyType.string,
           collectionType: RealmCollectionType.set),
       SchemaProperty('children', RealmPropertyType.object,
-          linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
+          linkTarget: 'Child', collectionType: RealmCollectionType.list),
       SchemaProperty('iscomplete', RealmPropertyType.bool),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
-          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
+          linkTarget: 'Section', collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
-class LocalChild extends _LocalChild
-    with RealmEntity, RealmObjectBase, EmbeddedObject {
-  LocalChild(
+class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Child(
     ObjectId id,
     bool isInvasive, {
     String? name,
@@ -204,7 +199,7 @@ class LocalChild extends _LocalChild
     RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
-  LocalChild._();
+  Child._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -246,18 +241,17 @@ class LocalChild extends _LocalChild
       RealmObjectBase.set(this, 'sequenceNo', value);
 
   @override
-  Stream<RealmObjectChanges<LocalChild>> get changes =>
-      RealmObjectBase.getChanges<LocalChild>(this);
+  Stream<RealmObjectChanges<Child>> get changes =>
+      RealmObjectBase.getChanges<Child>(this);
 
   @override
-  LocalChild freeze() => RealmObjectBase.freezeObject<LocalChild>(this);
+  Child freeze() => RealmObjectBase.freezeObject<Child>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalChild._);
-    return const SchemaObject(
-        ObjectType.embeddedObject, LocalChild, 'LocalChild', [
+    RealmObjectBase.registerFactory(Child._);
+    return const SchemaObject(ObjectType.embeddedObject, Child, 'Child', [
       SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('type', RealmPropertyType.string, optional: true),
@@ -269,9 +263,9 @@ class LocalChild extends _LocalChild
   }
 }
 
-class LocalSubProject extends _LocalSubProject
+class SubProject extends _SubProject
     with RealmEntity, RealmObjectBase, RealmObject {
-  LocalSubProject(
+  SubProject(
     ObjectId id,
     ObjectId parentid,
     bool isInvasive, {
@@ -284,7 +278,7 @@ class LocalSubProject extends _LocalSubProject
     String? url,
     String? editedat,
     String? lasteditedby,
-    Iterable<LocalChild> children = const [],
+    Iterable<Child> children = const [],
     Set<String> assignedto = const {},
   }) {
     RealmObjectBase.set(this, '_id', id);
@@ -299,13 +293,13 @@ class LocalSubProject extends _LocalSubProject
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
-    RealmObjectBase.set<RealmList<LocalChild>>(
-        this, 'children', RealmList<LocalChild>(children));
+    RealmObjectBase.set<RealmList<Child>>(
+        this, 'children', RealmList<Child>(children));
     RealmObjectBase.set<RealmSet<String>>(
         this, 'assignedto', RealmSet<String>(assignedto));
   }
 
-  LocalSubProject._();
+  SubProject._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -385,27 +379,25 @@ class LocalSubProject extends _LocalSubProject
   set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
-  RealmList<LocalChild> get children =>
-      RealmObjectBase.get<LocalChild>(this, 'children')
-          as RealmList<LocalChild>;
+  RealmList<Child> get children =>
+      RealmObjectBase.get<Child>(this, 'children') as RealmList<Child>;
   @override
-  set children(covariant RealmList<LocalChild> value) =>
+  set children(covariant RealmList<Child> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocalSubProject>> get changes =>
-      RealmObjectBase.getChanges<LocalSubProject>(this);
+  Stream<RealmObjectChanges<SubProject>> get changes =>
+      RealmObjectBase.getChanges<SubProject>(this);
 
   @override
-  LocalSubProject freeze() =>
-      RealmObjectBase.freezeObject<LocalSubProject>(this);
+  SubProject freeze() => RealmObjectBase.freezeObject<SubProject>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalSubProject._);
+    RealmObjectBase.registerFactory(SubProject._);
     return const SchemaObject(
-        ObjectType.realmObject, LocalSubProject, 'LocalSubProject', [
+        ObjectType.realmObject, SubProject, 'SubProject', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
@@ -422,14 +414,14 @@ class LocalSubProject extends _LocalSubProject
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('children', RealmPropertyType.object,
-          linkTarget: 'LocalChild', collectionType: RealmCollectionType.list),
+          linkTarget: 'Child', collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
-class LocalLocation extends _LocalLocation
+class Location extends _Location
     with RealmEntity, RealmObjectBase, RealmObject {
-  LocalLocation(
+  Location(
     ObjectId id,
     ObjectId parentid,
     bool isInvasive, {
@@ -442,7 +434,7 @@ class LocalLocation extends _LocalLocation
     String? url,
     String? editedat,
     String? lasteditedby,
-    Iterable<LocalSection> sections = const [],
+    Iterable<Section> sections = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'name', name);
@@ -456,11 +448,11 @@ class LocalLocation extends _LocalLocation
     RealmObjectBase.set(this, 'editedat', editedat);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
-    RealmObjectBase.set<RealmList<LocalSection>>(
-        this, 'sections', RealmList<LocalSection>(sections));
+    RealmObjectBase.set<RealmList<Section>>(
+        this, 'sections', RealmList<Section>(sections));
   }
 
-  LocalLocation._();
+  Location._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -533,26 +525,24 @@ class LocalLocation extends _LocalLocation
   set isInvasive(bool value) => RealmObjectBase.set(this, 'isInvasive', value);
 
   @override
-  RealmList<LocalSection> get sections =>
-      RealmObjectBase.get<LocalSection>(this, 'sections')
-          as RealmList<LocalSection>;
+  RealmList<Section> get sections =>
+      RealmObjectBase.get<Section>(this, 'sections') as RealmList<Section>;
   @override
-  set sections(covariant RealmList<LocalSection> value) =>
+  set sections(covariant RealmList<Section> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocalLocation>> get changes =>
-      RealmObjectBase.getChanges<LocalLocation>(this);
+  Stream<RealmObjectChanges<Location>> get changes =>
+      RealmObjectBase.getChanges<Location>(this);
 
   @override
-  LocalLocation freeze() => RealmObjectBase.freezeObject<LocalLocation>(this);
+  Location freeze() => RealmObjectBase.freezeObject<Location>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalLocation._);
-    return const SchemaObject(
-        ObjectType.realmObject, LocalLocation, 'LocalLocation', [
+    RealmObjectBase.registerFactory(Location._);
+    return const SchemaObject(ObjectType.realmObject, Location, 'Location', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
@@ -567,16 +557,16 @@ class LocalLocation extends _LocalLocation
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
-          linkTarget: 'LocalSection', collectionType: RealmCollectionType.list),
+          linkTarget: 'Section', collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
-class LocalSection extends _LocalSection
+class Section extends _Section
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
-  LocalSection(
+  Section(
     ObjectId id,
     bool isInvasive, {
     String? name,
@@ -590,7 +580,7 @@ class LocalSection extends _LocalSection
     String? sequenceNo,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalSection>({
+      _defaultsSet = RealmObjectBase.setDefaults<Section>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': false,
         'count': 0,
@@ -611,7 +601,7 @@ class LocalSection extends _LocalSection
     RealmObjectBase.set(this, 'sequenceNo', sequenceNo);
   }
 
-  LocalSection._();
+  Section._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -682,18 +672,17 @@ class LocalSection extends _LocalSection
       RealmObjectBase.set(this, 'sequenceNo', value);
 
   @override
-  Stream<RealmObjectChanges<LocalSection>> get changes =>
-      RealmObjectBase.getChanges<LocalSection>(this);
+  Stream<RealmObjectChanges<Section>> get changes =>
+      RealmObjectBase.getChanges<Section>(this);
 
   @override
-  LocalSection freeze() => RealmObjectBase.freezeObject<LocalSection>(this);
+  Section freeze() => RealmObjectBase.freezeObject<Section>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalSection._);
-    return const SchemaObject(
-        ObjectType.embeddedObject, LocalSection, 'LocalSection', [
+    RealmObjectBase.registerFactory(Section._);
+    return const SchemaObject(ObjectType.embeddedObject, Section, 'Section', [
       SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('isInvasive', RealmPropertyType.bool),
@@ -710,11 +699,11 @@ class LocalSection extends _LocalSection
   }
 }
 
-class LocalVisualSection extends _LocalVisualSection
+class VisualSection extends _VisualSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  LocalVisualSection(
+  VisualSection(
     ObjectId id,
     String eee,
     String lbc,
@@ -737,7 +726,7 @@ class LocalVisualSection extends _LocalVisualSection
     Iterable<String> waterproofingelements = const [],
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalVisualSection>({
+      _defaultsSet = RealmObjectBase.setDefaults<VisualSection>({
         'visualsignsofleak': false,
         'furtherinvasivereviewrequired': true,
         'parenttype': '',
@@ -770,7 +759,7 @@ class LocalVisualSection extends _LocalVisualSection
         RealmList<String>(waterproofingelements));
   }
 
-  LocalVisualSection._();
+  VisualSection._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -901,19 +890,18 @@ class LocalVisualSection extends _LocalVisualSection
       RealmObjectBase.set(this, 'lasteditedby', value);
 
   @override
-  Stream<RealmObjectChanges<LocalVisualSection>> get changes =>
-      RealmObjectBase.getChanges<LocalVisualSection>(this);
+  Stream<RealmObjectChanges<VisualSection>> get changes =>
+      RealmObjectBase.getChanges<VisualSection>(this);
 
   @override
-  LocalVisualSection freeze() =>
-      RealmObjectBase.freezeObject<LocalVisualSection>(this);
+  VisualSection freeze() => RealmObjectBase.freezeObject<VisualSection>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalVisualSection._);
+    RealmObjectBase.registerFactory(VisualSection._);
     return const SchemaObject(
-        ObjectType.realmObject, LocalVisualSection, 'LocalVisualSection', [
+        ObjectType.realmObject, VisualSection, 'VisualSection', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
@@ -944,11 +932,11 @@ class LocalVisualSection extends _LocalVisualSection
   }
 }
 
-class LocalInvasiveSection extends _LocalInvasiveSection
+class InvasiveSection extends _InvasiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  LocalInvasiveSection(
+  InvasiveSection(
     ObjectId id,
     ObjectId parentid,
     String invasiveDescription, {
@@ -956,7 +944,7 @@ class LocalInvasiveSection extends _LocalInvasiveSection
     Iterable<String> invasiveimages = const [],
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalInvasiveSection>({
+      _defaultsSet = RealmObjectBase.setDefaults<InvasiveSection>({
         'postinvasiverepairsrequired': false,
       });
     }
@@ -969,7 +957,7 @@ class LocalInvasiveSection extends _LocalInvasiveSection
         this, 'invasiveimages', RealmList<String>(invasiveimages));
   }
 
-  LocalInvasiveSection._();
+  InvasiveSection._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -1004,19 +992,19 @@ class LocalInvasiveSection extends _LocalInvasiveSection
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocalInvasiveSection>> get changes =>
-      RealmObjectBase.getChanges<LocalInvasiveSection>(this);
+  Stream<RealmObjectChanges<InvasiveSection>> get changes =>
+      RealmObjectBase.getChanges<InvasiveSection>(this);
 
   @override
-  LocalInvasiveSection freeze() =>
-      RealmObjectBase.freezeObject<LocalInvasiveSection>(this);
+  InvasiveSection freeze() =>
+      RealmObjectBase.freezeObject<InvasiveSection>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalInvasiveSection._);
+    RealmObjectBase.registerFactory(InvasiveSection._);
     return const SchemaObject(
-        ObjectType.realmObject, LocalInvasiveSection, 'LocalInvasiveSection', [
+        ObjectType.realmObject, InvasiveSection, 'InvasiveSection', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('parentid', RealmPropertyType.objectid),
@@ -1028,11 +1016,11 @@ class LocalInvasiveSection extends _LocalInvasiveSection
   }
 }
 
-class LocalConclusiveSection extends _LocalConclusiveSection
+class ConclusiveSection extends _ConclusiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  LocalConclusiveSection(
+  ConclusiveSection(
     ObjectId id,
     ObjectId parentid,
     String conclusiveconsiderations,
@@ -1044,7 +1032,7 @@ class LocalConclusiveSection extends _LocalConclusiveSection
     Iterable<String> conclusiveimages = const [],
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<LocalConclusiveSection>({
+      _defaultsSet = RealmObjectBase.setDefaults<ConclusiveSection>({
         'propowneragreed': false,
         'invasiverepairsinspectedandcompleted': false,
       });
@@ -1063,7 +1051,7 @@ class LocalConclusiveSection extends _LocalConclusiveSection
         this, 'conclusiveimages', RealmList<String>(conclusiveimages));
   }
 
-  LocalConclusiveSection._();
+  ConclusiveSection._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -1128,19 +1116,19 @@ class LocalConclusiveSection extends _LocalConclusiveSection
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocalConclusiveSection>> get changes =>
-      RealmObjectBase.getChanges<LocalConclusiveSection>(this);
+  Stream<RealmObjectChanges<ConclusiveSection>> get changes =>
+      RealmObjectBase.getChanges<ConclusiveSection>(this);
 
   @override
-  LocalConclusiveSection freeze() =>
-      RealmObjectBase.freezeObject<LocalConclusiveSection>(this);
+  ConclusiveSection freeze() =>
+      RealmObjectBase.freezeObject<ConclusiveSection>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObjectBase.registerFactory(LocalConclusiveSection._);
-    return const SchemaObject(ObjectType.realmObject, LocalConclusiveSection,
-        'LocalConclusiveSection', [
+    RealmObjectBase.registerFactory(ConclusiveSection._);
+    return const SchemaObject(
+        ObjectType.realmObject, ConclusiveSection, 'ConclusiveSection', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('parentid', RealmPropertyType.objectid),

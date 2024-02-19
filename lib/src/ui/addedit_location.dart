@@ -11,7 +11,7 @@ import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
 
 class AddEditLocationPage extends StatefulWidget {
-  final LocalLocation currentLocation;
+  final Location currentLocation;
   final String fullUserName;
   final bool isNewLocation;
   final String prevPageName;
@@ -24,8 +24,8 @@ class AddEditLocationPage extends StatefulWidget {
   @override
   State<AddEditLocationPage> createState() => _AddEditLocationPageState();
 
-  static MaterialPageRoute getRoute(LocalLocation location, bool isNew,
-          String userName, String prevPage) =>
+  static MaterialPageRoute getRoute(
+          Location location, bool isNew, String userName, String prevPage) =>
       MaterialPageRoute(
           settings:
               RouteSettings(name: isNew ? 'Add Location' : 'Edit Location'),
@@ -73,7 +73,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
     //initSpeech();
   }
 
-  late LocalLocation currentLocation;
+  late Location currentLocation;
 
   String pageType = '';
   String pageTitle = 'Add';
@@ -283,7 +283,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                               },
                               child: Container(
                                 decoration: const BoxDecoration(
-                                    color: Colors.orange,
+                                    color: Colors.blue,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8.0)),
                                     boxShadow: [
@@ -294,7 +294,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
                                     ? currentLocation.url == ""
                                         ? Image.asset(
                                             "assets/images/icon.png",
-                                            fit: BoxFit.cover,
+                                            fit: BoxFit.fill,
                                             width: double.infinity,
                                             height: 250,
                                           )

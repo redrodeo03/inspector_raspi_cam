@@ -26,7 +26,6 @@ class AppSettings extends ChangeNotifier {
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      //Console.log('Couldn\'t check connectivity status', error: e);
       return;
     }
     return _updateConnectionStatus(result);

@@ -2,7 +2,7 @@ import 'package:realm/realm.dart';
 part 'realm_schemas.g.dart';
 
 @RealmModel()
-class _LocalProject {
+class _Project {
   @MapTo('_id')
   @PrimaryKey()
   late ObjectId id;
@@ -17,16 +17,16 @@ class _LocalProject {
   late String? editedat;
   String? lasteditedby;
   late Set<String> assignedto;
-  List<_LocalChild> children = [];
+  List<_Child> children = [];
   bool iscomplete = false;
-  // List<_LocalChild> invasiveChildren = [];
+  // List<_Child> invasiveChildren = [];
   bool isInvasive = false;
-  List<_LocalSection> sections = [];
-  // List<_LocalSection> invasiveSections = [];
+  List<_Section> sections = [];
+  // List<_Section> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
-class _LocalChild {
+class _Child {
   @MapTo('_id')
   late ObjectId id;
   late String? name;
@@ -38,7 +38,7 @@ class _LocalChild {
 }
 
 @RealmModel()
-class _LocalSubProject {
+class _SubProject {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
@@ -54,12 +54,12 @@ class _LocalSubProject {
   String? editedat;
   String? lasteditedby;
   late bool isInvasive;
-  List<_LocalChild> children = [];
-  //List<_LocalChild> invasiveChildren = [];
+  List<_Child> children = [];
+  //List<_Child> invasiveChildren = [];
 }
 
 @RealmModel()
-class _LocalLocation {
+class _Location {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
@@ -75,12 +75,12 @@ class _LocalLocation {
   String? editedat;
   String? lasteditedby;
   late bool isInvasive;
-  List<_LocalSection> sections = [];
-  // List<_LocalSection> invasiveSections = [];
+  List<_Section> sections = [];
+  // List<_Section> invasiveSections = [];
 }
 
 @RealmModel(ObjectType.embeddedObject)
-class _LocalSection {
+class _Section {
   @MapTo('_id')
   late ObjectId id;
   late String? name;
@@ -97,7 +97,7 @@ class _LocalSection {
 }
 
 @RealmModel()
-class _LocalVisualSection {
+class _VisualSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
@@ -125,7 +125,7 @@ class _LocalVisualSection {
 }
 
 @RealmModel()
-class _LocalInvasiveSection {
+class _InvasiveSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
@@ -136,7 +136,7 @@ class _LocalInvasiveSection {
 }
 
 @RealmModel()
-class _LocalConclusiveSection {
+class _ConclusiveSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
