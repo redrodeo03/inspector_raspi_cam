@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:deckinspectors/src/ui/htmlviewer.dart';
-import 'package:deckinspectors/src/ui/pdfviewer.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/htmlviewer.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/pdfviewer.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';

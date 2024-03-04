@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'dart:io';
-import 'package:deckinspectors/src/models/project_model.dart';
-import 'package:deckinspectors/src/models/success_response.dart';
-import 'package:deckinspectors/src/resources/urls.dart';
+import 'package:E3InspectionsMultiTenant/src/models/project_model.dart';
+import 'package:E3InspectionsMultiTenant/src/models/success_response.dart';
+import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
 import 'package:http/http.dart' show Client;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;

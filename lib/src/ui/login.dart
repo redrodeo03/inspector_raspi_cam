@@ -1,11 +1,11 @@
 import 'dart:io';
 //import 'dart:math';
 
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-import 'package:deckinspectors/src/bloc/users_bloc.dart';
-import 'package:deckinspectors/src/models/login_response.dart';
-import 'package:deckinspectors/src/ui/home.dart';
-import 'package:deckinspectors/src/ui/register.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/models/login_response.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/home.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

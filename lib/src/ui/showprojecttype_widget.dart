@@ -1,4 +1,4 @@
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 
 class ProjectType extends StatefulWidget {

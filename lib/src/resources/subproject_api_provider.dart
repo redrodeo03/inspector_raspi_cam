@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:deckinspectors/src/models/success_response.dart';
-import 'package:deckinspectors/src/resources/urls.dart';
+import 'package:E3InspectionsMultiTenant/src/models/success_response.dart';
+import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
 import 'package:http/http.dart' show Client;
 import '../models/error_response.dart';
 import '../models/subproject_model.dart';

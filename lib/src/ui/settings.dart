@@ -1,6 +1,6 @@
-import 'package:deckinspectors/src/app.dart';
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-import 'package:deckinspectors/src/ui/login.dart';
+import 'package:E3InspectionsMultiTenant/src/app.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';

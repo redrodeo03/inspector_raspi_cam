@@ -1,7 +1,7 @@
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-import 'package:deckinspectors/src/ui/addedit_location.dart';
-import 'package:deckinspectors/src/ui/invasivesection.dart';
-import 'package:deckinspectors/src/ui/section.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/addedit_location.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/invasivesection.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/section.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';

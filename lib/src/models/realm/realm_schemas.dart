@@ -15,6 +15,7 @@ class _Project {
   late String? createdat;
   late String? url;
   late String? editedat;
+  late String? companyIdentifier;
   String? lasteditedby;
   late Set<String> assignedto;
   List<_Child> children = [];

@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:deckinspectors/src/bloc/images_bloc.dart';
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-import 'package:deckinspectors/src/bloc/users_bloc.dart';
-import 'package:deckinspectors/src/models/exteriorelements.dart';
-import 'package:deckinspectors/src/models/realm/realm_schemas.dart';
-import 'package:deckinspectors/src/models/success_response.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/images_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/models/exteriorelements.dart';
+import 'package:E3InspectionsMultiTenant/src/models/realm/realm_schemas.dart';
+import 'package:E3InspectionsMultiTenant/src/models/success_response.dart';
 
-import 'package:deckinspectors/src/ui/section.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/section.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:realm/realm.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +38,8 @@ class RealmProjectServices with ChangeNotifier {
   User? currentUser;
   App app;
   String loggedInUser;
-
-  RealmProjectServices(this.app, this.loggedInUser) {
+  String company;
+  RealmProjectServices(this.app, this.loggedInUser, this.company) {
     if (app.currentUser != null || currentUser != app.currentUser) {
       currentUser ??= app.currentUser;
       realm = Realm(Configuration.flexibleSync(currentUser!, [
@@ -91,7 +91,8 @@ class RealmProjectServices with ChangeNotifier {
       mutableSubscriptions.clear();
       mutableSubscriptions.add(
           realm.query<Project>(
-              '\$0 IN assignedto && iscomplete==\$1', [loggedInUser, false]),
+              '\$0 IN assignedto && iscomplete==\$1 && companyIdentifier==\$2',
+              [loggedInUser, false, company]),
           name: queryAssignedProjects);
 
       mutableSubscriptions.add(realm.all<Location>(), name: queryAllLocations);
@@ -215,6 +216,8 @@ class RealmProjectServices with ChangeNotifier {
 
       realm.write<Project>(() {
         project.name = name;
+        project.companyIdentifier =
+            usersBloc.userDetails.companyidentifer as String;
         project.address = address;
         project.description = description;
         if (isNewProject) {

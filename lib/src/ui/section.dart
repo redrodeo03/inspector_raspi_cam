@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:deckinspectors/src/bloc/images_bloc.dart';
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/images_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
 import 'package:http/http.dart' as http;

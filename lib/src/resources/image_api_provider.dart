@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:deckinspectors/src/resources/urls.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+//import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/error_response.dart';
 import '../models/success_response.dart';
@@ -13,7 +14,9 @@ class ImagesApiProvider {
       String uploader, String id, String parentType, String entityName) async {
     var endPoint = '${URLS.manageImagesUrl}upload';
     final baseUrl = Uri.parse(endPoint);
-
+    Map<String, String> headers = {
+      "authorization": usersBloc.userDetails.token as String
+    };
     var request = http.MultipartRequest('POST', baseUrl);
     request.files.add(await http.MultipartFile.fromPath(
       'picture',
@@ -22,6 +25,7 @@ class ImagesApiProvider {
     if (containerName.length < 3) {
       containerName = containerName + uploader;
     }
+    request.headers.addAll(headers);
     request.fields['id'] = id;
     request.fields['parentType'] = parentType;
     request.fields['type'] = entityName;

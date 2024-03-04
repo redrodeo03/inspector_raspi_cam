@@ -1,5 +1,5 @@
-import 'package:deckinspectors/src/bloc/users_bloc.dart';
-import 'package:deckinspectors/src/ui/login.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

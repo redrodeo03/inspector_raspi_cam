@@ -19,6 +19,7 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     String? createdat,
     String? url,
     String? editedat,
+    String? companyIdentifier,
     String? lasteditedby,
     bool iscomplete = false,
     bool isInvasive = false,
@@ -41,6 +42,7 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'createdat', createdat);
     RealmObjectBase.set(this, 'url', url);
     RealmObjectBase.set(this, 'editedat', editedat);
+    RealmObjectBase.set(this, 'companyIdentifier', companyIdentifier);
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set(this, 'iscomplete', iscomplete);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
@@ -108,6 +110,13 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
 
   @override
+  String? get companyIdentifier =>
+      RealmObjectBase.get<String>(this, 'companyIdentifier') as String?;
+  @override
+  set companyIdentifier(String? value) =>
+      RealmObjectBase.set(this, 'companyIdentifier', value);
+
+  @override
   String? get lasteditedby =>
       RealmObjectBase.get<String>(this, 'lasteditedby') as String?;
   @override
@@ -167,6 +176,8 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('createdat', RealmPropertyType.string, optional: true),
       SchemaProperty('url', RealmPropertyType.string, optional: true),
       SchemaProperty('editedat', RealmPropertyType.string, optional: true),
+      SchemaProperty('companyIdentifier', RealmPropertyType.string,
+          optional: true),
       SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
       SchemaProperty('assignedto', RealmPropertyType.string,
           collectionType: RealmCollectionType.set),

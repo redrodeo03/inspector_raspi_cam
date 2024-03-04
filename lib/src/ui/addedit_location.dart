@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import 'package:deckinspectors/src/ui/location.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/location.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';

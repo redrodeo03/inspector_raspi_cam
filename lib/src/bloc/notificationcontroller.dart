@@ -2,10 +2,11 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:deckinspectors/src/app.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+
+import '../app.dart';
 
 class NotificationController {
   static ReceivedAction? initialAction;

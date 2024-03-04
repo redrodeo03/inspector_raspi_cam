@@ -11,6 +11,8 @@ class LoginResponse {
   String? email;
   String? role;
   String? accesstype;
+  String? token;
+  String? companyidentifer;
 
   LoginResponse(
       {this.id,
@@ -19,6 +21,8 @@ class LoginResponse {
       this.firstname,
       this.email,
       this.role,
+      this.token,
+      this.companyidentifer,
       this.accesstype});
 
   LoginResponse.fromJson(Map<String, dynamic> json) {
@@ -28,6 +32,8 @@ class LoginResponse {
     firstname = json['first_name'];
     email = json['email'];
     role = json['role'];
+    token = json['token'];
+    companyidentifer = json['companyIdentifier'];
     accesstype = json['access_type'];
   }
 
@@ -40,6 +46,8 @@ class LoginResponse {
     data['email'] = email;
     data['role'] = role;
     data['access_type'] = accesstype;
+    data['companyIdentifier'] = companyidentifer;
+    data['token'] = token;
     return data;
   }
 }

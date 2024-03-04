@@ -1,7 +1,6 @@
-import 'package:deckinspectors/src/models/project_model.dart';
-
 import 'package:rxdart/rxdart.dart';
 
+import '../models/project_model.dart';
 import '../resources/repository.dart';
 
 class ProjectsBloc {

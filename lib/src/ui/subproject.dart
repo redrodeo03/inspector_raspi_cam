@@ -1,7 +1,7 @@
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-//import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
-import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import 'package:deckinspectors/src/ui/showprojecttype_widget.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+//import 'package:E3InspectionsMultiTenant/src/ui/breadcrumb_navigation.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/showprojecttype_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 

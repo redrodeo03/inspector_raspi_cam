@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:deckinspectors/src/bloc/images_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/images_bloc.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:deckinspectors/src/models/subproject_model.dart';
+import '../models/subproject_model.dart';
 import '../resources/repository.dart';
 
 class SubProjectBloc {

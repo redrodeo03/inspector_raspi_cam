@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:deckinspectors/src/bloc/settings_bloc.dart';
-import 'package:deckinspectors/src/bloc/users_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +38,9 @@ void main() async {
           return (appServices.app.currentUser != null &&
                   usersBloc.userDetails.username != null)
               ? RealmProjectServices(
-                  appServices.app, usersBloc.userDetails.username as String)
+                  appServices.app,
+                  usersBloc.userDetails.username as String,
+                  usersBloc.userDetails.companyidentifer as String)
               : null;
         }),
   ], child: const App()));

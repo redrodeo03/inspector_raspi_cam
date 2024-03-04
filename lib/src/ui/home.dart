@@ -1,6 +1,6 @@
-import 'package:deckinspectors/src/ui/projects.dart';
-//import 'package:deckinspectors/src/ui/reports_screen.dart';
-import 'package:deckinspectors/src/ui/settings.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/projects.dart';
+//import 'package:E3InspectionsMultiTenant/src/ui/reports_screen.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/settings.dart';
 // import 'package:google_fonts/google_fonts.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

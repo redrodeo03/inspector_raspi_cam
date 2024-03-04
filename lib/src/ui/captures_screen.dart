@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:deckinspectors/src/ui/preview_screen.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/preview_screen.dart';
 import 'package:flutter/material.dart';
-
 
 class CapturesScreen extends StatelessWidget {
   final List<XFile> imageFileList;
@@ -18,10 +17,10 @@ class CapturesScreen extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children:  [
+          children: [
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child:  Text(
+              child: Text(
                 'Captures',
                 style: TextStyle(
                   fontSize: 32.0,
@@ -48,7 +47,7 @@ class CapturesScreen extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => PreviewScreen(
                               fileList: imageFileList,
-                              imageFile:  File(imageFile.path),
+                              imageFile: File(imageFile.path),
                             ),
                           ),
                         );

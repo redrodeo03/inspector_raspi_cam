@@ -1,10 +1,10 @@
 import 'dart:io';
 
 //import 'package:deckinspectors/src/ui/breadcrumb_navigation.dart';
-import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
-import 'package:deckinspectors/src/ui/home.dart';
-import 'package:deckinspectors/src/ui/project_details.dart';
-import 'package:deckinspectors/src/ui/singlelevelproject_details.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/home.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
+import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

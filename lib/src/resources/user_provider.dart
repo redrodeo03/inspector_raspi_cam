@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:deckinspectors/src/resources/urls.dart';
+import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
 import 'package:http/http.dart' show Client;
 
 import '../models/login_response.dart';
