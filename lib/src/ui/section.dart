@@ -378,8 +378,11 @@ class _SectionPageState extends State<SectionPage> {
               List<String> urls = [];
               for (var element in value) {
                 if (element is ImageResponse) {
-                  await ImageGallerySaver.saveFile(
-                      element.originalPath as String);
+                  if (element.originalPath != null) {
+                    await ImageGallerySaver.saveFile(
+                        element.originalPath as String);
+                  }
+
                   urls.add(element.url as String);
                 }
               }
