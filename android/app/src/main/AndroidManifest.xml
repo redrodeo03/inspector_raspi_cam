@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.deckinspectors.inspections"> 
+    package="com.e3inspections.multitenant"> 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
@@ -22,7 +22,7 @@
    <application
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
-        android:label="E3Inspections"
+        android:label="E3InspectionsMultiTenant"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
