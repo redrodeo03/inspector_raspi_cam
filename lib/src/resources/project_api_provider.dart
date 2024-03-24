@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'dart:io';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/models/project_model.dart';
 import 'package:E3InspectionsMultiTenant/src/models/success_response.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
@@ -129,7 +130,8 @@ class ProjectsApiProvider {
       });
 
       final response = await client.post(baseUrl, body: reportBody, headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'authorization': usersBloc.userDetails.token as String
       }).timeout(const Duration(seconds: 600));
       //print(response.body.toString());
 

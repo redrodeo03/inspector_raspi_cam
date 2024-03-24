@@ -7,6 +7,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
 
@@ -43,6 +44,12 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     _nameController.dispose();
   }
 
+  getCustomFormattedDateTime(String givenDateTime, String dateFormat) {
+    // dateFormat = 'MM/dd/yy';
+    final DateTime docDateTime = DateTime.parse(givenDateTime);
+    return DateFormat(dateFormat).format(docDateTime);
+  }
+
   @override
   void initState() {
     currentProject = widget.newProject;
@@ -52,8 +59,11 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
       prevPageName = currentProject.name as String; //'Project';
       isNewProject = false;
       showAssetPic = false;
+      dateInput.text = getCustomFormattedDateTime(
+          currentProject.editedat as String, 'MM-dd-yyyy');
     } else {
       prevPageName = 'Projects';
+      dateInput.text = "";
     }
     userFullName = widget.userFullName;
     _nameController.text = currentProject.name as String;
@@ -63,6 +73,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     if (currentProject.url != null) {
       imageURL = currentProject.url as String;
     }
+
     super.initState();
     //_initSpeech();
   }
@@ -157,7 +168,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   }
 
   String imageURL = 'assets/images/icon.png';
-
+  TextEditingController dateInput = TextEditingController();
   final TextEditingController _nameController = TextEditingController(text: '');
   //late TextEditingController _activeController;
 
@@ -299,6 +310,42 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                     const SizedBox(
                       height: 16,
                     ),
+                    // Center(
+                    //     child: TextField(
+                    //   controller: dateInput,
+                    //   //editing controller of this TextField
+                    //   decoration: const InputDecoration(
+                    //       icon: Icon(Icons.calendar_today), //icon of text field
+                    //       labelText:
+                    //           "Project inspection/edit date" //label text of field
+                    //       ),
+                    //   readOnly: true,
+                    //   //set it true, so that user will not able to edit text
+                    //   onTap: () async {
+                    //     DateTime? pickedDate = await showDatePicker(
+                    //         context: context,
+                    //         initialDate: dateInput.text == ''
+                    //             ? DateTime.now()
+                    //             : DateTime.parse(
+                    //                 currentProject.editedat as String),
+                    //         firstDate: DateTime(2000),
+                    //         //DateTime.now() - not to allow to choose before today.
+                    //         lastDate: DateTime(2100));
+
+                    //     if (pickedDate != null) {
+                    //       String formattedDate =
+                    //           DateFormat('MM-dd-yyyy').format(pickedDate);
+
+                    //       setState(() {
+                    //         dateInput.text =
+                    //             formattedDate;
+
+                    //         //set output date to TextField value.
+                    //       });
+                    //     } else {}
+                    //   },
+                    // )),
+
                     OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                             side: BorderSide.none,

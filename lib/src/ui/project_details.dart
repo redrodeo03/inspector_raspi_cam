@@ -292,7 +292,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         currentProject.name as String,
                         currentProject.url as String,
                         currentProject.id,
-                        currentProject.description as String),
+                        currentProject.description as String,
+                        currentProject.editedat as String),
                     //}),
                     projectChildrenTab(context),
                     // const Divider(
@@ -328,8 +329,14 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
         ));
   }
 
-  Widget projectDetails(
-      String name, String url, ObjectId id, String description) {
+  getCustomFormattedDateTime(String givenDateTime, String dateFormat) {
+    // dateFormat = 'MM/dd/yy';
+    final DateTime docDateTime = DateTime.parse(givenDateTime);
+    return DateFormat(dateFormat).format(docDateTime);
+  }
+
+  Widget projectDetails(String name, String url, ObjectId id,
+      String description, String editedat) {
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -399,6 +406,14 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   ],
                 )),
           ),
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: Padding(
+          //     padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+          //     child: Text(
+          //         "Edited on ${getCustomFormattedDateTime(editedat, 'MM/dd/yy hh:mm')}"),
+          //   ),
+          // ),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
