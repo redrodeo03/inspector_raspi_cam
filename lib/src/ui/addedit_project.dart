@@ -7,6 +7,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
@@ -160,6 +161,10 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             'project');
 
         if (result is ImageResponse) {
+          //update the gallery
+
+          await ImageGallerySaver.saveFile(result.url as String);
+
           realmProjServices.updateProjectUrl(
               currentProject, result.url as String);
         }
