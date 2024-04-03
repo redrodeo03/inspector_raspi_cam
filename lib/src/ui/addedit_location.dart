@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:deckinspectors/src/ui/cachedimage_widget.dart';
 import 'package:deckinspectors/src/ui/location.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:provider/provider.dart';
 import '../bloc/images_bloc.dart';
 import '../models/realm/realm_schemas.dart';
@@ -138,6 +139,7 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
               imageURL, name, fullUserName, id, parenttype, type);
 
           if (result is ImageResponse) {
+            await ImageGallerySaver.saveFile(result.url as String);
             realmServices.updateLocationUrl(
                 currentLocation, result.url as String);
           }
