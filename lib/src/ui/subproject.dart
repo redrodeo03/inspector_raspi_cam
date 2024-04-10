@@ -335,14 +335,22 @@ class _SubProjectDetailsPageState extends State<SubProjectDetailsPage>
     }
     buildinglocations.sort((l1, l2) {
       if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
-        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+        if (int.parse(l1.sequenceNo!) < int.parse(l2.sequenceNo!)) {
+          return -1;
+        } else {
+          return 1;
+        }
       } else {
         return l1.id.toString().compareTo(l2!.id.toString());
       }
     });
     apartments.sort((l1, l2) {
       if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
-        return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+        if (int.parse(l1.sequenceNo!) < int.parse(l2.sequenceNo!)) {
+          return -1;
+        } else {
+          return 1;
+        }
       } else {
         return l1.id.toString().compareTo(l2!.id.toString());
       }

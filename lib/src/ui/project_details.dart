@@ -118,13 +118,31 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           locations = currentProject.children
               .where((element) => element.type == 'projectlocation')
               .toList();
-          locations
-              .sort((l1, l2) => l1!.sequenceNo!.compareTo(l2!.sequenceNo!));
+          locations.sort((l1, l2) {
+            if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+              if (int.parse(l1.sequenceNo!) < int.parse(l2.sequenceNo!)) {
+                return -1;
+              } else {
+                return 1;
+              }
+            } else {
+              return l1.id.toString().compareTo(l2!.id.toString());
+            }
+          });
           buildings = currentProject.children
               .where((element) => element.type == 'subproject')
               .toList();
-          buildings
-              .sort((l1, l2) => l1!.sequenceNo!.compareTo(l2!.sequenceNo!));
+          buildings.sort((l1, l2) {
+            if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
+              if (int.parse(l1.sequenceNo!) < int.parse(l2.sequenceNo!)) {
+                return -1;
+              } else {
+                return 1;
+              }
+            } else {
+              return l1.id.toString().compareTo(l2!.id.toString());
+            }
+          });
         }
       }
     });
@@ -262,14 +280,24 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   }
                   buildings.sort((l1, l2) {
                     if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
-                      return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+                      if (int.parse(l1.sequenceNo!) <
+                          int.parse(l2.sequenceNo!)) {
+                        return -1;
+                      } else {
+                        return 1;
+                      }
                     } else {
                       return l1.id.toString().compareTo(l2!.id.toString());
                     }
                   });
                   locations.sort((l1, l2) {
                     if (l1!.sequenceNo != null && l2!.sequenceNo != null) {
-                      return l1.sequenceNo!.compareTo(l2.sequenceNo!);
+                      if (int.parse(l1.sequenceNo!) <
+                          int.parse(l2.sequenceNo!)) {
+                        return -1;
+                      } else {
+                        return 1;
+                      }
                     } else {
                       return l1.id.toString().compareTo(l2!.id.toString());
                     }
