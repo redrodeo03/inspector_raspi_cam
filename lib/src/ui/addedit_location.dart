@@ -139,7 +139,9 @@ class _AddEditLocationPageState extends State<AddEditLocationPage> {
               imageURL, name, fullUserName, id, parenttype, type);
 
           if (result is ImageResponse) {
-            await ImageGallerySaver.saveFile(result.url as String);
+            if (result.originalPath != null) {
+              await ImageGallerySaver.saveFile(result.originalPath as String);
+            }
             realmServices.updateLocationUrl(
                 currentLocation, result.url as String);
           }
