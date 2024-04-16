@@ -119,9 +119,7 @@ class _AddEditSubProjectPageState extends State<AddEditSubProjectPage> {
               'building');
 
           if (result is ImageResponse) {
-            if (result.originalPath != null) {
-              await ImageGallerySaver.saveFile(result.originalPath as String);
-            }
+            await ImageGallerySaver.saveFile(result.originalPath as String);
 
             realmServices.updateSubProjectUrl(
                 currentBuilding, result.url as String);

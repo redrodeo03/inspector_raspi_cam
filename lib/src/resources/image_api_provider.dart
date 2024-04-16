@@ -37,9 +37,10 @@ class ImagesApiProvider {
     var responseStream = await request.send();
     var response = await http.Response.fromStream(responseStream);
     if (response.statusCode == 201) {
-      // print("Uploaded! ");
-      // print('response.body '+response.body);
-      return ImageResponse.fromJson(json.decode(response.body));
+      //return ImageResponse.fromJson(json.decode(response.body));
+      var imgResponse = ImageResponse.fromJson(json.decode(response.body));
+      imgResponse.originalPath = imageFilePath;
+      return imgResponse;
     } else {
       return ErrorResponse.fromJson(json.decode(response.body));
     }
