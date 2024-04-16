@@ -150,9 +150,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
             'project');
 
         if (result is ImageResponse) {
-          if (result.originalPath != null) {
-            await ImageGallerySaver.saveFile(result.originalPath as String);
-          }
+          await ImageGallerySaver.saveFile(result.originalPath as String);
+
           realmProjServices.updateProjectUrl(
               currentProject, result.url as String);
         }

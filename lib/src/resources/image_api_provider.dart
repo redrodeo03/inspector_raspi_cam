@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:deckinspectors/src/resources/urls.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+//import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/error_response.dart';
 import '../models/success_response.dart';
@@ -35,7 +35,9 @@ class ImagesApiProvider {
     if (response.statusCode == 201) {
       // print("Uploaded! ");
       // print('response.body '+response.body);
-      return ImageResponse.fromJson(json.decode(response.body));
+      var imgResponse = ImageResponse.fromJson(json.decode(response.body));
+      imgResponse.originalPath = imageFilePath;
+      return imgResponse;
     } else {
       return ErrorResponse.fromJson(json.decode(response.body));
     }

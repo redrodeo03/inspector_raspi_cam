@@ -380,6 +380,7 @@ class _SectionPageState extends State<SectionPage> {
                 if (element is ImageResponse) {
                   await ImageGallerySaver.saveFile(
                       element.originalPath as String);
+
                   urls.add(element.url as String);
                 }
               }
