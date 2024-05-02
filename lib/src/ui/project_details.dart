@@ -4,15 +4,17 @@ import 'dart:io';
 
 import 'package:E3InspectionsMultiTenant/src/bloc/projects_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
+import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/models/error_response.dart';
 import 'package:E3InspectionsMultiTenant/src/models/success_response.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/realm/realm_services.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
 //import 'package:E3InspectionsMultiTenant/src/ui/pdfviewer.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/showprojecttype_widget.dart';
+import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
+import 'package:flutter_material_pickers/models/select_all_config.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
-
 import '../models/realm/realm_schemas.dart';
 
 import 'addedit_subproject.dart';
@@ -57,7 +59,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   late List<Child?> buildings;
   late bool isInvasiveMode;
   late ObjectId projectId;
-
+  late RealmProjectServices realmProjServices;
+  List<String> assignedUsers = [];
   Location getNewLocation() {
     var newLocation = Location(ObjectId(), projectId, false,
         name: "",
@@ -365,6 +368,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
 
   Widget projectDetails(String name, String url, ObjectId id,
       String description, String editedat) {
+    realmProjServices =
+        Provider.of<RealmProjectServices>(context, listen: false);
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Column(
@@ -430,22 +435,47 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                             elevation: 0,
                             autofocus: true,
                           )),
-                    )
+                    ),
                   ],
                 )),
           ),
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: Padding(
-          //     padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          //     child: Text(
-          //         "Edited on ${getCustomFormattedDateTime(editedat, 'MM/dd/yy hh:mm')}"),
-          //   ),
-          // ),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                        "Edited on ${getCustomFormattedDateTime(editedat, 'MM/dd/yy hh:mm')}"),
+                    Visibility(
+                      visible: !isInvasiveMode,
+                      child: InkWell(
+                          onTap: () {
+                            assignProject();
+                          },
+                          child: const Chip(
+                            avatar: Icon(Icons.account_circle_outlined,
+                                color: Colors.blue),
+                            labelPadding: EdgeInsets.all(0),
+                            label: Text(
+                              'Assign Project ',
+                              style: TextStyle(color: Colors.blue),
+                              selectionColor: Colors.transparent,
+                            ),
+                            shadowColor: Colors.white,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            autofocus: true,
+                          )),
+                    ),
+                  ],
+                )),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -891,5 +921,40 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return HTMLViewerPage(htmlText, '', filePath);
     }));
+  }
+
+  void assignProject() async {
+    var usersResponse = await usersBloc.getAllUsers();
+
+    var users = usersResponse.users.map((e) => e.username).toList();
+
+    assignedUsers = currentProject.assignedto.toList();
+    List<String> allUsers = List<String>.from(users);
+    allUsers.remove(usersBloc.userDetails.username);
+    showMaterialCheckboxPicker<String>(
+      context: context,
+      selectAllConfig: SelectAllConfig(
+        const Text('Select All'),
+        const Text('Deselect All'),
+      ),
+      title: 'Assigned Users',
+      items: allUsers,
+      selectedItems: assignedUsers,
+      onChanged: (value) => setState(() {
+        assignedUsers = value;
+        //update the project assignment.
+        bool result =
+            realmProjServices.updateAssignment(projectId, assignedUsers);
+        if (result) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Project assignment updated successfully')));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+            'Failed to update the project assignment.',
+          )));
+        }
+      }),
+    );
   }
 }

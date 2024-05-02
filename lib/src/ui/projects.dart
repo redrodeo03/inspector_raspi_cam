@@ -3,6 +3,7 @@ import 'package:E3InspectionsMultiTenant/src/models/realm/realm_schemas.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 
@@ -66,6 +67,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
             ProjectDetailsPage.getRoute(
                 projectId, userFullName, true, projName))
         .then((value) => setState(() => {}));
+  }
+
+  getCustomFormattedDateTime(String givenDateTime, String dateFormat) {
+    // dateFormat = 'MM/dd/yy';
+    final DateTime docDateTime = DateTime.parse(givenDateTime);
+    return DateFormat(dateFormat).format(docDateTime);
   }
 
   @override
@@ -226,6 +233,21 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                       style: const TextStyle(
                                                         color: Colors.black87,
                                                       ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(0, 8, 0, 0),
+                                                    child: Text(
+                                                      'Edited at:  ${getCustomFormattedDateTime(projects[index].editedat as String, 'MM/dd/yy hh:mm')}',
+                                                      textAlign: TextAlign.left,
+                                                      style: const TextStyle(
+                                                          color: Colors.black87,
+                                                          fontStyle:
+                                                              FontStyle.italic),
                                                     ),
                                                   ),
                                                 ),

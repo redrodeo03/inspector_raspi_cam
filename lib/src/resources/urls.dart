@@ -9,6 +9,7 @@ class URLS {
 
   static const String userLogin = '$baseUrl/login/login';
   static const String registerUser = '$baseUrl/user/register';
+  static const String getAllUsers = '$baseUrl/user/allusers';
   static const String addLocationnUrl = '$baseUrl/location/add';
   static const String manageLocationUrl = '$baseUrl/location/';
 

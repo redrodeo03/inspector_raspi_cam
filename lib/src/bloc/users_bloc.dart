@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../models/login_response.dart';
+import '../models/users_response.dart';
 import '../resources/repository.dart';
 
 class UsersBloc {
@@ -31,6 +32,13 @@ class UsersBloc {
     });
     RegisterResponse response = await _repository.register(loginObject);
     return response;
+  }
+
+  getAllUsers() async {
+    UsersResponse userResponse = await _repository.usersApiProvider
+        .getAllUsers(userDetails.token as String);
+
+    return userResponse;
   }
 
   // dispose() {

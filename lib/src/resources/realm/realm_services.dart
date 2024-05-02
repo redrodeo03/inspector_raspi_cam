@@ -290,6 +290,24 @@ class RealmProjectServices with ChangeNotifier {
     } catch (e) {}
   }
 
+  bool updateAssignment(ObjectId projectId, List<String> assignees) {
+    try {
+      var foundProject = realm.find<Project>(projectId);
+      if (foundProject != null) {
+        realm.write(() {
+          foundProject.assignedto.clear();
+          foundProject.assignedto.addAll(assignees);
+        });
+
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
 //Update SubProject Children data
   void updateSubProjectChildren(
     ObjectId childId,

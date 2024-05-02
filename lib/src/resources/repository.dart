@@ -3,6 +3,7 @@ import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/models/project_model.dart';
 import 'package:E3InspectionsMultiTenant/src/models/section_model.dart';
 import 'package:E3InspectionsMultiTenant/src/models/subproject_model.dart';
+import 'package:E3InspectionsMultiTenant/src/models/users_response.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/project_api_provider.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/realm/realm_services.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/user_provider.dart';
@@ -129,6 +130,10 @@ class Repository {
       int quality, int imageFactor, String reportType, String companyName) {
     return projectsApiProvider.downloadReport(
         name, id, fileType, quality, imageFactor, reportType, companyName);
+  }
+
+  Future<UsersResponse> getAllUsers(String token) {
+    return usersApiProvider.getAllUsers(token);
   }
 
   Future<RegisterResponse> register(Object registerObject) {
