@@ -80,8 +80,9 @@ class RealmProjectServices with ChangeNotifier {
       appSettings.addListener(() async {
         appSettings.isImageUploading = true;
         uploadLocalImages();
-
-        await realm.syncSession.waitForUpload();
+        if (!realm.isClosed) {
+          await realm.syncSession.waitForUpload();
+        }
       });
     }
   }
@@ -111,8 +112,12 @@ class RealmProjectServices with ChangeNotifier {
       mutableSubscriptions.add(realm.all<InvasiveSection>(),
           name: queryAllInvasiveSections);
     });
-    if (!realm.isClosed) {
-      await realm.subscriptions.waitForSynchronization();
+    try {
+      if (!realm.isClosed) {
+        await realm.subscriptions.waitForSynchronization();
+      }
+    } catch (e) {
+      print('realm failed to wait for sync.');
     }
   }
 
@@ -206,8 +211,15 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
-  bool addupdateProject(Project project, String name, String address,
-      String description, String userName, bool isNewProject) {
+  bool addupdateProject(
+      Project project,
+      String name,
+      String address,
+      String description,
+      String userName,
+      double longitude,
+      double lattitude,
+      bool isNewProject) {
     try {
       if (loggedInUser == "") {
         loggedInUser = usersBloc.userDetails.username as String;
@@ -215,6 +227,8 @@ class RealmProjectServices with ChangeNotifier {
       var creationtime = DateTime.now().toString();
 
       realm.write<Project>(() {
+        project.latitude = lattitude;
+        project.longitude = longitude;
         project.name = name;
         project.companyIdentifier =
             usersBloc.userDetails.companyidentifer as String;

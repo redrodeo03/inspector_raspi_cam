@@ -6,6 +6,7 @@ part of 'realm_schemas.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -23,6 +24,8 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     String? lasteditedby,
     bool iscomplete = false,
     bool isInvasive = false,
+    double? latitude,
+    double? longitude,
     Iterable<Child> children = const [],
     Iterable<Section> sections = const [],
     Set<String> assignedto = const {},
@@ -46,6 +49,8 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
     RealmObjectBase.set(this, 'iscomplete', iscomplete);
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
+    RealmObjectBase.set(this, 'latitude', latitude);
+    RealmObjectBase.set(this, 'longitude', longitude);
     RealmObjectBase.set<RealmList<Child>>(
         this, 'children', RealmList<Child>(children));
     RealmObjectBase.set<RealmList<Section>>(
@@ -155,6 +160,18 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
       throw RealmUnsupportedSetError();
 
   @override
+  double? get latitude =>
+      RealmObjectBase.get<double>(this, 'latitude') as double?;
+  @override
+  set latitude(double? value) => RealmObjectBase.set(this, 'latitude', value);
+
+  @override
+  double? get longitude =>
+      RealmObjectBase.get<double>(this, 'longitude') as double?;
+  @override
+  set longitude(double? value) => RealmObjectBase.set(this, 'longitude', value);
+
+  @override
   Stream<RealmObjectChanges<Project>> get changes =>
       RealmObjectBase.getChanges<Project>(this);
 
@@ -187,10 +204,13 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('isInvasive', RealmPropertyType.bool),
       SchemaProperty('sections', RealmPropertyType.object,
           linkTarget: 'Section', collectionType: RealmCollectionType.list),
+      SchemaProperty('latitude', RealmPropertyType.double, optional: true),
+      SchemaProperty('longitude', RealmPropertyType.double, optional: true),
     ]);
   }
 }
 
+// ignore_for_file: type=lint
 class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child(
     ObjectId id,
@@ -274,6 +294,7 @@ class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   }
 }
 
+// ignore_for_file: type=lint
 class SubProject extends _SubProject
     with RealmEntity, RealmObjectBase, RealmObject {
   SubProject(
@@ -430,6 +451,7 @@ class SubProject extends _SubProject
   }
 }
 
+// ignore_for_file: type=lint
 class Location extends _Location
     with RealmEntity, RealmObjectBase, RealmObject {
   Location(
@@ -573,6 +595,7 @@ class Location extends _Location
   }
 }
 
+// ignore_for_file: type=lint
 class Section extends _Section
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
@@ -710,6 +733,7 @@ class Section extends _Section
   }
 }
 
+// ignore_for_file: type=lint
 class VisualSection extends _VisualSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -943,6 +967,7 @@ class VisualSection extends _VisualSection
   }
 }
 
+// ignore_for_file: type=lint
 class InvasiveSection extends _InvasiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1027,6 +1052,7 @@ class InvasiveSection extends _InvasiveSection
   }
 }
 
+// ignore_for_file: type=lint
 class ConclusiveSection extends _ConclusiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1156,6 +1182,7 @@ class ConclusiveSection extends _ConclusiveSection
   }
 }
 
+// ignore_for_file: type=lint
 class DeckImage extends _DeckImage
     with RealmEntity, RealmObjectBase, RealmObject {
   DeckImage(

@@ -43,6 +43,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
         url: "",
         projecttype: 'multilevel',
         children: [],
+        latitude: 28.7,
+        longitude: 77.1,
         createdby: userFullName);
   }
 

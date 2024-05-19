@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:E3InspectionsMultiTenant/src/bloc/settings_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'src/app.dart';
 import 'src/bloc/notificationcontroller.dart';
@@ -19,7 +21,9 @@ void main() async {
   // Always initialize Awesome Notifications
   await NotificationController.initializeLocalNotifications();
   await NotificationController.initializeIsolateReceivePort();
-
+  if (Platform.isAndroid) {
+    AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
+  }
   return runApp(MultiProvider(providers: [
     ChangeNotifierProvider<AppServices>(
         create: (_) => AppServices(appId, baseUrl)),

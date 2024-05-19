@@ -20,6 +20,7 @@ import '../models/realm/realm_schemas.dart';
 import 'addedit_subproject.dart';
 
 //import 'breadcrumb_navigation.dart';
+import 'googlemaps_view.dart';
 import 'htmlviewer.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
@@ -324,7 +325,8 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                         currentProject.url as String,
                         currentProject.id,
                         currentProject.description as String,
-                        currentProject.editedat as String),
+                        currentProject.editedat as String,
+                        currentProject.address as String),
                     //}),
                     projectChildrenTab(context),
                     // const Divider(
@@ -367,7 +369,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
   }
 
   Widget projectDetails(String name, String url, ObjectId id,
-      String description, String editedat) {
+      String description, String editedat, String address) {
     realmProjServices =
         Provider.of<RealmProjectServices>(context, listen: false);
     return Padding(
@@ -380,21 +382,51 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
           ),
           const ProjectType(),
           Container(
-            height: 220,
-            decoration: BoxDecoration(
-                color: isInvasiveMode ? Colors.orange : Colors.blue,
-                // image: networkImage(currentProject.url as String),
-                borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(8.0)),
-                boxShadow: const [
-                  BoxShadow(blurRadius: 1.0, color: Colors.blue)
-                ]),
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(8.0)),
-              child: cachedNetworkImage(url),
-            ),
-          ),
+              height: 220,
+              decoration: BoxDecoration(
+                  color: isInvasiveMode ? Colors.orange : Colors.blue,
+                  // image: networkImage(currentProject.url as String),
+                  borderRadius:
+                      const BorderRadius.vertical(bottom: Radius.circular(8.0)),
+                  boxShadow: const [
+                    BoxShadow(blurRadius: 1.0, color: Colors.blue)
+                  ]),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(8.0)),
+                    child: cachedNetworkImage(url),
+                  ),
+                  OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                          side: BorderSide.none,
+                          foregroundColor: Colors.white,
+                          // the height is 50, the width is full
+                          minimumSize: const Size.fromHeight(30),
+                          backgroundColor: Colors.lightBlue,
+                          shadowColor: Colors.transparent,
+                          elevation: 1),
+                      onPressed: () {
+                        var initlattitude = currentProject.latitude ?? 28.7;
+                        var initlongitude = currentProject.longitude ?? 70.7;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => GoogleMapsView(
+                                    initlattitude, initlongitude)));
+                      },
+                      icon: const Icon(
+                        Icons.location_pin,
+                        color: Colors.blueAccent,
+                      ),
+                      label: const Text(
+                        'View on Map',
+                        style: TextStyle(color: Colors.white),
+                      )),
+                ],
+              )),
           //networkImage(currentProject.url as String),
           Align(
             alignment: Alignment.centerLeft,

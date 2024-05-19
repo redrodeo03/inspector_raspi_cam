@@ -7,6 +7,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
+
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../models/realm/realm_schemas.dart';
 import '../models/success_response.dart';
 import '../resources/realm/realm_services.dart';
 import 'capture_image.dart';
+import 'googlemaps_view.dart';
 
 class AddEditProjectPage extends StatefulWidget {
   final Project newProject;
@@ -86,7 +88,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   late Project currentProject;
   String pageTitle = "Add Project";
   final _formKey = GlobalKey<FormState>();
-
+  double lattitude = 28.7;
+  double longitude = 34.8;
   save(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
@@ -112,6 +115,8 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           _addressController.text,
           _descriptionController.text,
           userFullName,
+          longitude,
+          lattitude,
           isNewProject);
 
       if (!mounted) {
@@ -308,13 +313,48 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                       height: 16,
                     ),
                     const Text('Address'),
+
+                    inputWidgetNoValidation('Address', 2, _addressController),
+                    OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                            side: BorderSide.none,
+                            // the height is 50, the width is full
+                            minimumSize: const Size.fromHeight(40),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            elevation: 1),
+                        onPressed: () {
+                          var initlattitude = currentProject.latitude ?? 28.7;
+                          var initlongitude = currentProject.longitude ?? 70.7;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GoogleMapsView(
+                                      initlattitude, initlongitude))).then(
+                            (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _addressController.text = value["address"];
+                                  lattitude = value["latitude"];
+                                  longitude = value["longitude"];
+                                });
+                              }
+                            },
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.location_pin,
+                          color: Colors.blueAccent,
+                        ),
+                        label: Text(
+                          isNewProject ? 'Add location' : 'Update location',
+                          style: const TextStyle(color: Colors.blueAccent),
+                        )),
+
                     const SizedBox(
                       height: 8,
                     ),
-                    inputWidgetNoValidation('Address', 2, _addressController),
-                    const SizedBox(
-                      height: 16,
-                    ),
+
                     // Center(
                     //     child: TextField(
                     //   controller: dateInput,

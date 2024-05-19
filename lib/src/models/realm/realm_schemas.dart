@@ -23,6 +23,8 @@ class _Project {
   // List<_Child> invasiveChildren = [];
   bool isInvasive = false;
   List<_Section> sections = [];
+  late double? latitude;
+  late double? longitude;
   // List<_Section> invasiveSections = [];
 }
 

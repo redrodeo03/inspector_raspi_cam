@@ -449,6 +449,8 @@ class _SectionPageState extends State<SectionPage> {
                 //   currentVisualSection.images
                 //       .addAll(value.map((e) => e.path).toList());
                 // });
+                unitUnavailable = false;
+                isFormUpdated = true;
               });
             }
             // for (var element in capturedImages) {
@@ -470,6 +472,8 @@ class _SectionPageState extends State<SectionPage> {
           //   currentVisualSection.images
           //       .addAll(imageFiles.map((e) => e.path).toList());
           // });
+          unitUnavailable = false;
+          isFormUpdated = true;
         });
       }
     }
@@ -481,7 +485,9 @@ class _SectionPageState extends State<SectionPage> {
     return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Form(
-            onChanged: () => isFormUpdated = true,
+            onChanged: () => setState(() {
+                  isFormUpdated = true;
+                }),
             key: _formKey,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -508,6 +514,7 @@ class _SectionPageState extends State<SectionPage> {
                       Switch(
                         onChanged: (value) {
                           toggleUnitSwitch(value);
+                          isFormUpdated = true;
                         },
                         value: unitUnavailable,
                       ),
@@ -722,8 +729,10 @@ class _SectionPageState extends State<SectionPage> {
                             ),
                             items: exteriorElements,
                             selectedItems: selectedExteriorelements,
-                            onChanged: (value) => setState(
-                                () => selectedExteriorelements = value),
+                            onChanged: (value) => setState(() {
+                              selectedExteriorelements = value;
+                              isFormUpdated = true;
+                            }),
                           );
                         },
                       ),
@@ -757,8 +766,10 @@ class _SectionPageState extends State<SectionPage> {
                               title: 'Waterproofing Elements',
                               items: waterproofingElements,
                               selectedItems: selectedWaterproofingElements,
-                              onChanged: (value) => setState(
-                                  () => selectedWaterproofingElements = value),
+                              onChanged: (value) => setState(() {
+                                selectedWaterproofingElements = value;
+                                isFormUpdated = true;
+                              }),
                             );
                           },
                           child: Padding(
@@ -817,6 +828,7 @@ class _SectionPageState extends State<SectionPage> {
                       Switch(
                         onChanged: (value) {
                           toggleSwitch(value);
+                          isFormUpdated = true;
                         },
                         value: hasSignsOfLeak,
                       ),
@@ -839,6 +851,7 @@ class _SectionPageState extends State<SectionPage> {
                       Switch(
                         onChanged: (value) {
                           toggleSwitchInvasive(value);
+                          isFormUpdated = true;
                         },
                         value: invasiveReviewRequired,
                       ),
@@ -957,6 +970,7 @@ class _SectionPageState extends State<SectionPage> {
         hasSignsOfLeak = false;
       });
     }
+    isFormUpdated = true;
   }
 
   void toggleUnitSwitch(bool value) {
@@ -969,6 +983,7 @@ class _SectionPageState extends State<SectionPage> {
         unitUnavailable = false;
       });
     }
+    isFormUpdated = true;
   }
 
   void toggleSwitchInvasive(bool value) {
@@ -981,6 +996,7 @@ class _SectionPageState extends State<SectionPage> {
         invasiveReviewRequired = false;
       });
     }
+    isFormUpdated = true;
   }
 
   Widget inputWidgetwithValidation(String hint, String message, int lines,
@@ -1067,6 +1083,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (VisualReview? value) {
                 setState(() {
                   _review = value;
+                  isFormUpdated = true;
                 });
                 debugPrint(_review!.name);
               },
@@ -1084,6 +1101,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (VisualReview? value) {
                 setState(() {
                   _review = value;
+                  isFormUpdated = true;
                 });
                 debugPrint(_review!.name);
               },
@@ -1100,6 +1118,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (VisualReview? value) {
                 setState(() {
                   _review = value;
+                  isFormUpdated = true;
                 });
                 debugPrint(_review!.name);
               },
@@ -1118,6 +1137,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _eee = value;
+                  isFormUpdated = true;
                 });
                 debugPrint(_review!.name);
               },
@@ -1134,6 +1154,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _eee = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1148,6 +1169,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _eee = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1162,6 +1184,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _eee = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1179,6 +1202,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _lbc = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1194,6 +1218,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _lbc = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1208,6 +1233,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _lbc = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1222,6 +1248,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _lbc = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1239,6 +1266,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _awe = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1254,6 +1282,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _awe = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1268,6 +1297,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _awe = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1282,6 +1312,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ExpectancyYears? value) {
                 setState(() {
                   _awe = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1300,6 +1331,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ConditionalAssessment? value) {
                 setState(() {
                   _assessment = value;
+                  isFormUpdated = true;
                 });
                 //debugPrint(_review!.name);
               },
@@ -1317,6 +1349,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ConditionalAssessment? value) {
                 setState(() {
                   _assessment = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1332,6 +1365,7 @@ class _SectionPageState extends State<SectionPage> {
               onChanged: (ConditionalAssessment? value) {
                 setState(() {
                   _assessment = value;
+                  isFormUpdated = true;
                 });
               },
             ),
@@ -1348,6 +1382,7 @@ class _SectionPageState extends State<SectionPage> {
         onChanged: (VisualReview? value) {
           setState(() {
             _review = value;
+            isFormUpdated = true;
           });
           debugPrint(_review!.name);
         },
