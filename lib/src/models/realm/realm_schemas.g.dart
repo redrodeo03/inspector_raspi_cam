@@ -6,7 +6,6 @@ part of 'realm_schemas.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-// ignore_for_file: type=lint
 class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -210,7 +209,6 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child(
     ObjectId id,
@@ -294,7 +292,6 @@ class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   }
 }
 
-// ignore_for_file: type=lint
 class SubProject extends _SubProject
     with RealmEntity, RealmObjectBase, RealmObject {
   SubProject(
@@ -451,7 +448,6 @@ class SubProject extends _SubProject
   }
 }
 
-// ignore_for_file: type=lint
 class Location extends _Location
     with RealmEntity, RealmObjectBase, RealmObject {
   Location(
@@ -595,7 +591,6 @@ class Location extends _Location
   }
 }
 
-// ignore_for_file: type=lint
 class Section extends _Section
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
@@ -733,7 +728,6 @@ class Section extends _Section
   }
 }
 
-// ignore_for_file: type=lint
 class VisualSection extends _VisualSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -967,7 +961,6 @@ class VisualSection extends _VisualSection
   }
 }
 
-// ignore_for_file: type=lint
 class InvasiveSection extends _InvasiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1052,7 +1045,6 @@ class InvasiveSection extends _InvasiveSection
   }
 }
 
-// ignore_for_file: type=lint
 class ConclusiveSection extends _ConclusiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1182,7 +1174,6 @@ class ConclusiveSection extends _ConclusiveSection
   }
 }
 
-// ignore_for_file: type=lint
 class DeckImage extends _DeckImage
     with RealmEntity, RealmObjectBase, RealmObject {
   DeckImage(

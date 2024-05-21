@@ -13,6 +13,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/showprojecttype_widget.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
 import 'package:flutter_material_pickers/models/select_all_config.dart';
+
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
 import '../models/realm/realm_schemas.dart';
@@ -415,7 +416,7 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                             context,
                             MaterialPageRoute(
                                 builder: (context) => GoogleMapsView(
-                                    initlattitude, initlongitude)));
+                                    initlattitude, initlongitude, false)));
                       },
                       icon: const Icon(
                         Icons.location_pin,
@@ -479,7 +480,12 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                        "Edited on ${getCustomFormattedDateTime(editedat, 'MM/dd/yy hh:mm')}"),
+                      'Edited on ${getCustomFormattedDateTime(editedat, 'MM/dd/yy hh:mm')}',
+                      style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic),
+                    ),
                     Visibility(
                       visible: !isInvasiveMode,
                       child: InkWell(

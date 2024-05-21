@@ -330,7 +330,9 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => GoogleMapsView(
-                                      initlattitude, initlongitude))).then(
+                                      initlattitude,
+                                      initlongitude,
+                                      isNewProject))).then(
                             (value) {
                               if (value != null) {
                                 setState(() {

@@ -9,7 +9,9 @@ import '../resources/keys.dart';
 class GoogleMapsView extends StatefulWidget {
   final double latitude;
   final double longitude;
-  GoogleMapsView(this.latitude, this.longitude, {super.key});
+  final bool showCurrentLocation;
+  GoogleMapsView(this.latitude, this.longitude, this.showCurrentLocation,
+      {super.key});
 
   @override
   State<GoogleMapsView> createState() => _GoogleMapsViewState();
@@ -24,10 +26,11 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
 
   //bool _mapsInitialized = false;
   late LatLng projectCoordinates;
-
+  late bool showCurrentLocation;
   @override
   void initState() {
     projectCoordinates = LatLng(widget.latitude, widget.longitude);
+    showCurrentLocation = widget.showCurrentLocation;
     initRenderer();
     super.initState();
   }
@@ -61,7 +64,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           selectText: "Select place",
           outsideOfPickAreaText: "Place not in area",
           initialPosition: projectCoordinates,
-          useCurrentLocation: false,
+          useCurrentLocation: showCurrentLocation,
 
           selectInitialPosition: true,
           usePinPointingSearch: true,

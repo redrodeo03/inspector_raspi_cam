@@ -203,7 +203,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                         alignment: Alignment.centerLeft,
                                         child: Text(
                                           projects[index].name as String,
-                                          maxLines: 2,
+                                          maxLines: 1,
                                           overflow: TextOverflow.fade,
                                           textAlign: TextAlign.left,
                                           style: const TextStyle(
@@ -248,6 +248,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                                       textAlign: TextAlign.left,
                                                       style: const TextStyle(
                                                           color: Colors.black87,
+                                                          fontSize: 10,
                                                           fontStyle:
                                                               FontStyle.italic),
                                                     ),

@@ -42,17 +42,33 @@ class RealmProjectServices with ChangeNotifier {
   RealmProjectServices(this.app, this.loggedInUser, this.company) {
     if (app.currentUser != null || currentUser != app.currentUser) {
       currentUser ??= app.currentUser;
-      realm = Realm(Configuration.flexibleSync(currentUser!, [
-        Project.schema,
-        Child.schema,
-        SubProject.schema,
-        Location.schema,
-        Section.schema,
-        VisualSection.schema,
-        DeckImage.schema,
-        InvasiveSection.schema,
-        ConclusiveSection.schema
-      ], syncErrorHandler: (SyncError error) {
+      realm = Realm(Configuration.flexibleSync(
+          currentUser!,
+          [
+            Project.schema,
+            Child.schema,
+            SubProject.schema,
+            Location.schema,
+            Section.schema,
+            VisualSection.schema,
+            DeckImage.schema,
+            InvasiveSection.schema,
+            ConclusiveSection.schema
+          ],
+          clientResetHandler: RecoverUnsyncedChangesHandler(
+              // All the following callbacks are optional
+              onBeforeReset: (beforeResetRealm) {
+            // Executed before the client reset begins.
+            // Can be used to notify the user that a reset is going
+            // to happen.
+          }, onAfterReset: (beforeResetRealm, afterResetRealm) {
+            // Executed after the client reset is complete.
+            // Can be used to notify the user that the reset is done.
+          }, onManualResetFallback: (clientResetError) {
+            // Automatic reset failed. Handle the reset manually here.
+            // Refer to the "Manual Client Reset Fallback" documentation
+            // for more information on what you can include here.
+          }), syncErrorHandler: (SyncError error) {
         debugPrint("Error message: ${error.message}");
       }));
       //showAll = (realm.subscriptions.findByName(queryAllProjects) != null);

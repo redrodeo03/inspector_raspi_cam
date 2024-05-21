@@ -121,6 +121,7 @@ class CameraScreenState extends State<CameraScreen>
       ]);
 
       _currentFlashMode = controller!.value.flashMode;
+      _currentFlashMode = FlashMode.off;
     } on CameraException catch (e) {
       if (!mounted) {
         return;
