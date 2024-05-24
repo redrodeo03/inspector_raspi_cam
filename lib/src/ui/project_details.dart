@@ -13,6 +13,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/cachedimage_widget.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/showprojecttype_widget.dart';
 import 'package:flutter_material_pickers/helpers/show_checkbox_picker.dart';
 import 'package:flutter_material_pickers/models/select_all_config.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
@@ -21,7 +22,6 @@ import '../models/realm/realm_schemas.dart';
 import 'addedit_subproject.dart';
 
 //import 'breadcrumb_navigation.dart';
-import 'googlemaps_view.dart';
 import 'htmlviewer.dart';
 import 'location.dart';
 import 'package:flutter/material.dart';
@@ -410,20 +410,30 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
                           shadowColor: Colors.transparent,
                           elevation: 1),
                       onPressed: () {
-                        var initlattitude = currentProject.latitude ?? 28.7;
-                        var initlongitude = currentProject.longitude ?? 70.7;
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GoogleMapsView(
-                                    initlattitude, initlongitude, false)));
+                        // var initlattitude = currentProject.latitude ?? 28.7;
+                        // var initlongitude = currentProject.longitude ?? 70.7;
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => GoogleMapsView(
+                        //             initlattitude, initlongitude, false)));
+                        if (currentProject.address == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Address is empty, please add address to navigate.')),
+                          );
+                        } else {
+                          MapsLauncher.launchQuery(
+                              currentProject.address as String);
+                        }
                       },
                       icon: const Icon(
                         Icons.location_pin,
                         color: Colors.blueAccent,
                       ),
                       label: const Text(
-                        'View on Map',
+                        'Navigate',
                         style: TextStyle(color: Colors.white),
                       )),
                 ],
