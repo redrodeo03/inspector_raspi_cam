@@ -42,7 +42,7 @@ dependencies:
   flutter_material_pickers: ^3.5.0
   async: ^2.10.0
   image_picker: ^1.0.0
-  camera: ^0.10.4
+  camera: ^0.10.5
   path_provider:
   path:
   shared_preferences: ^2.1.0

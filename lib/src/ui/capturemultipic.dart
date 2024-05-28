@@ -30,7 +30,7 @@ class CameraScreenState extends State<CameraScreen>
 
   // Current values
   double _currentZoomLevel = 1.0;
-  //double _currentExposureOffset = 0.0;
+  // double _currentExposureOffset = 0.0;
   FlashMode? _currentFlashMode;
 
   List<File> allFileList = [];
@@ -55,7 +55,7 @@ class CameraScreenState extends State<CameraScreen>
   List<XFile> capturedImages = [];
   Future<XFile?> takePicture(BuildContext context) async {
     final CameraController? cameraController = controller;
-
+    controller?.setExposureMode(ExposureMode.locked);
     if (cameraController!.value.isTakingPicture) {
       // A capture is already pending, do nothing.
       return null;
@@ -76,6 +76,7 @@ class CameraScreenState extends State<CameraScreen>
   void resetCameraValues() async {
     _currentZoomLevel = 1.0;
     //_currentExposureOffset = 0.0;
+    await resetTorch();
   }
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -99,12 +100,16 @@ class CameraScreenState extends State<CameraScreen>
 
     // Update UI if controller updated
     cameraController.addListener(() {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
 
     try {
       await cameraController.initialize();
+      // await cameraController.setExposureMode(ExposureMode.);
       await Future.wait([
+        cameraController.setExposureMode(ExposureMode.locked),
         // cameraController
         //     .getMinExposureOffset()
         //     .then((value) => _minAvailableExposureOffset = value),
@@ -120,6 +125,9 @@ class CameraScreenState extends State<CameraScreen>
             .then((value) => _minAvailableZoom = value),
       ]);
 
+      await controller!.setFlashMode(
+        FlashMode.off,
+      );
       _currentFlashMode = controller!.value.flashMode;
       _currentFlashMode = FlashMode.off;
     } on CameraException catch (e) {
@@ -138,6 +146,17 @@ class CameraScreenState extends State<CameraScreen>
     }
   }
 
+  Future resetTorch() async {
+    final currentFlash = controller?.value.flashMode;
+    if (currentFlash != null) {
+      //if (currentFlash == FlashMode.auto || currentFlash == FlashMode.always) {
+      await controller!.setFlashMode(FlashMode.torch);
+      //}
+      await controller!.setFlashMode(FlashMode.off);
+      await controller!.setFlashMode(currentFlash);
+    }
+  }
+
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
     if (controller == null) {
       return;
@@ -147,7 +166,7 @@ class CameraScreenState extends State<CameraScreen>
       details.localPosition.dx / constraints.maxWidth,
       details.localPosition.dy / constraints.maxHeight,
     );
-    controller!.setExposurePoint(offset);
+    //controller!.setExposurePoint(offset);
     controller!.setFocusPoint(offset);
   }
 
@@ -306,9 +325,15 @@ class CameraScreenState extends State<CameraScreen>
                                       }
 
                                       try {
+                                        controller!.setExposureMode(
+                                            ExposureMode.locked);
                                         XFile file =
                                             await controller!.takePicture();
-                                        capturedImages.add(file);
+                                        await resetTorch();
+                                        setState(() {
+                                          capturedImages.add(file);
+                                        });
+
                                         //var imageFile = File(file.path);
                                       } on CameraException catch (e) {
                                         ScaffoldMessenger.of(context)
@@ -400,9 +425,11 @@ class CameraScreenState extends State<CameraScreen>
                                     setState(() {
                                       _currentFlashMode = FlashMode.off;
                                     });
+                                    //await resetTorch();
                                     await controller!.setFlashMode(
                                       FlashMode.off,
                                     );
+                                    await resetTorch();
                                   },
                                   child: Icon(
                                     Icons.flash_off,
@@ -419,6 +446,7 @@ class CameraScreenState extends State<CameraScreen>
                                     await controller!.setFlashMode(
                                       FlashMode.auto,
                                     );
+                                    await resetTorch();
                                   },
                                   child: Icon(
                                     Icons.flash_auto,
@@ -430,15 +458,15 @@ class CameraScreenState extends State<CameraScreen>
                                 InkWell(
                                   onTap: () async {
                                     setState(() {
-                                      _currentFlashMode = FlashMode.always;
+                                      _currentFlashMode = FlashMode.torch;
                                     });
                                     await controller!.setFlashMode(
-                                      FlashMode.always,
+                                      FlashMode.torch,
                                     );
                                   },
                                   child: Icon(
                                     Icons.flash_on,
-                                    color: _currentFlashMode == FlashMode.always
+                                    color: _currentFlashMode == FlashMode.torch
                                         ? Colors.amber
                                         : Colors.white,
                                   ),
