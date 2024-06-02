@@ -10,6 +10,7 @@ import '../models/users_response.dart';
 class UsersApiProvider {
   Client client = Client();
   final _baseUrl = Uri.parse(URLS.userLogin);
+  final _logoutUrl = Uri.parse(URLS.userLogout);
   final _regUrl = Uri.parse(URLS.registerUser);
   final _allUsersUrl = Uri.parse(URLS.getAllUsers);
   Future<LoginResponse> login(Object requestBody) async {
@@ -19,8 +20,22 @@ class UsersApiProvider {
 
     if (response.statusCode == 201) {
       return LoginResponse.fromJson(json.decode(response.body));
+    } else if (response.statusCode == 401) {
+      return LoginResponse(username: 'loggedin', token: response.body);
     } else {
       return LoginResponse(id: null, username: null);
+    }
+  }
+
+  Future<bool> logout(Object requestBody) async {
+    final response = await client.post(_logoutUrl,
+        body: requestBody, headers: {'Content-Type': 'application/json'});
+    //print(response.body.toString());
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
     }
   }
 

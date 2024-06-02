@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../bloc/users_bloc.dart';
 import '../resources/realm/realm_services.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -313,11 +314,24 @@ class _SettingsPageState extends State<SettingsPage> {
                     backgroundColor: Colors.white,
                     shadowColor: Colors.orange,
                     elevation: 0),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
+
+                  var result = await usersBloc
+                      .logout(usersBloc.userDetails.username as String);
+                  if (result) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Logged out successfully')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Failed to clear the user session.')),
+                    );
+                  }
                 },
                 icon: const Icon(
                   Icons.logout_outlined,

@@ -110,6 +110,12 @@ class _LoginPageState extends State<LoginPage> {
             content: Text('Login failed,please check your credentials.')));
         return;
       }
+      if (loginResult.username == 'loggedin') {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(loginResult.token as String)));
+        return;
+      }
       if (loginResult.username!.isNotEmpty && loginResult.accesstype != "web") {
         if (!mounted) return;
         if (activeConnection) {

@@ -4,20 +4,29 @@ import '../models/users_response.dart';
 import '../resources/repository.dart';
 
 class UsersBloc {
+  late String password;
   final Repository _repository = Repository();
 
   //final _usersFetcher = PublishSubject<LoginResponse>();
   LoginResponse userDetails = LoginResponse();
 
-  Future<LoginResponse> login(String username, String password) async {
-    username = username;
+  Future<LoginResponse> login(String username, String pass) async {
+    password = pass;
     //print('called login api');
-    final loginObject =
-        jsonEncode({'username': username, 'password': password});
+    final loginObject = jsonEncode(
+        {'username': username, 'password': password, 'isMobile': true});
     LoginResponse response = await _repository.login(loginObject);
     userDetails = response;
 
     return response;
+  }
+
+  Future<bool> logout(String username) async {
+    username = username;
+    //print('called login api');
+    final loginObject =
+        jsonEncode({'username': username, 'password': password});
+    return await _repository.logout(loginObject);
   }
 
   register(String username, String password, String firstName, String lastName,

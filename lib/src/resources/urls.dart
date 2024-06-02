@@ -7,6 +7,7 @@ class URLS {
   static const String addProjectsUrl = '$baseUrl/project/add';
   static const String manageProjectsUrl = '$baseUrl/project/';
 
+  static const String userLogout = '$baseUrl/login/logout';
   static const String userLogin = '$baseUrl/login/login';
   static const String registerUser = '$baseUrl/user/register';
   static const String getAllUsers = '$baseUrl/user/allusers';

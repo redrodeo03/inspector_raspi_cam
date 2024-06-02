@@ -106,6 +106,7 @@ class Repository {
   final usersApiProvider = UsersApiProvider();
   Future<LoginResponse> login(Object loginReq) =>
       usersApiProvider.login(loginReq);
+  Future<bool> logout(Object loginReq) => usersApiProvider.logout(loginReq);
 
   final imageApiProvider = ImagesApiProvider();
 
