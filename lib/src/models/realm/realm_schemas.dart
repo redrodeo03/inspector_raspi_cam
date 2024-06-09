@@ -167,3 +167,30 @@ class _DeckImage {
   late String containerName;
   late String uploadedBy;
 }
+
+@RealmModel(ObjectType.embeddedObject)
+class _Question {
+  @MapTo('_id')
+  late ObjectId id;
+  late String type;
+  late Set<String> value;
+  late Set<String>? allowedValues;
+}
+
+@RealmModel()
+class _VisualForms {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  String? name;
+  late List<String> images;
+  late List<_Question> questions;
+  bool furtherinvasivereviewrequired = true;
+  late ObjectId parentid;
+  String? createdby;
+  String? createdat;
+  String parenttype = '';
+  late bool unitUnavailable;
+  String? editedat;
+  String? lasteditedby;
+}

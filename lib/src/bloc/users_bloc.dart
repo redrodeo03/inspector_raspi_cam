@@ -14,7 +14,7 @@ class UsersBloc {
     password = pass;
     //print('called login api');
     final loginObject = jsonEncode(
-        {'username': username, 'password': password, 'isMobile': true});
+        {'username': username, 'password': password, 'isMobile': false});
     LoginResponse response = await _repository.login(loginObject);
     userDetails = response;
 
