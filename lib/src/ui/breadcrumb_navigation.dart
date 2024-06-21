@@ -54,7 +54,9 @@ class BreadCrumbNavigator extends StatelessWidget {
                     try {
                       Navigator.popUntil(context,
                           (route) => route == currentRouteStack[index]);
-                    } catch (e) {}
+                    } catch (e) {
+                      debugPrint(e.toString());
+                    }
                   },
                   child: _BreadButton(
                       index == 0

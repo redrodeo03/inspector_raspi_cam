@@ -7,10 +7,12 @@ import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
 import '../bloc/images_bloc.dart';
 
 import '../models/realm/realm_schemas.dart';
@@ -178,6 +180,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   }
 
   String imageURL = 'assets/images/icon.png';
+  ObjectId? formId;
   TextEditingController dateInput = TextEditingController();
   final TextEditingController _nameController = TextEditingController(text: '');
   //late TextEditingController _activeController;
@@ -208,6 +211,20 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
   Widget build(BuildContext context) {
     realmProjServices =
         Provider.of<RealmProjectServices>(context, listen: false);
+    var forms = realmProjServices.getAllForms();
+    List<DropdownMenuItem<LocationForm>> dropdownItems = [];
+    if (forms.isNotEmpty) {
+      dropdownItems = forms.map((form) {
+        DropdownMenuItem(
+          value: form.id,
+          child: Text(
+            form.name,
+          ),
+        );
+      }) as List<DropdownMenuItem<LocationForm>>;
+    }
+
+    LocationForm? selectedValue;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -356,6 +373,26 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                     const SizedBox(
                       height: 8,
                     ),
+                    if (isNewProject)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text(
+                            'Location form type',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          DropdownButton(
+                            items: dropdownItems,
+                            value: selectedValue,
+                            onChanged: (value) {
+                              formId = value?.id;
+                              setState(() {
+                                selectedValue = value;
+                              });
+                            },
+                          )
+                        ],
+                      ),
 
                     // Center(
                     //     child: TextField(

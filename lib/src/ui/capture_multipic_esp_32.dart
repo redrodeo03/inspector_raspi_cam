@@ -9,7 +9,6 @@ import 'package:string_validator/string_validator.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 
-import '../bloc/serial_controller.dart';
 import 'image_widget.dart';
 
 class ESP32CameraScreen extends StatefulWidget {
@@ -24,7 +23,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
   var _bytesImage;
   UsbPort? _port;
   String _status = "Idle";
-  List<Widget> _ports = [];
+
   //List<String> _serialData = [];
 
   StreamSubscription<String>? _subscription;
@@ -74,7 +73,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
 
     _subscription = _transaction!.stream.listen((String line) {
       setState(() {
-        print(line);
+        debugPrint(line);
         base64data = line;
       });
     });
@@ -90,7 +89,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
     if (!devices.contains(_device)) {
       _connectTo(null);
     }
-    print(devices);
+    debugPrint(devices.toString());
     bool targetDeviceFound = false;
 
     devices.forEach((device) {

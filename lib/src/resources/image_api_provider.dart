@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:E3InspectionsMultiTenant/src/bloc/users_bloc.dart';
 import 'package:E3InspectionsMultiTenant/src/resources/urls.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 //import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -85,7 +86,7 @@ class ImagesApiProvider {
             message: 'failure', errordata: 'file doesn\'t exist');
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return ErrorResponse(message: 'failure', errordata: e);
     }
   }

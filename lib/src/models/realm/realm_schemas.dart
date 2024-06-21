@@ -25,6 +25,7 @@ class _Project {
   List<_Section> sections = [];
   late double? latitude;
   late double? longitude;
+  ObjectId? formId;
   // List<_Section> invasiveSections = [];
 }
 
@@ -173,15 +174,18 @@ class _Question {
   @MapTo('_id')
   late ObjectId id;
   late String type;
-  late Set<String> value;
-  late Set<String>? allowedValues;
+  late String name;
+  late String answer;
+  late List<String> multipleAnswers;
+  late List<String> allowedValues;
 }
 
 @RealmModel()
-class _VisualForms {
+class _DynamicVisualSection {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
+  late String? companyIdentifier;
   String? name;
   late List<String> images;
   late List<_Question> questions;
@@ -193,4 +197,15 @@ class _VisualForms {
   late bool unitUnavailable;
   String? editedat;
   String? lasteditedby;
+  String? additionalconsiderations;
+}
+
+@RealmModel()
+class _LocationForm {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late String name;
+  late String companyIdentifier;
+  late List<_Question> questions;
 }
