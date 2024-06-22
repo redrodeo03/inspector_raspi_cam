@@ -31,11 +31,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to camera to capture location images for reporting.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs location permission to help users launch navigation apps directly on a click of button.</string>
+	<string>E3InspectionsMultitenant needs location permission to help inspector search places, add address to the Project location and navigate to it.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs location permission to help users launch navigation apps directly on a click of button.</string>
+	<string>E3InspectionsMultitenant needs location permission to help inspector search places, add address to the Project location and navigate to it.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs location permission to help users launch navigation apps directly on a click of button.</string>
+	<string>E3InspectionsMultitenant needs location permission to help inspector search places, add address to the Project location and navigate to it.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to microphone to fill in the data in location form.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
