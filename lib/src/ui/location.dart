@@ -11,6 +11,7 @@ import '../models/realm/realm_schemas.dart';
 import '../resources/realm/realm_services.dart';
 //import 'breadcrumb_navigation.dart';
 import 'cachedimage_widget.dart';
+import 'dynamic_section.dart';
 import 'showprojecttype_widget.dart';
 
 class LocationPage extends StatefulWidget {
@@ -585,11 +586,22 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   void addNewChild() {
+    //updating to see the custom form.
+    // Navigator.push(
+    //         context,
+    //         SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
+    //             locationType, currentLocation.name as String, true, "New"))
+    //     .then((value) => setState(() {}));
     Navigator.push(
-            context,
-            SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
-                locationType, currentLocation.name as String, true, "New"))
-        .then((value) => setState(() {}));
+        context,
+        MaterialPageRoute(
+            builder: (context) => DynamicVisualSectionPage(
+                ObjectId(),
+                currentLocation.id,
+                userFullName,
+                locationType,
+                currentLocation.name as String,
+                true)));
   }
 
   void gotoDetails(ObjectId sectionId, String sectionName) {

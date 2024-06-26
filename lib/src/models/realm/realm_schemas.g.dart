@@ -6,6 +6,7 @@ part of 'realm_schemas.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -25,6 +26,7 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     bool isInvasive = false,
     double? latitude,
     double? longitude,
+    ObjectId? formId,
     Iterable<Child> children = const [],
     Iterable<Section> sections = const [],
     Set<String> assignedto = const {},
@@ -50,6 +52,7 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'isInvasive', isInvasive);
     RealmObjectBase.set(this, 'latitude', latitude);
     RealmObjectBase.set(this, 'longitude', longitude);
+    RealmObjectBase.set(this, 'formId', formId);
     RealmObjectBase.set<RealmList<Child>>(
         this, 'children', RealmList<Child>(children));
     RealmObjectBase.set<RealmList<Section>>(
@@ -171,6 +174,12 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
   set longitude(double? value) => RealmObjectBase.set(this, 'longitude', value);
 
   @override
+  ObjectId? get formId =>
+      RealmObjectBase.get<ObjectId>(this, 'formId') as ObjectId?;
+  @override
+  set formId(ObjectId? value) => RealmObjectBase.set(this, 'formId', value);
+
+  @override
   Stream<RealmObjectChanges<Project>> get changes =>
       RealmObjectBase.getChanges<Project>(this);
 
@@ -205,10 +214,12 @@ class Project extends _Project with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'Section', collectionType: RealmCollectionType.list),
       SchemaProperty('latitude', RealmPropertyType.double, optional: true),
       SchemaProperty('longitude', RealmPropertyType.double, optional: true),
+      SchemaProperty('formId', RealmPropertyType.objectid, optional: true),
     ]);
   }
 }
 
+// ignore_for_file: type=lint
 class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child(
     ObjectId id,
@@ -292,6 +303,7 @@ class Child extends _Child with RealmEntity, RealmObjectBase, EmbeddedObject {
   }
 }
 
+// ignore_for_file: type=lint
 class SubProject extends _SubProject
     with RealmEntity, RealmObjectBase, RealmObject {
   SubProject(
@@ -448,6 +460,7 @@ class SubProject extends _SubProject
   }
 }
 
+// ignore_for_file: type=lint
 class Location extends _Location
     with RealmEntity, RealmObjectBase, RealmObject {
   Location(
@@ -591,6 +604,7 @@ class Location extends _Location
   }
 }
 
+// ignore_for_file: type=lint
 class Section extends _Section
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
@@ -728,6 +742,7 @@ class Section extends _Section
   }
 }
 
+// ignore_for_file: type=lint
 class VisualSection extends _VisualSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -961,6 +976,7 @@ class VisualSection extends _VisualSection
   }
 }
 
+// ignore_for_file: type=lint
 class InvasiveSection extends _InvasiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1045,6 +1061,7 @@ class InvasiveSection extends _InvasiveSection
   }
 }
 
+// ignore_for_file: type=lint
 class ConclusiveSection extends _ConclusiveSection
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
@@ -1174,6 +1191,7 @@ class ConclusiveSection extends _ConclusiveSection
   }
 }
 
+// ignore_for_file: type=lint
 class DeckImage extends _DeckImage
     with RealmEntity, RealmObjectBase, RealmObject {
   DeckImage(
@@ -1280,6 +1298,328 @@ class DeckImage extends _DeckImage
       SchemaProperty('entityName', RealmPropertyType.string),
       SchemaProperty('containerName', RealmPropertyType.string),
       SchemaProperty('uploadedBy', RealmPropertyType.string),
+    ]);
+  }
+}
+
+// ignore_for_file: type=lint
+class Question extends _Question
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Question(
+    ObjectId id,
+    String type,
+    String name,
+    String answer, {
+    Iterable<String> multipleAnswers = const [],
+    Iterable<String> allowedValues = const [],
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'type', type);
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'answer', answer);
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'multipleAnswers', RealmList<String>(multipleAnswers));
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'allowedValues', RealmList<String>(allowedValues));
+  }
+
+  Question._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  String get type => RealmObjectBase.get<String>(this, 'type') as String;
+  @override
+  set type(String value) => RealmObjectBase.set(this, 'type', value);
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  String get answer => RealmObjectBase.get<String>(this, 'answer') as String;
+  @override
+  set answer(String value) => RealmObjectBase.set(this, 'answer', value);
+
+  @override
+  RealmList<String> get multipleAnswers =>
+      RealmObjectBase.get<String>(this, 'multipleAnswers') as RealmList<String>;
+  @override
+  set multipleAnswers(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<String> get allowedValues =>
+      RealmObjectBase.get<String>(this, 'allowedValues') as RealmList<String>;
+  @override
+  set allowedValues(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Question>> get changes =>
+      RealmObjectBase.getChanges<Question>(this);
+
+  @override
+  Question freeze() => RealmObjectBase.freezeObject<Question>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Question._);
+    return const SchemaObject(ObjectType.embeddedObject, Question, 'Question', [
+      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id'),
+      SchemaProperty('type', RealmPropertyType.string),
+      SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('answer', RealmPropertyType.string),
+      SchemaProperty('multipleAnswers', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('allowedValues', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+// ignore_for_file: type=lint
+class DynamicVisualSection extends _DynamicVisualSection
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  DynamicVisualSection(
+    ObjectId id,
+    ObjectId parentid,
+    bool unitUnavailable, {
+    String? companyIdentifier,
+    String? name,
+    bool furtherinvasivereviewrequired = true,
+    String? createdby,
+    String? createdat,
+    String parenttype = '',
+    String? editedat,
+    String? lasteditedby,
+    String? additionalconsiderations,
+    Iterable<String> images = const [],
+    Iterable<Question> questions = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<DynamicVisualSection>({
+        'furtherinvasivereviewrequired': true,
+        'parenttype': '',
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'companyIdentifier', companyIdentifier);
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(
+        this, 'furtherinvasivereviewrequired', furtherinvasivereviewrequired);
+    RealmObjectBase.set(this, 'parentid', parentid);
+    RealmObjectBase.set(this, 'createdby', createdby);
+    RealmObjectBase.set(this, 'createdat', createdat);
+    RealmObjectBase.set(this, 'parenttype', parenttype);
+    RealmObjectBase.set(this, 'unitUnavailable', unitUnavailable);
+    RealmObjectBase.set(this, 'editedat', editedat);
+    RealmObjectBase.set(this, 'lasteditedby', lasteditedby);
+    RealmObjectBase.set(
+        this, 'additionalconsiderations', additionalconsiderations);
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'images', RealmList<String>(images));
+    RealmObjectBase.set<RealmList<Question>>(
+        this, 'questions', RealmList<Question>(questions));
+  }
+
+  DynamicVisualSection._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  String? get companyIdentifier =>
+      RealmObjectBase.get<String>(this, 'companyIdentifier') as String?;
+  @override
+  set companyIdentifier(String? value) =>
+      RealmObjectBase.set(this, 'companyIdentifier', value);
+
+  @override
+  String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
+  @override
+  set name(String? value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  RealmList<String> get images =>
+      RealmObjectBase.get<String>(this, 'images') as RealmList<String>;
+  @override
+  set images(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Question> get questions =>
+      RealmObjectBase.get<Question>(this, 'questions') as RealmList<Question>;
+  @override
+  set questions(covariant RealmList<Question> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  bool get furtherinvasivereviewrequired =>
+      RealmObjectBase.get<bool>(this, 'furtherinvasivereviewrequired') as bool;
+  @override
+  set furtherinvasivereviewrequired(bool value) =>
+      RealmObjectBase.set(this, 'furtherinvasivereviewrequired', value);
+
+  @override
+  ObjectId get parentid =>
+      RealmObjectBase.get<ObjectId>(this, 'parentid') as ObjectId;
+  @override
+  set parentid(ObjectId value) => RealmObjectBase.set(this, 'parentid', value);
+
+  @override
+  String? get createdby =>
+      RealmObjectBase.get<String>(this, 'createdby') as String?;
+  @override
+  set createdby(String? value) => RealmObjectBase.set(this, 'createdby', value);
+
+  @override
+  String? get createdat =>
+      RealmObjectBase.get<String>(this, 'createdat') as String?;
+  @override
+  set createdat(String? value) => RealmObjectBase.set(this, 'createdat', value);
+
+  @override
+  String get parenttype =>
+      RealmObjectBase.get<String>(this, 'parenttype') as String;
+  @override
+  set parenttype(String value) =>
+      RealmObjectBase.set(this, 'parenttype', value);
+
+  @override
+  bool get unitUnavailable =>
+      RealmObjectBase.get<bool>(this, 'unitUnavailable') as bool;
+  @override
+  set unitUnavailable(bool value) =>
+      RealmObjectBase.set(this, 'unitUnavailable', value);
+
+  @override
+  String? get editedat =>
+      RealmObjectBase.get<String>(this, 'editedat') as String?;
+  @override
+  set editedat(String? value) => RealmObjectBase.set(this, 'editedat', value);
+
+  @override
+  String? get lasteditedby =>
+      RealmObjectBase.get<String>(this, 'lasteditedby') as String?;
+  @override
+  set lasteditedby(String? value) =>
+      RealmObjectBase.set(this, 'lasteditedby', value);
+
+  @override
+  String? get additionalconsiderations =>
+      RealmObjectBase.get<String>(this, 'additionalconsiderations') as String?;
+  @override
+  set additionalconsiderations(String? value) =>
+      RealmObjectBase.set(this, 'additionalconsiderations', value);
+
+  @override
+  Stream<RealmObjectChanges<DynamicVisualSection>> get changes =>
+      RealmObjectBase.getChanges<DynamicVisualSection>(this);
+
+  @override
+  DynamicVisualSection freeze() =>
+      RealmObjectBase.freezeObject<DynamicVisualSection>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(DynamicVisualSection._);
+    return const SchemaObject(
+        ObjectType.realmObject, DynamicVisualSection, 'DynamicVisualSection', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('companyIdentifier', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('name', RealmPropertyType.string, optional: true),
+      SchemaProperty('images', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('questions', RealmPropertyType.object,
+          linkTarget: 'Question', collectionType: RealmCollectionType.list),
+      SchemaProperty('furtherinvasivereviewrequired', RealmPropertyType.bool),
+      SchemaProperty('parentid', RealmPropertyType.objectid),
+      SchemaProperty('createdby', RealmPropertyType.string, optional: true),
+      SchemaProperty('createdat', RealmPropertyType.string, optional: true),
+      SchemaProperty('parenttype', RealmPropertyType.string),
+      SchemaProperty('unitUnavailable', RealmPropertyType.bool),
+      SchemaProperty('editedat', RealmPropertyType.string, optional: true),
+      SchemaProperty('lasteditedby', RealmPropertyType.string, optional: true),
+      SchemaProperty('additionalconsiderations', RealmPropertyType.string,
+          optional: true),
+    ]);
+  }
+}
+
+// ignore_for_file: type=lint
+class LocationForm extends _LocationForm
+    with RealmEntity, RealmObjectBase, RealmObject {
+  LocationForm(
+    ObjectId id,
+    String name,
+    String companyIdentifier, {
+    Iterable<Question> questions = const [],
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'companyIdentifier', companyIdentifier);
+    RealmObjectBase.set<RealmList<Question>>(
+        this, 'questions', RealmList<Question>(questions));
+  }
+
+  LocationForm._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  String get companyIdentifier =>
+      RealmObjectBase.get<String>(this, 'companyIdentifier') as String;
+  @override
+  set companyIdentifier(String value) =>
+      RealmObjectBase.set(this, 'companyIdentifier', value);
+
+  @override
+  RealmList<Question> get questions =>
+      RealmObjectBase.get<Question>(this, 'questions') as RealmList<Question>;
+  @override
+  set questions(covariant RealmList<Question> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<LocationForm>> get changes =>
+      RealmObjectBase.getChanges<LocationForm>(this);
+
+  @override
+  LocationForm freeze() => RealmObjectBase.freezeObject<LocationForm>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(LocationForm._);
+    return const SchemaObject(
+        ObjectType.realmObject, LocationForm, 'LocationForm', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('companyIdentifier', RealmPropertyType.string),
+      SchemaProperty('questions', RealmPropertyType.object,
+          linkTarget: 'Question', collectionType: RealmCollectionType.list),
     ]);
   }
 }

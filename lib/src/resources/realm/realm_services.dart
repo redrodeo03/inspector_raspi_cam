@@ -29,6 +29,8 @@ class RealmProjectServices with ChangeNotifier {
       "getAllInvasiveSectionsSubscription";
   static const String queryAllChildren = "getAllCildrenSubscription";
   static const String queryAllImage = "getAllImagesSubscription";
+  static const String queryDynamicSection = "getDynamicSectionForCompany";
+  static const String queryForms = "getAllFormsForCompany";
   static const uploadTask = "com.deckinspectors.inspections.imageUploadTask";
 
   bool showAll = true;
@@ -53,7 +55,10 @@ class RealmProjectServices with ChangeNotifier {
             VisualSection.schema,
             DeckImage.schema,
             InvasiveSection.schema,
-            ConclusiveSection.schema
+            ConclusiveSection.schema,
+            LocationForm.schema,
+            DynamicVisualSection.schema,
+            Question.schema
           ],
           clientResetHandler: RecoverUnsyncedChangesHandler(
               // All the following callbacks are optional
@@ -127,13 +132,20 @@ class RealmProjectServices with ChangeNotifier {
           name: queryAllConclusiveSections);
       mutableSubscriptions.add(realm.all<InvasiveSection>(),
           name: queryAllInvasiveSections);
+      mutableSubscriptions.add(
+          realm
+              .query<DynamicVisualSection>('companyIdentifier==\$0', [company]),
+          name: queryDynamicSection);
+      mutableSubscriptions.add(
+          realm.query<LocationForm>('companyIdentifier==\$0', [company]),
+          name: queryForms);
     });
     try {
       if (!realm.isClosed) {
         await realm.subscriptions.waitForSynchronization();
       }
     } catch (e) {
-      print('realm failed to wait for sync.');
+      debugPrint('realm failed to wait for sync.');
     }
   }
 
@@ -196,7 +208,18 @@ class RealmProjectServices with ChangeNotifier {
   }
 
   Project? getProject(ObjectId id) {
-    return realm.find<Project>(id);
+    var project = realm.find<Project>(id);
+    //currentFormId = project!.formId;
+    return project;
+  }
+
+  ObjectId? currentFormId;
+  LocationForm? getCurrentForm() {
+    return realm.find<LocationForm>(currentFormId);
+  }
+
+  RealmResults<LocationForm> getAllForms() {
+    return realm.all<LocationForm>();
   }
 
   bool updateProjectUrl(Project project, String url) {
@@ -317,7 +340,9 @@ class RealmProjectServices with ChangeNotifier {
 
         // foundChild.url = url;
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   bool updateAssignment(ObjectId projectId, List<String> assignees) {
@@ -793,7 +818,6 @@ class RealmProjectServices with ChangeNotifier {
                 usersBloc.userDetails.username as String);
 
             realm.add<DeckImage>(image, update: true);
-            print(localVisualSection.images);
 
             if (localVisualSection.images.contains(url)) {
               int index = localVisualSection.images.indexOf(url);
@@ -1007,7 +1031,9 @@ class RealmProjectServices with ChangeNotifier {
             parentProject.sections.remove(foundChild);
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        debugPrint(e.toString());
+      }
     } else {
       var parentLocation = realm.find<Location>(parentid);
       Section foundChild;
@@ -1044,7 +1070,9 @@ class RealmProjectServices with ChangeNotifier {
                 .firstWhere((element) => element.id == id);
             parentLocation.sections.remove(foundChild);
           }
-        } catch (e) {}
+        } catch (e) {
+          debugPrint(e.toString());
+        }
       }
     }
   }
@@ -1195,7 +1223,9 @@ class RealmProjectServices with ChangeNotifier {
           // }
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   InvasiveSection getNewInvasiveSection(ObjectId sectionId) {
@@ -1408,7 +1438,7 @@ class RealmProjectServices with ChangeNotifier {
         }
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return offlineImages.toList();
   }
