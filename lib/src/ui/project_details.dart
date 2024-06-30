@@ -957,7 +957,9 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage>
     try {
       final file = File(filePath);
       htmlText = await file.readAsString(encoding: utf8);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   void gotoReportView(String? filePath) async {

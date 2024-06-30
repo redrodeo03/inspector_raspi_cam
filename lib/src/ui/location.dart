@@ -48,10 +48,12 @@ class _LocationPageState extends State<LocationPage> {
   late ObjectId locationId;
   late Location currentLocation;
   late List<Section> sections;
+  late ObjectId? formId;
   @override
   Widget build(BuildContext context) {
     final realmServices =
         Provider.of<RealmProjectServices>(context, listen: true);
+    formId = realmServices.currentFormId;
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -586,29 +588,43 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   void addNewChild() {
-    //updating to see the custom form.
-    // Navigator.push(
-    //         context,
-    //         SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
-    //             locationType, currentLocation.name as String, true, "New"))
-    //     .then((value) => setState(() {}));
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => DynamicVisualSectionPage(
-                ObjectId(),
-                currentLocation.id,
-                userFullName,
-                locationType,
-                currentLocation.name as String,
-                true)));
+    if (formId == null) {
+      Navigator.push(
+              context,
+              SectionPage.getRoute(ObjectId(), currentLocation.id, userFullName,
+                  locationType, currentLocation.name as String, true, "New"))
+          .then((value) => setState(() {}));
+    } else {
+      Navigator.push(
+              context,
+              DynamicVisualSectionPage.getRoute(
+                  ObjectId(),
+                  currentLocation.id,
+                  userFullName,
+                  locationType,
+                  currentLocation.name as String,
+                  formId as ObjectId,
+                  true,
+                  "New"))
+          .then((value) => setState(() {}));
+    }
   }
 
   void gotoDetails(ObjectId sectionId, String sectionName) {
     Navigator.push(
       context,
-      SectionPage.getRoute(sectionId, currentLocation.id, userFullName,
-          locationType, currentLocation.name as String, false, sectionName),
+      formId == null
+          ? SectionPage.getRoute(sectionId, currentLocation.id, userFullName,
+              locationType, currentLocation.name as String, false, sectionName)
+          : MaterialPageRoute(
+              builder: (context) => DynamicVisualSectionPage(
+                  sectionId,
+                  currentLocation.id,
+                  userFullName,
+                  locationType,
+                  currentLocation.name as String,
+                  false,
+                  formId as ObjectId)),
     ).then((value) {
       if (!mounted) {
         return;

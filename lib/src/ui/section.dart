@@ -23,7 +23,6 @@ import 'breadcrumb_navigation.dart';
 //import 'capture_multipic_esp_32.dart';
 import 'capturemultipic.dart';
 //import 'esp_32_poc.dart';
-import 'flutter_serial_communication.dart';
 import 'image_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -195,6 +194,7 @@ class _SectionPageState extends State<SectionPage> {
   late String prevPageName;
   void fetchData() {
     isRunning = true;
+
     currentVisualSection =
         realmServices.getVisualSection(widget.sectionId) as VisualSection;
 
@@ -463,24 +463,26 @@ class _SectionPageState extends State<SectionPage> {
           }
         });
       });
-    } else if (value == 3) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SerialCommunication()),
-      ).then((value) {
-        setState(() {
-          if (value != null) {
-            capturedImages.addAll(value);
-            if (value.isNotEmpty) {
-              setState(() {
-                unitUnavailable = false;
-                isFormUpdated = true;
-              });
-            }
-          }
-        });
-      });
-    } else {
+    }
+    //else if (value == 3) {
+    //   await Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => const SerialCommunication()),
+    //   ).then((value) {
+    //     setState(() {
+    //       if (value != null) {
+    //         capturedImages.addAll(value);
+    //         if (value.isNotEmpty) {
+    //           setState(() {
+    //             unitUnavailable = false;
+    //             isFormUpdated = true;
+    //           });
+    //         }
+    //       }
+    //     });
+    //   });
+    // }
+    else {
       //Code toopen gallery
       final ImagePicker picker = ImagePicker();
       //todo

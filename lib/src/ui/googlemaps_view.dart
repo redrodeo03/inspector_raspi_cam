@@ -74,7 +74,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
           zoomControlsEnabled: true,
           ignoreLocationPermissionErrors: true,
           onMapCreated: (GoogleMapController controller) {
-            print("Map created");
+            debugPrint("Map created");
             // controller
             //     .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
             //   target: projectCoordinates,
@@ -82,7 +82,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
             // )));
           },
           onPlacePicked: (PickResult result) {
-            print("Place picked: ${result.formattedAddress}");
+            debugPrint("Place picked: ${result.formattedAddress}");
             setState(() {
               selectedPlace = result;
               Navigator.of(context).pop({
@@ -93,7 +93,7 @@ class _GoogleMapsViewState extends State<GoogleMapsView> {
             });
           },
           onMapTypeChanged: (MapType mapType) {
-            print("Map type changed to ${mapType.toString()}");
+            debugPrint("Map type changed to ${mapType.toString()}");
           },
         )));
   }

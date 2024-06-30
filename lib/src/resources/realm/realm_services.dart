@@ -209,7 +209,8 @@ class RealmProjectServices with ChangeNotifier {
 
   Project? getProject(ObjectId id) {
     var project = realm.find<Project>(id);
-    //currentFormId = project!.formId;
+    currentFormId = project!.formId;
+    debugPrint(currentFormId.toString());
     return project;
   }
 
@@ -258,6 +259,7 @@ class RealmProjectServices with ChangeNotifier {
       String userName,
       double longitude,
       double lattitude,
+      ObjectId? formId,
       bool isNewProject) {
     try {
       if (loggedInUser == "") {
@@ -269,6 +271,9 @@ class RealmProjectServices with ChangeNotifier {
         project.latitude = lattitude;
         project.longitude = longitude;
         project.name = name;
+        if (isNewProject) {
+          project.formId = formId;
+        }
         project.companyIdentifier =
             usersBloc.userDetails.companyidentifer as String;
         project.address = address;
@@ -661,8 +666,26 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
+  String deleteVisualSectionDynamic(DynamicVisualSection section) {
+    try {
+      realm.write(() {
+        deleteLocationSection(
+            section.parenttype, section.id, section.parentid, false);
+        realm.delete(section);
+      });
+      notifyListeners();
+      return 'success';
+    } catch (e) {
+      return 'failed';
+    }
+  }
+
   VisualSection? getVisualSection(ObjectId id) {
     return realm.find<VisualSection>(id);
+  }
+
+  DynamicVisualSection? getDynamicVisualSection(ObjectId id) {
+    return realm.find<DynamicVisualSection>(id);
   }
 
   void updateImageUploadStatus(
@@ -742,7 +765,77 @@ class RealmProjectServices with ChangeNotifier {
     }
   }
 
+  bool addupdateDynamicVisualSection(
+      DynamicVisualSection visualSection,
+      String name,
+      String concerns,
+      bool invasiveReviewRequired,
+      bool isNewSection,
+      String userFullName,
+      List<Question> questions,
+      bool unitUnavailable) {
+    try {
+      realm.write(() {
+        visualSection.name = name;
+        visualSection.companyIdentifier = company;
+        visualSection.unitUnavailable = unitUnavailable;
+        visualSection.additionalconsiderations = concerns;
+        visualSection.questions.clear();
+        visualSection.questions.addAll(questions);
+        visualSection.furtherinvasivereviewrequired = invasiveReviewRequired;
+
+        if (isNewSection) {
+          visualSection.createdby = userFullName;
+        } else {
+          visualSection.lasteditedby = userFullName;
+        }
+
+        var creationtime = DateTime.now().toString();
+        visualSection.createdat ??= creationtime;
+        visualSection.editedat = DateTime.now().toString();
+        //update parent with the section detail
+        updateLocationSection(
+            visualSection.parenttype,
+            visualSection.id,
+            visualSection.parentid,
+            visualSection.name,
+            null,
+            false,
+            invasiveReviewRequired,
+            "",
+            visualSection.images.length);
+
+        realm.add(visualSection, update: true);
+      });
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   bool removeImageUrl(VisualSection localVisualSection, String url) {
+    try {
+      realm.write(() {
+        localVisualSection.images.remove(url);
+
+        updateImageCount(
+            localVisualSection.parenttype,
+            localVisualSection.id,
+            localVisualSection.parentid,
+            localVisualSection.images.length,
+            localVisualSection.images.last);
+      });
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool removeImageUrlFromDynamic(
+      DynamicVisualSection localVisualSection, String url) {
     try {
       realm.write(() {
         localVisualSection.images.remove(url);
@@ -775,6 +868,81 @@ class RealmProjectServices with ChangeNotifier {
 
   bool addImagesUrl(VisualSection localVisualSection, List<String> localPaths,
       List<String> onlinePaths) {
+    try {
+      int k = 0;
+      if (offlineModeOn || !appSettings.activeConnection) {
+        realm.write(() {
+          for (var url in onlinePaths) {
+            DeckImage image = DeckImage(
+                ObjectId(),
+                url,
+                '',
+                false,
+                localVisualSection.id,
+                'visualSection',
+                'section',
+                localVisualSection.name as String,
+                usersBloc.userDetails.username as String);
+
+            realm.add<DeckImage>(image, update: true);
+            if (localVisualSection.images.contains(url)) {
+              int index = localVisualSection.images.indexOf(url);
+              localVisualSection.images[index] = onlinePaths[k];
+            } else {
+              localVisualSection.images.add(onlinePaths[k]);
+            }
+            k++;
+          }
+          //localVisualSection.images.addAll(onlinePaths);
+        });
+      } else {
+        k = 0;
+        realm.write(() {
+          for (var url in localPaths) {
+            DeckImage image = DeckImage(
+                ObjectId(),
+                url,
+                onlinePaths[k],
+                true,
+                localVisualSection.id,
+                'visualSection',
+                'section',
+                localVisualSection.name as String,
+                usersBloc.userDetails.username as String);
+
+            realm.add<DeckImage>(image, update: true);
+
+            if (localVisualSection.images.contains(url)) {
+              int index = localVisualSection.images.indexOf(url);
+              localVisualSection.images[index] = onlinePaths[k];
+            } else {
+              if (!localVisualSection.images.contains(onlinePaths[k])) {
+                localVisualSection.images.add(onlinePaths[k]);
+              }
+            }
+            k++;
+          }
+        });
+      }
+
+      realm.write(() {
+        updateImageCount(
+            localVisualSection.parenttype,
+            localVisualSection.id,
+            localVisualSection.parentid,
+            localVisualSection.images.length,
+            onlinePaths.last);
+      });
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool addImagesUrlToDynamicform(DynamicVisualSection localVisualSection,
+      List<String> localPaths, List<String> onlinePaths) {
     try {
       int k = 0;
       if (offlineModeOn || !appSettings.activeConnection) {

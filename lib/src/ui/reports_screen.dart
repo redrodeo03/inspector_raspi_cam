@@ -125,7 +125,11 @@ class _ReportsPage extends State<ReportsPage> {
     try {
       final file = File(filePath);
       htmlText = await file.readAsString(encoding: utf8);
-    } catch (e) {}
+    } catch (e) {
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      debugPrint(e.toString());
+      scaffoldMessenger.showSnackBar(getTextSnackBar(e.toString()));
+    }
   }
 
   SnackBar getResultSnackBar(ShareResult result) {
@@ -137,6 +141,18 @@ class _ReportsPage extends State<ReportsPage> {
           Text("Share result: ${result.status}"),
           if (result.status == ShareResultStatus.success)
             Text("Shared to: ${result.raw}")
+        ],
+      ),
+    );
+  }
+
+  SnackBar getTextSnackBar(String result) {
+    return SnackBar(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Share result: $result"),
         ],
       ),
     );

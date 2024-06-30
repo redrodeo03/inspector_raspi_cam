@@ -7,7 +7,7 @@ import 'package:E3InspectionsMultiTenant/src/ui/project_details.dart';
 import 'package:E3InspectionsMultiTenant/src/ui/singlelevelproject_details.dart';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+//import 'package:get/get.dart';
 
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
@@ -119,6 +119,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           userFullName,
           longitude,
           lattitude,
+          selectedValue == null ? null : selectedValue!.id,
           isNewProject);
 
       if (!mounted) {
@@ -207,24 +208,27 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
     }
   }
 
+  LocationForm? selectedValue;
   @override
   Widget build(BuildContext context) {
     realmProjServices =
         Provider.of<RealmProjectServices>(context, listen: false);
     var forms = realmProjServices.getAllForms();
+
     List<DropdownMenuItem<LocationForm>> dropdownItems = [];
     if (forms.isNotEmpty) {
-      dropdownItems = forms.map((form) {
-        DropdownMenuItem(
-          value: form.id,
-          child: Text(
-            form.name,
-          ),
-        );
-      }) as List<DropdownMenuItem<LocationForm>>;
+      dropdownItems = forms
+          .map<DropdownMenuItem<LocationForm>>((form) => DropdownMenuItem(
+                value: form,
+                child: Text(
+                  form.name,
+                ),
+              ))
+          .toList();
     }
+    dropdownItems
+        .add(const DropdownMenuItem(value: null, child: Text("Default")));
 
-    LocationForm? selectedValue;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -375,15 +379,15 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                     ),
                     if (isNewProject)
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           const Text(
                             'Location form type',
                             style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                           DropdownButton(
-                            items: dropdownItems,
                             value: selectedValue,
+                            items: dropdownItems,
                             onChanged: (value) {
                               formId = value?.id;
                               setState(() {
