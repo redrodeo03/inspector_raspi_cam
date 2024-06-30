@@ -142,6 +142,12 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
           }
         }
       }
+      for (Question question in currentVisualSection.questions) {
+        questions.add(Question(
+            question.id, question.type, question.name, question.answer,
+            allowedValues: question.allowedValues,
+            multipleAnswers: question.multipleAnswers));
+      }
     }
   }
 
@@ -245,12 +251,13 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
   }
 
   DynamicVisualSection getNewDynamicVisualSection() {
-    return DynamicVisualSection(ObjectId(), widget.parentId, false,
-        parenttype: parentType,
-        createdby: userFullName,
-        furtherinvasivereviewrequired: false,
-        questions: questions //make it parameterized.
-        );
+    return DynamicVisualSection(
+      ObjectId(), widget.parentId, false,
+      parenttype: parentType,
+      createdby: userFullName,
+      furtherinvasivereviewrequired: false,
+      // questions: questions //make it parameterized.
+    );
   }
 
   List<Question> getQuestions() {
@@ -703,9 +710,9 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                   ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: currentVisualSection.questions.length,
+                      itemCount: questions.length,
                       itemBuilder: (BuildContext context, int index) {
-                        var question = currentVisualSection.questions[index];
+                        var question = questions[index];
                         if (question.type == 'Textbox') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,13 +729,12 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 height: 5,
                               ),
                               TextFormField(
-                                decoration:
-                                    InputDecoration(hintText: question.name),
-                                initialValue: question.answer,
-                                onChanged: (value) {
-                                  question.answer = value;
-                                },
-                              )
+                                  decoration:
+                                      InputDecoration(hintText: question.name),
+                                  initialValue: question.answer,
+                                  onChanged: (value) {
+                                    question.answer = value;
+                                  })
                             ],
                           );
                         } else if (question.type == 'TextArea') {
@@ -789,6 +795,7 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                             groupValue: question.answer,
                                             onChanged: (val) {
                                               question.answer = val as String;
+
                                               setState(() {});
                                             },
                                           ),
@@ -810,7 +817,10 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                               ),
                               Switch(
                                 onChanged: (value) {
-                                  question.answer = value.toString();
+                                  setState(() {
+                                    question.answer = value.toString();
+                                  });
+
                                   isFormUpdated = true;
                                 },
                                 value: question.answer.toUpperCase() == 'TRUE',
@@ -840,7 +850,7 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 itemBuilder: (context, indexVal) {
                                   var valuesData =
                                       question.allowedValues[indexVal];
-                                  var selectedValue = question.allowedValues
+                                  var selectedValue = question.multipleAnswers
                                       .firstWhereOrNull(
                                           (element) => element == valuesData);
 
@@ -855,11 +865,12 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                             onChanged: (val) {
                                               setState(() {
                                                 var selectedValue = question
-                                                    .allowedValues
+                                                    .multipleAnswers
                                                     .firstWhereOrNull(
                                                         (element) =>
                                                             element ==
                                                             valuesData);
+
                                                 if (selectedValue == null) {
                                                   question.multipleAnswers
                                                       .add(valuesData);
