@@ -415,133 +415,145 @@ class _LocationPageState extends State<LocationPage> {
                       indent: 15,
                       endIndent: 15,
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Expanded(
-                                flex: 1,
-                                child: Text(
-                                  maxLines: 1,
-                                  'Visual Review',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              Expanded(
+                    Visibility(
+                      visible: formId == null,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Expanded(
                                   flex: 1,
                                   child: Text(
-                                    vreview,
-                                    style: const TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )),
-                            ],
-                          )),
+                                    maxLines: 1,
+                                    'Visual Review',
+                                    style: TextStyle(
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      vreview,
+                                      style: const TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ],
+                            )),
+                      ),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Expanded(
-                                flex: 1,
-                                child: Text(
-                                  maxLines: 1,
-                                  'Visual signs of leak',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              Expanded(
+                    Visibility(
+                      visible: formId == null,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Expanded(
                                   flex: 1,
                                   child: Text(
-                                    visualLeaks == true ? 'Yes' : 'No',
-                                    style: const TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )),
-                            ],
-                          )),
+                                    maxLines: 1,
+                                    'Visual signs of leak',
+                                    style: TextStyle(
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      visualLeaks == true ? 'Yes' : 'No',
+                                      style: const TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ],
+                            )),
+                      ),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Expanded(
-                                flex: 1,
-                                child: Text(
-                                  maxLines: 1,
-                                  'Further Inspection',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              Expanded(
+                    Visibility(
+                      visible: formId == null,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Expanded(
                                   flex: 1,
                                   child: Text(
-                                    furtherInvasive == true ? 'Yes' : 'No',
-                                    style: const TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )),
-                            ],
-                          )),
+                                    maxLines: 1,
+                                    'Further Inspection',
+                                    style: TextStyle(
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      furtherInvasive == true ? 'Yes' : 'No',
+                                      style: const TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ],
+                            )),
+                      ),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Expanded(
-                                flex: 1,
-                                child: Text(
-                                  maxLines: 1,
-                                  'Conditional assesment',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 13,
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              Expanded(
+                    Visibility(
+                      visible: formId == null,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Expanded(
                                   flex: 1,
                                   child: Text(
-                                    assessment,
-                                    style: const TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )),
-                            ],
-                          )),
+                                    maxLines: 1,
+                                    'Conditional assesment',
+                                    style: TextStyle(
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      assessment,
+                                      style: const TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ],
+                            )),
+                      ),
                     ),
                     const SizedBox(
                       height: 2,
