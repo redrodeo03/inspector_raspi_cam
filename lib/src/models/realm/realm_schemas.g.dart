@@ -1305,18 +1305,27 @@ class DeckImage extends _DeckImage
 // ignore_for_file: type=lint
 class Question extends _Question
     with RealmEntity, RealmObjectBase, EmbeddedObject {
+  static var _defaultsSet = false;
+
   Question(
     ObjectId id,
     String type,
     String name,
     String answer, {
+    bool isMandatory = false,
     Iterable<String> multipleAnswers = const [],
     Iterable<String> allowedValues = const [],
   }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<Question>({
+        'isMandatory': false,
+      });
+    }
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'answer', answer);
+    RealmObjectBase.set(this, 'isMandatory', isMandatory);
     RealmObjectBase.set<RealmList<String>>(
         this, 'multipleAnswers', RealmList<String>(multipleAnswers));
     RealmObjectBase.set<RealmList<String>>(
@@ -1360,6 +1369,13 @@ class Question extends _Question
       throw RealmUnsupportedSetError();
 
   @override
+  bool get isMandatory =>
+      RealmObjectBase.get<bool>(this, 'isMandatory') as bool;
+  @override
+  set isMandatory(bool value) =>
+      RealmObjectBase.set(this, 'isMandatory', value);
+
+  @override
   Stream<RealmObjectChanges<Question>> get changes =>
       RealmObjectBase.getChanges<Question>(this);
 
@@ -1379,6 +1395,7 @@ class Question extends _Question
           collectionType: RealmCollectionType.list),
       SchemaProperty('allowedValues', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
+      SchemaProperty('isMandatory', RealmPropertyType.bool),
     ]);
   }
 }

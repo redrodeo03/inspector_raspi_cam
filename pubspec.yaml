@@ -78,6 +78,7 @@ dependencies:
   string_validator: ^1.1.0
   flutter_serial_communication: ^0.2.5
   serial_communication: ^0.0.2
+  device_info_plus: ^9.1.2
   
   
   

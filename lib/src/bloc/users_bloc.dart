@@ -10,11 +10,16 @@ class UsersBloc {
   //final _usersFetcher = PublishSubject<LoginResponse>();
   LoginResponse userDetails = LoginResponse();
 
-  Future<LoginResponse> login(String username, String pass) async {
+  Future<LoginResponse> login(
+      String username, String pass, String deviceId) async {
     password = pass;
     //print('called login api');
-    final loginObject = jsonEncode(
-        {'username': username, 'password': password, 'isMobile': false});
+    final loginObject = jsonEncode({
+      'username': username,
+      'password': password,
+      'isMobile': true,
+      'deviceId': deviceId
+    });
     LoginResponse response = await _repository.login(loginObject);
     userDetails = response;
 

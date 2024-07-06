@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 //import 'package:realm/realm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../resources/realm/app_services.dart';
 
@@ -58,6 +59,17 @@ class _LoginPageState extends State<LoginPage> {
     _loadUserDetails();
   }
 
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if (Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.serialNumber; // unique ID on Android
+    }
+  }
+
   // Sign In Function
   Future<void> login() async {
     appServices = Provider.of<AppServices>(context, listen: false);
@@ -71,9 +83,10 @@ class _LoginPageState extends State<LoginPage> {
       await appSettings.initConnectivity();
       LoginResponse loginResult;
       final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String deviceId = await _getId() as String;
       if (activeConnection) {
         loginResult = await usersBloc.login(
-            _usernameController.text, _passwordController.text);
+            _usernameController.text, _passwordController.text, deviceId);
 
         if (_isChecked == true && loginResult.firstname != null) {
           await prefs.setString('username', _usernameController.text);

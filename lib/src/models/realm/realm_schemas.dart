@@ -178,6 +178,7 @@ class _Question {
   late String answer;
   late List<String> multipleAnswers;
   late List<String> allowedValues;
+  bool isMandatory = false;
 }
 
 @RealmModel()

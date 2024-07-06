@@ -74,6 +74,7 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
           questions.add(Question(
               question.id, question.type, question.name, question.answer,
               allowedValues: question.allowedValues,
+              isMandatory: question.isMandatory,
               multipleAnswers: question.multipleAnswers));
         }
       }
@@ -1041,6 +1042,18 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
       //check if everything is filled.
       if (unitUnavailable) {
       } else {
+        for (Question question in questions) {
+          if (question.isMandatory) {
+            if (question.answer.isEmpty || question.multipleAnswers.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        'Mandatory fields are missing, please fill all values to save...')),
+              );
+              return false;
+            }
+          }
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Saving Location...')),
         );
