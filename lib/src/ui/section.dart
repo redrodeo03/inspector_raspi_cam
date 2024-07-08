@@ -577,8 +577,8 @@ class _SectionPageState extends State<SectionPage> {
                               'Camera', Icons.camera_alt_outlined, 1),
                           _buildPopupMenuItem(
                               'Gallery', Icons.browse_gallery_outlined, 2),
-                          _buildPopupMenuItem(
-                              'External Cam', Icons.camera_outdoor_outlined, 3),
+                          // _buildPopupMenuItem(
+                          //     'External Cam', Icons.camera_outdoor_outlined, 3),
                         ],
                       ),
                     ],
