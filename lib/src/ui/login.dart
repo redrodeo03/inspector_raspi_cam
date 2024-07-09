@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
       var androidDeviceInfo = await deviceInfo.androidInfo;
       return androidDeviceInfo.serialNumber; // unique ID on Android
     }
+    return null;
   }
 
   // Sign In Function

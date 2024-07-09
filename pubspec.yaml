@@ -79,9 +79,15 @@ dependencies:
   flutter_serial_communication: ^0.2.5
   serial_communication: ^0.0.2
   device_info_plus: ^9.1.2
-  
-  
-  
+  udp: ^5.0.3
+  flutter_mjpeg: ^2.0.4
+dependency_overrides:
+  # Overriding this because there has not been a new release with the
+  # bump of http to > 1.0.0 instead of ^0.13.0.
+    flutter_mjpeg:
+      git:
+        url: https://github.com/mylisabox/flutter_mjpeg
+        ref: e8cbafc08f9c81a71df6ac584e731d04cc742ec4
 
 dev_dependencies:
   flutter_test:

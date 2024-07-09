@@ -21,6 +21,7 @@ import 'package:path/path.dart' as path;
 import '../resources/realm/realm_services.dart';
 import 'breadcrumb_navigation.dart';
 //import 'capture_multipic_esp_32.dart';
+import 'capture_multipic_esp_32.dart';
 import 'capturemultipic.dart';
 //import 'esp_32_poc.dart';
 import 'image_widget.dart';
@@ -463,26 +464,24 @@ class _SectionPageState extends State<SectionPage> {
           }
         });
       });
-    }
-    //else if (value == 3) {
-    //   await Navigator.push(
-    //     context,
-    //     MaterialPageRoute(builder: (context) => const SerialCommunication()),
-    //   ).then((value) {
-    //     setState(() {
-    //       if (value != null) {
-    //         capturedImages.addAll(value);
-    //         if (value.isNotEmpty) {
-    //           setState(() {
-    //             unitUnavailable = false;
-    //             isFormUpdated = true;
-    //           });
-    //         }
-    //       }
-    //     });
-    //   });
-    // }
-    else {
+    } else if (value == 3) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ESP32CameraScreen()),
+      ).then((value) {
+        setState(() {
+          if (value != null) {
+            capturedImages.addAll(value);
+            if (value.isNotEmpty) {
+              setState(() {
+                unitUnavailable = false;
+                isFormUpdated = true;
+              });
+            }
+          }
+        });
+      });
+    } else {
       //Code toopen gallery
       final ImagePicker picker = ImagePicker();
       //todo
@@ -577,8 +576,8 @@ class _SectionPageState extends State<SectionPage> {
                               'Camera', Icons.camera_alt_outlined, 1),
                           _buildPopupMenuItem(
                               'Gallery', Icons.browse_gallery_outlined, 2),
-                          // _buildPopupMenuItem(
-                          //     'External Cam', Icons.camera_outdoor_outlined, 3),
+                          _buildPopupMenuItem(
+                              'External Cam', Icons.camera_outdoor_outlined, 3),
                         ],
                       ),
                     ],
