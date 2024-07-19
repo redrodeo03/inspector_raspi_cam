@@ -714,7 +714,7 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                       itemCount: questions.length,
                       itemBuilder: (BuildContext context, int index) {
                         var question = questions[index];
-                        if (question.type == 'Textbox') {
+                        if (question.type.toLowerCase() == 'text') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -730,15 +730,25 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 height: 5,
                               ),
                               TextFormField(
-                                  decoration:
-                                      InputDecoration(hintText: question.name),
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.only(
+                                        left: 5, top: 2.0, bottom: 2.0),
+                                    hintText: question.name,
+                                    hintStyle: const TextStyle(
+                                      fontSize: 13.0,
+                                      color: Color(0xFFABB3BB),
+                                      height: 1.0,
+                                    ),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
                                   initialValue: question.answer,
                                   onChanged: (value) {
                                     question.answer = value;
-                                  })
+                                  }),
                             ],
                           );
-                        } else if (question.type == 'TextArea') {
+                        } else if (question.type.toLowerCase() == 'textarea') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -754,18 +764,36 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 height: 5,
                               ),
                               TextFormField(
-                                decoration:
-                                    InputDecoration(hintText: question.name),
                                 initialValue: question.answer,
-                                minLines: 3,
-                                maxLines: 5,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 5, top: 2.0, bottom: 2.0),
+                                  hintText: question.name,
+                                  hintStyle: const TextStyle(
+                                    fontSize: 13.0,
+                                    color: Color(0xFFABB3BB),
+                                    height: 1.0,
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ),
+                                minLines: 5,
+                                maxLines: 20,
                                 onChanged: (value) {
                                   question.answer = value;
                                 },
-                              )
+                              ),
+                              // const Divider(
+                              //   color: Color.fromARGB(255, 222, 213, 213),
+                              //   height: 15,
+                              //   thickness: 1,
+                              //   indent: 2,
+                              //   endIndent: 2,
+                              // ),
                             ],
                           );
-                        } else if (question.type == 'RadioButton') {
+                        } else if (question.type.toLowerCase() ==
+                            'radiobutton') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -804,10 +832,18 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                         Text(valuesData),
                                       ],
                                     );
-                                  })
+                                  }),
+                              const Divider(
+                                color: Color.fromARGB(255, 222, 213, 213),
+                                height: 15,
+                                thickness: 1,
+                                indent: 2,
+                                endIndent: 2,
+                              ),
                             ],
                           );
-                        } else if (question.type == 'ToggleButton') {
+                        } else if (question.type.toLowerCase() ==
+                            'togglebutton') {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -826,9 +862,16 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 },
                                 value: question.answer.toUpperCase() == 'TRUE',
                               ),
+                              const Divider(
+                                color: Color.fromARGB(255, 222, 213, 213),
+                                height: 15,
+                                thickness: 1,
+                                indent: 2,
+                                endIndent: 2,
+                              ),
                             ],
                           );
-                        } else if (question.type == 'CheckBox') {
+                        } else if (question.type.toLowerCase() == 'checkbox') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -886,10 +929,17 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                     ],
                                   );
                                 },
-                              )
+                              ),
+                              const Divider(
+                                color: Color.fromARGB(255, 222, 213, 213),
+                                height: 15,
+                                thickness: 1,
+                                indent: 2,
+                                endIndent: 2,
+                              ),
                             ],
                           );
-                        } else if (question.type == 'Dropdown') {
+                        } else if (question.type.toLowerCase() == 'dropdown') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -923,10 +973,10 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
                                 onChanged: (value) {
                                   question.answer = value as String;
                                 },
-                              )
+                              ),
                             ],
                           );
-                        } else if (question.type == 'Date') {
+                        } else if (question.type.toLowerCase() == 'date') {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1044,11 +1094,12 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
       } else {
         for (Question question in questions) {
           if (question.isMandatory) {
-            if (question.answer.isEmpty || question.multipleAnswers.isEmpty) {
+            if (question.answer.isNotEmpty &&
+                question.multipleAnswers.isNotEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                     content: Text(
-                        'Mandatory fields are missing, please fill all values to save...')),
+                        '${question.name} is empty, please fill all values to save...')),
               );
               return false;
             }
