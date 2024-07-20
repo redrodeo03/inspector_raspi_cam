@@ -147,6 +147,7 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
         questions.add(Question(
             question.id, question.type, question.name, question.answer,
             allowedValues: question.allowedValues,
+            isMandatory: question.isMandatory,
             multipleAnswers: question.multipleAnswers));
       }
     }
@@ -1094,12 +1095,11 @@ class _DynamicVisualSectionPageState extends State<DynamicVisualSectionPage> {
       } else {
         for (Question question in questions) {
           if (question.isMandatory) {
-            if (question.answer.isNotEmpty &&
-                question.multipleAnswers.isNotEmpty) {
+            if (question.answer.isEmpty && question.multipleAnswers.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(
-                        '${question.name} is empty, please fill all values to save...')),
+                        '${question.name} is empty, please fill all values to save the location...')),
               );
               return false;
             }

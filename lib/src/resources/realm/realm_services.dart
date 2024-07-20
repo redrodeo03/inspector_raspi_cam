@@ -954,7 +954,7 @@ class RealmProjectServices with ChangeNotifier {
                 '',
                 false,
                 localVisualSection.id,
-                'visualSection',
+                'dynamicvisualSection',
                 'section',
                 localVisualSection.name as String,
                 usersBloc.userDetails.username as String);
@@ -980,7 +980,7 @@ class RealmProjectServices with ChangeNotifier {
                 onlinePaths[k],
                 true,
                 localVisualSection.id,
-                'visualSection',
+                'dynamicvisualSection',
                 'section',
                 localVisualSection.name as String,
                 usersBloc.userDetails.username as String);
@@ -1121,6 +1121,24 @@ class RealmProjectServices with ChangeNotifier {
                     break;
                   case 'visualsection':
                     var visualsection = realm.find<VisualSection>(parentId);
+                    if (visualsection != null) {
+                      int index = visualsection.images.indexWhere(
+                          (element) => element == image.imageLocalPath);
+                      if (index != -1) {
+                        visualsection.images[index] = result.url as String;
+                        //update coverurls
+                        updateImageCount(
+                            visualsection.parenttype,
+                            visualsection.id,
+                            visualsection.parentid,
+                            visualsection.images.length,
+                            visualsection.images.last);
+                      }
+                    }
+                    break;
+                  case 'dynamicvisualsection':
+                    var visualsection =
+                        realm.find<DynamicVisualSection>(parentId);
                     if (visualsection != null) {
                       int index = visualsection.images.indexWhere(
                           (element) => element == image.imageLocalPath);
