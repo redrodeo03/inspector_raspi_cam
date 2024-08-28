@@ -227,7 +227,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
           .toList();
     }
     dropdownItems
-        .add(const DropdownMenuItem(value: null, child: Text("Default")));
+        .add(const DropdownMenuItem(value: null, child: Text("E3 Form")));
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -387,6 +387,7 @@ class _AddEditProjectPageState extends State<AddEditProjectPage> {
                           ),
                           DropdownButton(
                             value: selectedValue,
+                            hint: const Text('E3 form'),
                             items: dropdownItems,
                             onChanged: (value) {
                               formId = value?.id;

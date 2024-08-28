@@ -1,13 +1,14 @@
-import 'dart:async';
+//import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter_mjpeg/flutter_mjpeg.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+//import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+//import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:udp/udp.dart';
-import 'package:http/http.dart' as http;
+// import 'package:udp/udp.dart';
+// import 'package:http/http.dart' as http;
 import 'image_widget.dart';
 
 class ESP32CameraScreen extends StatefulWidget {
@@ -27,30 +28,40 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
   @override
   void initState() {
     super.initState();
-    _listenForEsp32IpAddress();
-  }
-
-  String streamingURL = '';
-  String _esp32IpAddress = 'Fetching...';
-  Future<void> _listenForEsp32IpAddress() async {
-    var receiver = await UDP.bind(Endpoint.any(port: const Port(4210)));
-
-    receiver.asStream().listen((datagram) {
-      if (datagram != null) {
-        String message = String.fromCharCodes(datagram.data);
-        setState(() {
-          _esp32IpAddress = message;
-        });
-      }
-    });
-
-    // Keep the receiver open for 10 seconds
-    await Future.delayed(const Duration(seconds: 10));
-    receiver.close();
   }
 
   @override
+  void dispose() {
+    _vlcViewController.dispose();
+    super.dispose();
+  }
+
+  final VlcPlayerController _vlcViewController = VlcPlayerController.network(
+      "rtsp://e3cam.local:8554/unicast",
+      autoPlay: true,
+      options: VlcPlayerOptions());
+  String streamingURL = '';
+  //String _esp32IpAddress = 'Fetching...';
+  // Future<void> _listenForEsp32IpAddress() async {
+  //   var receiver = await UDP.bind(Endpoint.any(port: const Port(4210)));
+
+  //   receiver.asStream().listen((datagram) {
+  //     if (datagram != null) {
+  //       String message = String.fromCharCodes(datagram.data);
+  //       setState(() {
+  //         _esp32IpAddress = message;
+  //       });
+  //     }
+  //   });
+
+  //   // Keep the receiver open for 10 seconds
+  //   await Future.delayed(const Duration(seconds: 10));
+  //   receiver.close();
+  // }
+
+  @override
   Widget build(BuildContext context) {
+    //_listenToRSTPStream();
     return SafeArea(
       child: Scaffold(
           floatingActionButton: FloatingActionButton(
@@ -59,133 +70,132 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
             child: const Icon(Icons.refresh),
           ),
           appBar: AppBar(
-            title: Text('External camera, IP: $_esp32IpAddress'),
+            title: const Text('External E3 web camera'),
           ),
-          backgroundColor: const Color.fromARGB(255, 177, 85, 85),
+          //backgroundColor: const Color.fromARGB(255, 177, 85, 85),
           body: Column(
             children: [
-              const SizedBox(
-                height: 50,
-              ),
-              Expanded(
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Column(
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      isPlaying
+                          ? VlcPlayer(
+                              controller: _vlcViewController,
+                              aspectRatio: 9 / 16,
+                              virtualDisplay: true,
+                              placeholder: const Center(
+                                  child: CircularProgressIndicator(
+                                color: Colors.blueAccent,
+                              )),
+                            )
+                          : const CircularProgressIndicator(
+                              color: Colors.blueAccent,
+                            ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      8.0,
+                      8.0,
+                      8.0,
+                      8.0,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _esp32IpAddress == 'Fetching...'
-                            ? const CircularProgressIndicator()
-                            : Center(
-                                child: Mjpeg(
-                                  stream: 'http://$_esp32IpAddress:81/stream',
-                                  isLive: true,
-                                ),
-                              ),
-                        const SizedBox(
-                          height: 32,
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                                shape: (RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14.0),
+                                    side:
+                                        const BorderSide(color: Colors.blue)))),
+                            onPressed: () {
+                              Navigator.of(context).pop(
+                                  capturedImages.map((e) => e.path).toList());
+                            },
+                            icon: const Icon(
+                              Icons.done,
+                              size: 40,
+                            ),
+                            label: Text(
+                              'Save ${capturedImages.length}',
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ),
                         ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: InkWell(
+                            onTap: () async {
+                              try {
+                                var imageBytes =
+                                    await _vlcViewController.takeSnapshot();
+                                if (imageBytes != null) {
+                                  final directory =
+                                      await getTemporaryDirectory();
+                                  final imagePath =
+                                      '${directory.path}/${UniqueKey().toString()}.jpg';
+                                  final file = File(imagePath);
+                                  await file.writeAsBytes(imageBytes);
+
+                                  setState(() {
+                                    capturedImages.add(XFile(imagePath));
+                                  });
+
+                                  Get.snackbar("Image Save", "Success!",
+                                      duration: const Duration(seconds: 3));
+                                } else {
+                                  Get.snackbar(
+                                      "Image Save", "Faild to save image!",
+                                      duration: const Duration(seconds: 3));
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Error occured while taking picture: $e')),
+                                );
+
+                                return;
+                              }
+                            },
+                            child: const Align(
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.circle,
+                                color: Colors.white,
+                                size: 80,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(
+                            height: 100,
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: capturedImages.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return horizontalScrollChildren(
+                                      context, index);
+                                }),
+                          ),
+                        )
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        8.0,
-                        16.0,
-                        8.0,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                  shape: (RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14.0),
-                                      side: const BorderSide(
-                                          color: Colors.blue)))),
-                              onPressed: () {
-                                Navigator.of(context).pop(
-                                    capturedImages.map((e) => e.path).toList());
-                              },
-                              icon: const Icon(
-                                Icons.done,
-                                size: 40,
-                              ),
-                              label: Text(
-                                'Save ${capturedImages.length}',
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: InkWell(
-                              onTap: () async {
-                                try {
-                                  final url =
-                                      'http://$_esp32IpAddress/capture'; // Replace with your image endpoint
-                                  final response =
-                                      await http.get(Uri.parse(url));
-
-                                  if (response.statusCode == 200) {
-                                    var imageBytes = response.bodyBytes;
-                                    final directory =
-                                        await getTemporaryDirectory();
-                                    final imagePath =
-                                        '${directory.path}/${UniqueKey().toString()}.jpg';
-                                    final file = File(imagePath);
-                                    await file.writeAsBytes(imageBytes);
-
-                                    setState(() {
-                                      capturedImages.add(XFile(imagePath));
-                                    });
-
-                                    Get.snackbar("Image Save", "Success!",
-                                        duration: const Duration(seconds: 3));
-                                  } else {
-                                    Get.snackbar(
-                                        "Image Save", "Faild to save image!",
-                                        duration: const Duration(seconds: 3));
-                                    throw Exception(
-                                        'Failed to load image: ${response.statusCode}');
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Error occured while taking picture: $e')),
-                                  );
-
-                                  return;
-                                }
-                              },
-                              child: const Align(
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.circle,
-                                  color: Colors.white,
-                                  size: 80,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: capturedImages.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return horizontalScrollChildren(context, index);
-                    }),
+                  ),
+                ],
               ),
             ],
           )),
@@ -227,9 +237,9 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                   child: IconButton(
                     onPressed: () {
                       if (capturedImages.isNotEmpty) {
-                        //setState(() {
-                        capturedImages.remove(capturedImages[index]);
-                        //});
+                        setState(() {
+                          capturedImages.remove(capturedImages[index]);
+                        });
                       }
                     },
                     icon: const Icon(Icons.delete_forever,
@@ -240,5 +250,10 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
             ],
           ),
         ));
+  }
+
+  bool isPlaying = true;
+  Future<void> _listenToRSTPStream() async {
+    //isPlaying = (await _vlcViewController.isPlaying())!;
   }
 }

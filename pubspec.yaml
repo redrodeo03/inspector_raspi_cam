@@ -81,6 +81,7 @@ dependencies:
   device_info_plus: ^9.1.2
   udp: ^5.0.3
   flutter_mjpeg: ^2.0.4
+  flutter_vlc_player: ^7.4.2
 dependency_overrides:
   # Overriding this because there has not been a new release with the
   # bump of http to > 1.0.0 instead of ^0.13.0.
