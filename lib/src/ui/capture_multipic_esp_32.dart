@@ -7,7 +7,7 @@ import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:get/get.dart';
 //import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'package:udp/udp.dart';
+import 'package:udp/udp.dart';
 // import 'package:http/http.dart' as http;
 import 'image_widget.dart';
 
@@ -28,6 +28,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
   @override
   void initState() {
     super.initState();
+    _listenForPiIpAddress();
   }
 
   @override
@@ -36,32 +37,40 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
     super.dispose();
   }
 
-  final VlcPlayerController _vlcViewController = VlcPlayerController.network(
-      "rtsp://e3cam.local:8554/unicast",
-      autoPlay: true,
-      options: VlcPlayerOptions());
+  late VlcPlayerController _vlcViewController;
+  //= VlcPlayerController.network(
+  //"rtsp://192.168.129.126:8554/stream",
+  // "rtsp://e3cam.local:8554/stream",
+  //autoPlay: true,
+  //options: VlcPlayerOptions());
   String streamingURL = '';
-  //String _esp32IpAddress = 'Fetching...';
-  // Future<void> _listenForEsp32IpAddress() async {
-  //   var receiver = await UDP.bind(Endpoint.any(port: const Port(4210)));
+  String _raspberryIpAddress = 'Fetching...';
 
-  //   receiver.asStream().listen((datagram) {
-  //     if (datagram != null) {
-  //       String message = String.fromCharCodes(datagram.data);
-  //       setState(() {
-  //         _esp32IpAddress = message;
-  //       });
-  //     }
-  //   });
+  Future<void> _listenForPiIpAddress() async {
+    var receiver = await UDP.bind(Endpoint.any(port: const Port(5005)));
+    //receiver.send([1, 2, 3, 4], Endpoint.any(port: const Port(5005)));
+    receiver.asStream().listen((datagram) {
+      if (datagram != null) {
+        String message = String.fromCharCodes(datagram.data);
 
-  //   // Keep the receiver open for 10 seconds
-  //   await Future.delayed(const Duration(seconds: 10));
-  //   receiver.close();
-  // }
+        setState(() {
+          _raspberryIpAddress = message;
+          _vlcViewController = VlcPlayerController.network(
+              "rtsp://$_raspberryIpAddress:8554/stream",
+              autoPlay: true,
+              options: VlcPlayerOptions());
+        });
+        receiver.close();
+      }
+    });
+
+    // Keep the receiver open for 60 seconds
+    await Future.delayed(const Duration(seconds: 60));
+    receiver.close();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //_listenToRSTPStream();
     return SafeArea(
       child: Scaffold(
           floatingActionButton: FloatingActionButton(
@@ -70,7 +79,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
             child: const Icon(Icons.refresh),
           ),
           appBar: AppBar(
-            title: const Text('External E3 web camera'),
+            title: Text('E3 camera,IP: $_raspberryIpAddress'),
           ),
           //backgroundColor: const Color.fromARGB(255, 177, 85, 85),
           body: Column(
@@ -81,7 +90,7 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      isPlaying
+                      _raspberryIpAddress != 'Fetching...'
                           ? VlcPlayer(
                               controller: _vlcViewController,
                               aspectRatio: 9 / 16,
@@ -254,6 +263,6 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
 
   bool isPlaying = true;
   Future<void> _listenToRSTPStream() async {
-    //isPlaying = (await _vlcViewController.isPlaying())!;
+    //isPlaying = (await _vlcViewController.isPlaying())!;zX
   }
 }
