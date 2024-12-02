@@ -13,12 +13,14 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
+import 'package:udp/udp.dart';
 import '../models/exteriorelements.dart';
 import '../models/realm/realm_schemas.dart';
 
 import '../models/success_response.dart';
 import 'package:path/path.dart' as path;
 import '../resources/realm/realm_services.dart';
+import '../services/signalling.service.dart';
 import 'breadcrumb_navigation.dart';
 //import 'capture_multipic_esp_32.dart';
 import 'capture_multipic_esp_32.dart';
@@ -237,9 +239,46 @@ class _SectionPageState extends State<SectionPage> {
     if (parentType != 'project') {
       currentLocation = realmServices.getLocation(widget.parentId) as Location;
     }
+    //_listenForPiIpAddress();
+    SignallingService.instance.init2(
+      websocketUrl: websocketUrl,
+      selfCallerID: selfCallerID,
+    );
     super.initState();
   }
 
+  Future<void> _listenForPiIpAddress() async {
+    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 8555,
+        reusePort: true);
+
+    print('Listening for UDP broadcasts on port 8555...');
+
+    // Listen for incoming data
+    socket.listen((RawSocketEvent event) {
+      //if (event == RawSocketEvent.read) {
+      final Datagram? datagram = socket.receive();
+      if (datagram != null) {
+        //final String receivedMessage = String.fromCharCodes(datagram.data);
+        final websocket = SignallingService.instance.socket;
+        if (websocket == null) {
+          SignallingService.instance.init(
+            websocketUrl: "http://${datagram.address.address}:8090",
+            selfCallerID: selfCallerID,
+          );
+        }
+
+        socket.close();
+      }
+      //}
+    });
+
+    await Future.delayed(const Duration(seconds: 20));
+  }
+
+  final String websocketUrl = "ws://192.168.1.2:8090";
+
+  // generate callerID of local user
+  final String selfCallerID = 'e3camReceiver';
   void setInitialValues() {
     //Set all values before returning the widget.
     _nameController.text = currentVisualSection.name as String;
