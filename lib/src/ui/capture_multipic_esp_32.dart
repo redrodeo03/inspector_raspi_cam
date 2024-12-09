@@ -1,11 +1,12 @@
 //import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart' as nav;
 //import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 
 import 'package:get/get.dart';
@@ -25,16 +26,10 @@ class ESP32CameraScreen extends StatefulWidget {
 }
 
 class ESP32CameraScreenState extends State<ESP32CameraScreen> {
-//class ESP32CameraScreenState extends StatelessWidget {
-
-  final String websocketUrl = "http://192.168.1.5:8090";
-
   // generate callerID of local user
   final String selfCallerID = 'e3camReceiver';
   final String calleeId = 'e3camTransmitter';
   final remoteRTCVideoRenderer = RTCVideoRenderer();
-
-  //MediaStream? _localStream;
 
   // RTC peer connection
   RTCPeerConnection? _rtcPeerConnection;
@@ -53,12 +48,12 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
   @override
   void initState() {
     super.initState();
-
-    remoteRTCVideoRenderer.initialize();
     setupPeerConnection();
   }
 
   setupPeerConnection() async {
+    await remoteRTCVideoRenderer.initialize();
+
     // create peer connection
     _rtcPeerConnection = await createPeerConnection({
       'iceServers': [
@@ -68,19 +63,30 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
         //     'stun:stun2.l.google.com:19302'
         //   ]
         // }
-      ]
+      ],
+      'iceTransportPolicy': 'all'
     });
     final socket = SignallingService.instance.socket;
     // listen for remotePeer mediaTrack event
     _rtcPeerConnection!.onTrack = (event) {
-      remoteRTCVideoRenderer.srcObject = event.streams[0];
-      setState(() {});
+      if (event.track.kind == 'video') {
+        log('Remote video track added');
+        setState(() {
+          remoteRTCVideoRenderer.srcObject = null;
+          remoteRTCVideoRenderer.srcObject = event.streams[0];
+        });
+      }
     };
-    //call automatically
-// listen for local iceCandidate and add it to the list of IceCandidate
+    remoteRTCVideoRenderer.onFirstFrameRendered = () {
+      log('First frame received');
+    };
+
     _rtcPeerConnection!.onIceCandidate =
         (RTCIceCandidate candidate) => rtcIceCadidates.add(candidate);
 
+    _rtcPeerConnection!.onIceConnectionState = (state) {
+      log('ICE Connection State: $state');
+    };
     // when call is accepted by remote peer
     socket!.on("callAnswered", (data) async {
       // set SDP answer as remoteDescription for peerConnection
@@ -134,57 +140,15 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
 
   @override
   void dispose() {
-    // _vlcViewController.dispose();
-    //socket.close();
+    remoteRTCVideoRenderer.dispose();
     _rtcPeerConnection?.close();
     _rtcPeerConnection?.dispose();
+    SignallingService.instance.socket!.emit('endCall', {"calleeId": calleeId});
     super.dispose();
   }
 
-  // final VlcPlayerController _vlcViewController = VlcPlayerController.network(
-  //     'http://192.168.1.3:8080/video',
-  //     hwAcc: HwAcc.disabled,
-  //     autoPlay: true,
-  //     options: VlcPlayerOptions());
   String streamingURL = '';
   String _raspberryIpAddress = 'Fetching...';
-
-  void initializeWebSocket() {
-    //check on UDp the IP of the server
-
-    // Replace with the IP of the sender device
-    _channel = WebSocketChannel.connect(
-        Uri.parse('ws://$_raspberryIpAddress:8080/ws'));
-    _channel.stream.listen((data) {
-      setState(() {
-        _imageData = data;
-      });
-    });
-  }
-
-  // Future<void> _listenForPiIpAddress() async {
-  //   socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 8555,
-  //       reusePort: true);
-
-  //   print('Listening for UDP broadcasts on port 8555...');
-
-  //   // Listen for incoming data
-  //   socket.listen((RawSocketEvent event) {
-  //     //if (event == RawSocketEvent.read) {
-  //     final Datagram? datagram = socket.receive();
-  //     if (datagram != null) {
-  //       final String receivedMessage = String.fromCharCodes(datagram.data);
-  //       print(
-  //           'Received IP: $receivedMessage from ${datagram.address.address}:${datagram.port}');
-  //       _raspberryIpAddress = receivedMessage.trim();
-  //       initializeWebSocket();
-  //       socket.close();
-  //     }
-  //     //}
-  //   });
-
-  //   await Future.delayed(const Duration(seconds: 30));
-  // }
 
   @override
   Widget build(BuildContext context) {

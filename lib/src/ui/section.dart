@@ -240,7 +240,9 @@ class _SectionPageState extends State<SectionPage> {
       currentLocation = realmServices.getLocation(widget.parentId) as Location;
     }
     //_listenForPiIpAddress();
-    SignallingService.instance.init2(
+    //for hardcoded websocket URL use init2
+    websocketUrl = "http://e3cam.local:8090";
+    SignallingService.instance.init(
       websocketUrl: websocketUrl,
       selfCallerID: selfCallerID,
     );
@@ -248,34 +250,32 @@ class _SectionPageState extends State<SectionPage> {
   }
 
   Future<void> _listenForPiIpAddress() async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 8555,
-        reusePort: true);
-
-    print('Listening for UDP broadcasts on port 8555...');
-
-    // Listen for incoming data
-    socket.listen((RawSocketEvent event) {
-      //if (event == RawSocketEvent.read) {
-      final Datagram? datagram = socket.receive();
+    var receiver = await UDP.bind(Endpoint.any(port: const Port(5005)));
+    //receiver.send([1, 2, 3, 4], Endpoint.any(port: const Port(5005)));
+    receiver.asStream().listen((datagram) {
       if (datagram != null) {
-        //final String receivedMessage = String.fromCharCodes(datagram.data);
+        String message = String.fromCharCodes(datagram.data);
+
         final websocket = SignallingService.instance.socket;
+        websocketUrl = "http://${message}:8090";
+
         if (websocket == null) {
           SignallingService.instance.init(
-            websocketUrl: "http://${datagram.address.address}:8090",
+            websocketUrl: websocketUrl,
             selfCallerID: selfCallerID,
           );
         }
 
-        socket.close();
+        receiver.close();
       }
-      //}
     });
 
-    await Future.delayed(const Duration(seconds: 20));
+    // Keep the receiver open for 60 seconds
+    await Future.delayed(const Duration(seconds: 60));
+    receiver.close();
   }
 
-  final String websocketUrl = "ws://192.168.1.2:8090";
+  String websocketUrl = ""; // = "ws://192.168.1.2:8090";
 
   // generate callerID of local user
   final String selfCallerID = 'e3camReceiver';
@@ -460,6 +460,11 @@ class _SectionPageState extends State<SectionPage> {
   PopupMenuItem _buildPopupMenuItem(
       String title, IconData iconData, int position) {
     return PopupMenuItem(
+      enabled: position == 3
+          ? SignallingService.instance.socket != null
+              ? true
+              : false
+          : true,
       value: position,
       child: Row(
         children: [
