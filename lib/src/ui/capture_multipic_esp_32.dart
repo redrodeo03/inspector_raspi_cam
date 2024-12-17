@@ -1,14 +1,10 @@
-//import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
-//import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:get/get.dart';
-//import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:udp/udp.dart';
-// import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'image_widget.dart';
 
 class ESP32CameraScreen extends StatefulWidget {
@@ -19,102 +15,48 @@ class ESP32CameraScreen extends StatefulWidget {
 }
 
 class ESP32CameraScreenState extends State<ESP32CameraScreen> {
-//class ESP32CameraScreenState extends StatelessWidget {
-
+  final String baseUrl = "http://192.168.243.175:5000";
+  late WebViewController controller;
   List<XFile> capturedImages = [];
-  bool hardwareKeyConnected = false;
-  String base64data = "";
+  bool isCapturing = false;
 
   @override
   void initState() {
     super.initState();
-    _listenForPiIpAddress();
-  }
-
-  @override
-  void dispose() {
-    _vlcViewController.dispose();
-    super.dispose();
-  }
-
-  late VlcPlayerController _vlcViewController;
-  //= VlcPlayerController.network(
-  //"rtsp://192.168.129.126:8554/stream",
-  // "rtsp://e3cam.local:8554/stream",
-  //autoPlay: true,
-  //options: VlcPlayerOptions());
-  String streamingURL = '';
-  String _raspberryIpAddress = 'Fetching...';
-
-  Future<void> _listenForPiIpAddress() async {
-    var receiver = await UDP.bind(Endpoint.any(port: const Port(5005)));
-    //receiver.send([1, 2, 3, 4], Endpoint.any(port: const Port(5005)));
-    receiver.asStream().listen((datagram) {
-      if (datagram != null) {
-        String message = String.fromCharCodes(datagram.data);
-
-        setState(() {
-          _raspberryIpAddress = message;
-          _vlcViewController = VlcPlayerController.network(
-              "rtsp://$_raspberryIpAddress:8554/stream",
-              autoPlay: true,
-              options: VlcPlayerOptions());
-        });
-        receiver.close();
-      }
-    });
-
-    // Keep the receiver open for 60 seconds
-    await Future.delayed(const Duration(seconds: 60));
-    receiver.close();
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse('$baseUrl/video_feed'));
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: refresh,
-            tooltip: 'Refresh',
-            child: const Icon(Icons.refresh),
-          ),
-          appBar: AppBar(
-            title: Text('E3 camera,IP: $_raspberryIpAddress'),
-          ),
-          //backgroundColor: const Color.fromARGB(255, 177, 85, 85),
-          body: Column(
-            children: [
-              Stack(
+        floatingActionButton: FloatingActionButton(
+          onPressed: refresh,
+          tooltip: 'Refresh',
+          child: const Icon(Icons.video_call),
+        ),
+        appBar: AppBar(
+          title: const Text('Live Stream from Pi Camera'),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      _raspberryIpAddress != 'Fetching...'
-                          ? VlcPlayer(
-                              controller: _vlcViewController,
-                              aspectRatio: 9 / 16,
-                              virtualDisplay: true,
-                              placeholder: const Center(
-                                  child: CircularProgressIndicator(
-                                color: Colors.blueAccent,
-                              )),
-                            )
-                          : const CircularProgressIndicator(
-                              color: Colors.blueAccent,
-                            ),
-                      const SizedBox(
-                        height: 8,
+                      Expanded(
+                        child: WebViewWidget(controller: controller),
                       ),
+                      const SizedBox(height: 8),
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      8.0,
-                      8.0,
-                      8.0,
-                      8.0,
-                    ),
+                    padding: const EdgeInsets.all(8.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -123,10 +65,13 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                           alignment: Alignment.topRight,
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                                shape: (RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14.0),
-                                    side:
-                                        const BorderSide(color: Colors.blue)))),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14.0),
+                                side: const BorderSide(color: Colors.blue),
+                              ),
+                            ),
+                            // This saves the images when 'Done' is pressed
+                            // Currently just returning paths to caller
                             onPressed: () {
                               Navigator.of(context).pop(
                                   capturedImages.map((e) => e.path).toList());
@@ -142,47 +87,79 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                           ),
                         ),
                         Align(
-                          alignment: Alignment.bottomCenter,
+                          alignment: Alignment.center,
                           child: InkWell(
-                            onTap: () async {
-                              try {
-                                var imageBytes =
-                                    await _vlcViewController.takeSnapshot();
-                                if (imageBytes != null) {
-                                  final directory =
-                                      await getTemporaryDirectory();
-                                  final imagePath =
-                                      '${directory.path}/${UniqueKey().toString()}.jpg';
-                                  final file = File(imagePath);
-                                  await file.writeAsBytes(imageBytes);
+                            onTap: isCapturing
+                                ? null
+                                : () async {
+                                    if (isCapturing) return;
+                                    setState(() {
+                                      isCapturing = true;
+                                    });
 
-                                  setState(() {
-                                    capturedImages.add(XFile(imagePath));
-                                  });
+                                    try {
+                                      final response = await http
+                                          .get(Uri.parse('$baseUrl/capture'));
 
-                                  Get.snackbar("Image Save", "Success!",
-                                      duration: const Duration(seconds: 3));
-                                } else {
-                                  Get.snackbar(
-                                      "Image Save", "Faild to save image!",
-                                      duration: const Duration(seconds: 3));
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Error occured while taking picture: $e')),
-                                );
+                                      if (response.statusCode == 200 &&
+                                          response.headers['content-type']
+                                                  ?.contains('image/jpeg') ==
+                                              true) {
+                                        // Get temporary directory - images will be lost when app closes
+                                        final directory =
+                                            await getTemporaryDirectory();
 
-                                return;
-                              }
-                            },
-                            child: const Align(
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.circle,
-                                color: Colors.white,
-                                size: 80,
+                                        // Create unique filename
+                                        final imagePath =
+                                            '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+                                        final file = File(imagePath);
+
+                                        // Save image to temporary storage
+                                        await file
+                                            .writeAsBytes(response.bodyBytes);
+
+                                        setState(() {
+                                          capturedImages.add(XFile(imagePath));
+                                        });
+
+                                        Get.snackbar(
+                                          "Success",
+                                          "Image captured",
+                                          backgroundColor: Colors.green,
+                                          colorText: Colors.white,
+                                          duration: const Duration(seconds: 2),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      Get.snackbar(
+                                        "Error",
+                                        "Failed to capture image: $e",
+                                        backgroundColor: Colors.red,
+                                        colorText: Colors.white,
+                                        duration: const Duration(seconds: 3),
+                                      );
+                                    } finally {
+                                      setState(() {
+                                        isCapturing = false;
+                                      });
+                                    }
+                                  },
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: isCapturing ? Colors.grey : Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: isCapturing
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white)
+                                    : const Icon(
+                                        Icons.circle,
+                                        color: Colors.white,
+                                        size: 70,
+                                      ),
                               ),
                             ),
                           ),
@@ -192,27 +169,29 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                           child: SizedBox(
                             height: 100,
                             child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: capturedImages.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return horizontalScrollChildren(
-                                      context, index);
-                                }),
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: capturedImages.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return horizontalScrollChildren(context, index);
+                              },
+                            ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   void refresh() {
-    setState(() {});
+    controller.reload();
   }
 
   Widget horizontalScrollChildren(BuildContext context, int index) {
@@ -227,7 +206,6 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
               Container(
                 decoration: const BoxDecoration(
                     color: Colors.orange,
-                    // image: networkImage(currentProject.url as String),
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
                     boxShadow: [
                       BoxShadow(blurRadius: 1.0, color: Colors.blue)
@@ -246,8 +224,10 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
                   child: IconButton(
                     onPressed: () {
                       if (capturedImages.isNotEmpty) {
+                        // Delete file from storage when removed from list
+                        File(capturedImages[index].path).deleteSync();
                         setState(() {
-                          capturedImages.remove(capturedImages[index]);
+                          capturedImages.removeAt(index);
                         });
                       }
                     },
@@ -259,10 +239,5 @@ class ESP32CameraScreenState extends State<ESP32CameraScreen> {
             ],
           ),
         ));
-  }
-
-  bool isPlaying = true;
-  Future<void> _listenToRSTPStream() async {
-    //isPlaying = (await _vlcViewController.isPlaying())!;zX
   }
 }
